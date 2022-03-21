@@ -10,15 +10,15 @@ public class UserDto {
     public String firstName;
     public String lastName;
     public String email;
-    public String pozicija;
+    public String position;
     public Permissions permissions;
 
-    public UserDto(Long id, String firstName, String lastName, String email, String pozicija, Permissions permissions){
+    public UserDto(Long id, String firstName, String lastName, String email, String position, Permissions permissions){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
-        this.pozicija = pozicija;
+        this.position = position;
         this.permissions = permissions;
     }
 }

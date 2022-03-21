@@ -22,14 +22,14 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
+    @Column(nullable = false, length = 13)
+    private Long JMBG;
     @Column(nullable = false)
-    private String JMBG;
+    private String position;
     @Column(nullable = false)
-    private String pozicija;
+    private String phoneNumber;
     @Column(nullable = false)
-    private String brojTelefona;
-    @Column(nullable = false)
-    private Boolean aktivan;
+    private Boolean active;
 
     private Permissions permissions;
 }
