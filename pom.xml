@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>crud-app</module>
+        <module>user-crud</module>
         <module>eureka</module>
         <module>gateway-app</module>
     </modules>
