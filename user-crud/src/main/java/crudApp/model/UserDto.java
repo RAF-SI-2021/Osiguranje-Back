@@ -11,14 +11,18 @@ public class UserDto {
     public String lastName;
     public String email;
     public String position;
+    public String phoneNumber;
+    public Boolean active;
     public Permissions permissions;
 
-    public UserDto(Long id, String firstName, String lastName, String email, String position, Permissions permissions){
+    public UserDto(Long id, String firstName, String lastName, String email, String position, String phoneNumber, Boolean active, Permissions permissions){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.position = position;
+        this.phoneNumber = phoneNumber;
+        this.active = active;
         this.permissions = permissions;
     }
 }

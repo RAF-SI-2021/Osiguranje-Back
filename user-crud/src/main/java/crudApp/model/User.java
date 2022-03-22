@@ -22,14 +22,20 @@ public class User {
     private String email;
     @Column(nullable = false)
     private String password;
-    @Column(nullable = false, length = 13)
+    @Column(unique = true, nullable = false, length = 13)
     private Long JMBG;
     @Column(nullable = false)
     private String position;
-    @Column(nullable = false)
+    @Column(unique = true, nullable = false)
     private String phoneNumber;
     @Column(nullable = false)
     private Boolean active;
-
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "admin", column = @Column(name = "admin")),
+            @AttributeOverride(name = "stockTrading", column = @Column(name = "stock_trading")),
+            @AttributeOverride(name = "stockOverview", column = @Column(name = "stock_overview")),
+            @AttributeOverride(name = "contractConclusion", column = @Column(name = "contract_conclusion"))
+    })
     private Permissions permissions;
 }
