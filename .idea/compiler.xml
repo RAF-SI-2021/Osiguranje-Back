@@ -10,8 +10,17 @@
         <module name="eureka" />
         <module name="crud-app" />
         <module name="gateway-app" />
+        <module name="crudApp" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="crud-app" target="17" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="crudApp" options="-parameters" />
+    </option>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">

@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Entity
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) //consider changing to GenerationType.AUTO
     private Long id;
     @Column(nullable = false)
     private String firstName;
