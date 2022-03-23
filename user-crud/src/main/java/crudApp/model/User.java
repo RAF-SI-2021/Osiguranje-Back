@@ -20,10 +20,10 @@ public class User {
     private String lastName;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
     @Column(unique = true, nullable = false, length = 13)
-    private Long JMBG;
+    private String JMBG;
     @Column(nullable = false)
     private String position;
     @Column(unique = true, nullable = false)
@@ -38,4 +38,29 @@ public class User {
             @AttributeOverride(name = "contractConclusion", column = @Column(name = "contract_conclusion"))
     })
     private Permissions permissions;
+
+    public User(String firstName, String lastName, String email, String JMBG, String position, String phoneNumber, Boolean active, Permissions permissions) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.JMBG = JMBG;
+        this.position = position;
+        this.phoneNumber = phoneNumber;
+        this.active = active;
+    }
+
+    public User() {
+
+    }
+
+    public User(Long id, String firstName, String lastName, String email, String position, String phoneNumber, Boolean active, Permissions permissions) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.position = position;
+        this.phoneNumber = phoneNumber;
+        this.active = active;
+        this.permissions = permissions;
+    }
 }
