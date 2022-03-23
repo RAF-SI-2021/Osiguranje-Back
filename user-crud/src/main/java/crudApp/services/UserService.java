@@ -1,25 +1,32 @@
 package crudApp.services;
 
+import crudApp.mappers.PermissionMapper;
 import crudApp.mappers.UserMapper;
+import crudApp.model.PermissionAuthority;
 import crudApp.model.User;
 import crudApp.model.UserDto;
 import crudApp.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final PermissionMapper permissionMapper;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.permissionMapper = permissionMapper;
     }
 
     public List<UserDto> findAll() {
@@ -53,5 +60,23 @@ public class UserService {
 
     public void save(User user) {
         userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        Optional<User> user = this.userRepository.findUserByEmail(email);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("User with email: " + email + "not found.");
+        }
+        List<PermissionAuthority> permissions = new ArrayList<>();
+        permissions.add(permissionMapper.permissionsToPermissionAuthority(user.get().getPermissions()));
+
+        return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), permissions);
+    }
+
+    public PermissionAuthority collectPermissions() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Collection<? extends GrantedAuthority> permissions = this.loadUserByUsername(email).getAuthorities();
+        return (PermissionAuthority) permissions.toArray()[0];
     }
 }
