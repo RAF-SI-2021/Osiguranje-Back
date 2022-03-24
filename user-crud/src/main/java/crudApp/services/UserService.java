@@ -1,5 +1,8 @@
 package crudApp.services;
 
+import crudApp.dto.PasswordDto;
+import crudApp.dto.UserCreateDto;
+import crudApp.dto.UserDto;
 import crudApp.mappers.PermissionMapper;
 import crudApp.mappers.UserMapper;
 import crudApp.model.*;
@@ -7,7 +10,6 @@ import crudApp.repositories.UserRepository;
 import helpers.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -58,19 +60,31 @@ public class UserService implements UserDetailsService {
         return user.map(userMapper::userToUserDto).orElse(null);
     }
 
-    public UserDto findUserByFirstName(String firstName) {
-        Optional<User> user = userRepository.findUserByFirstName(firstName);
-        return user.map(userMapper::userToUserDto).orElse(null);
+    public List<UserDto> findUserByFirstName(String firstName) {
+        List<User> users = userRepository.findUserByFirstName(firstName);
+        List<UserDto> dtos = new ArrayList<>();
+        for (User u : users) {
+            dtos.add(userMapper.userToUserDto(u));
+        }
+        return dtos;
     }
 
-    public UserDto findUserByLastName(String lastName) {
-        Optional<User> user = userRepository.findUserByLastName(lastName);
-        return user.map(userMapper::userToUserDto).orElse(null);
+    public List<UserDto> findUserByLastName(String lastName) {
+        List<User> users = userRepository.findUserByLastName(lastName);
+        List<UserDto> dtos = new ArrayList<>();
+        for (User u : users) {
+            dtos.add(userMapper.userToUserDto(u));
+        }
+        return dtos;
     }
 
-    public UserDto findUserByPosition(String position) {
-        Optional<User> user = userRepository.findUserByPosition(position);
-        return user.map(userMapper::userToUserDto).orElse(null);
+    public List<UserDto> findUserByPosition(String position) {
+        List<User> users = userRepository.findUserByPosition(position);
+        List<UserDto> dtos = new ArrayList<>();
+        for (User u : users) {
+            dtos.add(userMapper.userToUserDto(u));
+        }
+        return dtos;
     }
 
     public UserDto createUser(UserCreateDto dto) throws Exception {

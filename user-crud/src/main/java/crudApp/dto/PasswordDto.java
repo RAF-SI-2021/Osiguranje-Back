@@ -1,4 +1,4 @@
-package crudApp.model;
+package crudApp.dto;
 
 import lombok.Getter;
 import lombok.Setter;

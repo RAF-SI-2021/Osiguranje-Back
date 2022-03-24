@@ -1,8 +1,8 @@
 package crudApp.mappers;
 
 import crudApp.model.User;
-import crudApp.model.UserCreateDto;
-import crudApp.model.UserDto;
+import crudApp.dto.UserCreateDto;
+import crudApp.dto.UserDto;
 import org.springframework.stereotype.Component;
 
 @Component

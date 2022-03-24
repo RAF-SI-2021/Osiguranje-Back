@@ -1,5 +1,6 @@
-package crudApp.model;
+package crudApp.dto;
 
+import crudApp.model.Permissions;
 import lombok.Getter;
 import lombok.Setter;
 

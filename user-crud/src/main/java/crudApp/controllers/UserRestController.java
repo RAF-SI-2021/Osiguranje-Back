@@ -1,9 +1,8 @@
 package crudApp.controllers;
 
-import crudApp.model.PasswordDto;
-import crudApp.model.User;
-import crudApp.model.UserCreateDto;
-import crudApp.model.UserDto;
+import crudApp.dto.PasswordDto;
+import crudApp.dto.UserCreateDto;
+import crudApp.dto.UserDto;
 import crudApp.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
