@@ -2,6 +2,7 @@ version: "3.8"
 services:
   mysqldb:
     image: mysql:8.0.28
+    platform: linux/amd64
     env_file: ./.env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
