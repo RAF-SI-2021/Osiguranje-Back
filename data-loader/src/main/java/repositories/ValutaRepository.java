@@ -10,5 +10,6 @@ import java.util.Optional;
 public interface ValutaRepository extends JpaRepository<Valuta, Long> {
 
     Optional<Valuta> findByIsoCode( String isoCode );
+    Optional<Valuta> findByDrzava( String drzava );
 
 }

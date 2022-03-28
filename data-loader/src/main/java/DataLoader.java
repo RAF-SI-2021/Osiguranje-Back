@@ -4,20 +4,23 @@ import main.java.models.Berza;
 import main.java.models.Valuta;
 import main.java.repositories.BerzaRepository;
 import main.java.repositories.ValutaRepository;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
+
 import java.util.*;
 
 @SpringBootApplication
 public class DataLoader implements CommandLineRunner {
+
+    private final String VALUTE_CSV = "./data-loader/src/main/resources/data/valute.csv";
+    private final String BERZE_CSV  = "./data-loader/src/main/resources/data/berze.csv";
 
     private BerzaRepository berzaRepository;
     private ValutaRepository valutaRepository;
@@ -52,67 +55,25 @@ public class DataLoader implements CommandLineRunner {
     private void importMarkets()
     {
         try {
-            Document doc = Jsoup.connect( "https://en.wikipedia.org/wiki/List_of_stock_exchanges#Major_stock_exchanges" ).get();
-            Element table = doc.getElementById( "exchanges_table" );
+            BufferedReader br = new BufferedReader( new FileReader( BERZE_CSV ) );
 
-            for( Element row: table.getElementsByTag( "tbody" ).get( 0 ).getElementsByTag( "tr" ) ) {
-                /* Trebaju nam indeksi: 2, 3, 4, 5, 9, 11, 12. */
-                Elements columns = row.getElementsByTag("td");
+            String line;
+            while( ( line = br.readLine() ) != null ) {
+                String[] columns = line.split( "," );
+                Berza berza = new Berza( columns[2], columns[4], columns[1], columns[5], columns[3], columns[0] );
 
-                if ( !columns.isEmpty() ) {
+                Optional<Valuta> euro 			= this.valutaRepository.findByIsoCode( "EUR" );
+                Optional<Valuta> dollar 		= this.valutaRepository.findByIsoCode( "USD" );
+                Optional<Valuta> britishPound 	= this.valutaRepository.findByIsoCode( "GBP" );
+                Collection<Valuta> valute		= new ArrayList<>( Arrays.asList( euro.get(), dollar.get(), britishPound.get() ) );
 
-                    String stockExchange, mic, region, utc, localOpen, localClosed;
+                Optional<Valuta> valutaDrzave   = valutaRepository.findByDrzava( columns[1] );
+                if( valutaDrzave.isPresent() && !valute.contains( valutaDrzave.get() ) ) valute.add( valutaDrzave.get() );
 
-                    /* Slucaj za severne zemlje jer ta tabela nema prve dve kolone. */
-                    if( columns.size() < 16 ) {
-                        stockExchange 	= columns.get( 0 ).getAllElements().last().text();
-                        mic				= columns.get( 1 ).getAllElements().last().text();
-                        region 			= columns.get( 2 ).getElementsByTag( "a" ).first().text();
-
-                        try {
-                            utc 		= columns.get( 5 ).text();
-                            localOpen 	= columns.get( 7 ).text();
-                            localClosed	= columns.get( 8 ).text();
-
-                        } catch ( IndexOutOfBoundsException iobe ) {
-                            /* Nema podataka. */
-                            continue;
-                        }
-                    } else {
-                        stockExchange 	= columns.get( 2 ).getAllElements().last().text();
-                        mic				= columns.get( 3 ).getAllElements().last().text();
-
-                        Element regionElement = columns.get( 4 );
-                        region = ( regionElement.hasText() ) ? regionElement.text() : regionElement.getElementsByClass( "nowrap" ).text();
-
-                        try {
-                            utc 		= columns.get( 9 ).text();
-                            localOpen 	= columns.get( 11 ).text();
-                            localClosed	= columns.get( 12 ).text();
-
-                        } catch ( IndexOutOfBoundsException iobe ) {
-                            /* Nema podataka. */
-                            continue;
-                        }
-                    }
-
-                    if( localOpen.equals( "" ) || !stockExchange.contains( "Exchange" ) ) continue;
-
-                    region = removePrefix( region, "the " );
-
-                    Optional<Valuta> euro 			= this.valutaRepository.findByIsoCode( "EUR" );
-                    Optional<Valuta> dollar 		= this.valutaRepository.findByIsoCode( "USD" );
-                    Optional<Valuta> britishPound 	= this.valutaRepository.findByIsoCode( "GBP" );
-                    Collection<Valuta> valute		= new ArrayList<>( Arrays.asList( euro.get(), dollar.get(), britishPound.get() ) );
-
-                    // System.out.println( stockExchange + " " + mic + " " + region + " " + utc + " " + localOpen + " " + localClosed );
-
-                    Berza berza = new Berza( stockExchange, mic, region, utc, localOpen, localClosed );
-                    berza.setValute( valute );
-
-                    this.berzaRepository.save( berza );
-                }
+                berza.setValute( valute );
+                berzaRepository.save( berza );
             }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,52 +82,16 @@ public class DataLoader implements CommandLineRunner {
     private void importCurrencies()
     {
         try {
-            Document doc = Jsoup.connect( "https://en.wikipedia.org/wiki/Template:Most_traded_currencies" ).get();
-            Elements table = doc.getElementsByClass( "wikitable" );
+            BufferedReader br = new BufferedReader( new FileReader( VALUTE_CSV ) );
 
-            for( Element row: table.get( 0 ).getElementsByTag( "tbody" ).get( 0 ).getElementsByTag( "tr" ) ) {
-
-                Elements columns = row.getElementsByTag( "td" );
-
-                if ( !columns.isEmpty() ) {
-                    String currencyName	= columns.get( 1 ).getAllElements().last().text();
-                    String isoCode 		= columns.get( 2 ).getAllElements().last().text();
-                    Currency currency 	= Currency.getInstance( isoCode );
-                    String symbol 		= currency.getSymbol();
-                    String location 	= "N/A";
-
-                    /* Malo hardkodovanja. */
-                    switch ( isoCode ) {
-                        case "AUD":
-                            location = "Australia";
-                            break;
-                        case "CAD":
-                            location = "Canada";
-                            break;
-                        case "CNY":
-                            location = "China";
-                            break;
-                        case "TWD":
-                            location = "Taiwan";
-                            break;
-                        default:
-                            try {
-                                location = columns.get( 1 ).getElementsByClass( "thumbborder" ).first().attributes().get( "src" );
-                                location = location.split("Flag_of_")[1];
-                                location = location.split( ".svg" )[0];
-                                location = location.replace( "_", " " );
-                                location = removePrefix( location, "the " );
-                            } catch ( ArrayIndexOutOfBoundsException aiobe ) {}
-                    }
-
-                    // System.out.println( currencyName + " " + isoCode + " " + symbol + " " + location );
-                    this.valutaRepository.save( new Valuta( currencyName, isoCode, symbol, location ) );
-
-                    /* Poslednja u tabeli. */
-                    if( isoCode.equals( "RON" ) ) break;
-                }
+            String line;
+            while( ( line = br.readLine() ) != null ) {
+                String[] columns = line.split( "," );
+                Valuta valuta = new Valuta( columns[2], columns[1], columns[3], columns[0] );
+                valutaRepository.save( valuta );
             }
-        } catch ( IOException e ) {
+
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

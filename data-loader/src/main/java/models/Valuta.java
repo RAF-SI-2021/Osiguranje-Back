@@ -3,6 +3,7 @@ package main.java.models;
 import lombok.Data;
 import javax.persistence.*;
 import java.util.Collection;
+import java.util.Objects;
 
 @Entity
 // @Table( name = "valute" )
@@ -39,4 +40,13 @@ public class Valuta {
         this.oznaka = oznaka;
         this.drzava = drzava;
     }
+
+    @Override
+    public boolean equals( Object o ) {
+        if (this == o) return true;
+        if ( o == null || getClass() != o.getClass() ) return false;
+        Valuta valuta = ( Valuta ) o;
+        return id == valuta.id;
+    }
+
 }
