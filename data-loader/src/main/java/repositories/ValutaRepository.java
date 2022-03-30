@@ -1,6 +1,6 @@
-package main.java.repositories;
+package repositories;
 
-import main.java.models.Valuta;
+import models.Valuta;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

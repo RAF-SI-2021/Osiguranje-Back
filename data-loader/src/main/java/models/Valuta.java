@@ -1,9 +1,8 @@
-package main.java.models;
+package models;
 
 import lombok.Data;
 import javax.persistence.*;
 import java.util.Collection;
-import java.util.Objects;
 
 @Entity
 // @Table( name = "valute" )
@@ -34,7 +33,7 @@ public class Valuta {
 
     public Valuta() { }
 
-    public Valuta( String naziv, String isoCode, String oznaka, String drzava ) {
+    public Valuta(String naziv, String isoCode, String oznaka, String drzava ) {
         this.naziv = naziv;
         this.isoCode = isoCode;
         this.oznaka = oznaka;

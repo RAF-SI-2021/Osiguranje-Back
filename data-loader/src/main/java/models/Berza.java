@@ -1,4 +1,4 @@
-package main.java.models;
+package models;
 
 import lombok.Data;
 
@@ -39,9 +39,12 @@ public class Berza {
             inverseJoinColumns = @JoinColumn( name = "valuta_id" ) )
     Collection<Valuta> valute;
 
+    @OneToMany
+    Collection<Akcija> akcije;
+
     public Berza() { }
 
-    public Berza( String naziv, String oznaka, String drzava, String timeZone, String open, String closed ) {
+    public Berza(String naziv, String oznaka, String drzava, String timeZone, String open, String closed ) {
         this.naziv = naziv;
         this.oznaka = oznaka;
         this.drzava = drzava;
