@@ -23,7 +23,7 @@
     <modules>
         <module>user-crud</module>
         <module>eureka</module>
-        <module>gateway-crudApp.app</module>
+        <module>gateway-app</module>
     </modules>
 
     <properties>
