@@ -7,7 +7,7 @@ import javax.persistence.*;
 
 @NoArgsConstructor
 @Entity
-public class History {
+public class StockHistory {
 
     @GeneratedValue( strategy = GenerationType.AUTO )
     @Id
@@ -28,7 +28,7 @@ public class History {
 //    @ManyToOne
 //    private Akcija akcija;
 
-    public History(String open, String close, String high, String low ) {
+    public StockHistory(String open, String close, String high, String low ) {
         this.open = open;
         this.close = close;
         this.high = high;

@@ -1,22 +1,21 @@
 package app;
 
-import models.Akcija;
-import models.History;
+import models.Stock;
+import models.StockHistory;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-import repositories.AkcijaHistoryRepository;
-import repositories.AkcijaRepository;
-import repositories.BerzaRepository;
-import repositories.ValutaRepository;
+import repositories.StockHistoryRepository;
+import repositories.StockRepository;
+import repositories.StockExchangeRepository;
+import repositories.CurrencyRepository;
 
-import models.Berza;
-import models.Valuta;
+import models.StockExchange;
+import models.Currency;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 
@@ -37,17 +36,17 @@ public class DataLoader implements CommandLineRunner {
     private final String AKCIJE_XNYS    = "./data-loader/src/main/resources/data/xnys_codes.csv";
     private final String AKCIJE_XNAS    = "./data-loader/src/main/resources/data/xnas_codes.csv";
 
-    private BerzaRepository berzaRepository;
-    private ValutaRepository valutaRepository;
-    private AkcijaRepository akcijaRepository;
-    private AkcijaHistoryRepository akcijaHistoryRepository;
+    private StockExchangeRepository stockExchangeRepository;
+    private CurrencyRepository currencyRepository;
+    private StockRepository stockRepository;
+    private StockHistoryRepository stockHistoryRepository;
 
     @Autowired
-    public DataLoader(BerzaRepository berzaRepository, ValutaRepository valutaRepository, AkcijaRepository akcijaRepository, AkcijaHistoryRepository akcijaHistoryRepository) {
-        this.berzaRepository = berzaRepository;
-        this.valutaRepository = valutaRepository;
-        this.akcijaRepository = akcijaRepository;
-        this.akcijaHistoryRepository = akcijaHistoryRepository;
+    public DataLoader(StockExchangeRepository stockExchangeRepository, CurrencyRepository currencyRepository, StockRepository stockRepository, StockHistoryRepository stockHistoryRepository) {
+        this.stockExchangeRepository = stockExchangeRepository;
+        this.currencyRepository = currencyRepository;
+        this.stockRepository = stockRepository;
+        this.stockHistoryRepository = stockHistoryRepository;
     }
 
     public static void main( String[] args ) {
@@ -81,18 +80,18 @@ public class DataLoader implements CommandLineRunner {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );
-                Berza berza = new Berza( columns[2], columns[4], columns[1], columns[5], columns[3], columns[0] );
+                StockExchange stockExchange = new StockExchange( columns[2], columns[4], columns[1], columns[5], columns[3], columns[0] );
 
-                Optional<Valuta> euro 			= this.valutaRepository.findByIsoCode( "EUR" );
-                Optional<Valuta> dollar 		= this.valutaRepository.findByIsoCode( "USD" );
-                Optional<Valuta> britishPound 	= this.valutaRepository.findByIsoCode( "GBP" );
-                Collection<Valuta> valute		= new ArrayList<>( Arrays.asList( euro.get(), dollar.get(), britishPound.get() ) );
+                Optional<Currency> euro = this.currencyRepository.findByIsoCode( "EUR" );
+                Optional<Currency> dollar = this.currencyRepository.findByIsoCode( "USD" );
+                Optional<Currency> britishPound = this.currencyRepository.findByIsoCode( "GBP" );
+                Collection<Currency> currencies	= new ArrayList<>( Arrays.asList( euro.get(), dollar.get(), britishPound.get() ) );
 
-                Optional<Valuta> valutaDrzave   = valutaRepository.findByDrzava( columns[1] );
-                if( valutaDrzave.isPresent() && !valute.contains( valutaDrzave.get() ) ) valute.add( valutaDrzave.get() );
+                Optional<Currency> countryCurrency = currencyRepository.findByRegion( columns[1] );
+                if( countryCurrency.isPresent() && !currencies.contains( countryCurrency.get() ) ) currencies.add( countryCurrency.get() );
 
-                berza.setValute( valute );
-                berzaRepository.save( berza );
+                stockExchange.setCurrencies( currencies );
+                stockExchangeRepository.save(stockExchange);
             }
 
         } catch ( IOException e ) {
@@ -108,8 +107,8 @@ public class DataLoader implements CommandLineRunner {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );
-                Valuta valuta = new Valuta( columns[2], columns[1], columns[3], columns[0] );
-                valutaRepository.save( valuta );
+                Currency currency = new Currency( columns[2], columns[1], columns[3], columns[0] );
+                currencyRepository.save( currency );
             }
 
         } catch ( IOException e ) {
@@ -117,7 +116,7 @@ public class DataLoader implements CommandLineRunner {
         }
     }
 
-    private void importStocks( String fileName, String oznakaBerze )
+    private void importStocks( String fileName, String exchangeSymbol )
     {
         try {
             BufferedReader br = new BufferedReader( new FileReader( fileName ) );
@@ -125,41 +124,41 @@ public class DataLoader implements CommandLineRunner {
             SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             Date date = new Date();
 
-            Optional<Berza> xnys = this.berzaRepository.findByOznaka( oznakaBerze );
+            Optional<StockExchange> xnys = this.stockExchangeRepository.findByMic( exchangeSymbol );
 
             String stockCode;
             while( ( stockCode = br.readLine() ) != null ) {
                 try {
-                    Stock stock = YahooFinance.get( stockCode );
+                    yahoofinance.Stock stock = YahooFinance.get( stockCode );
                     if( stock != null ) {
 
-                        String poslednjeAzuriranje = formatter.format( date );
-                        String oznaka   = stockCode;
-                        String opis     = stock.getName();
-                        String cena     = stock.getQuote().getPrice().toPlainString();
-                        String ask      = stock.getQuote().getAsk().toPlainString();
-                        String bid      = stock.getQuote().getBid().toPlainString();
-                        String promena  = stock.getQuote().getChange().toPlainString();
-                        String volume   = stock.getQuote().getVolume().toString();
+                        String lastUpdated = formatter.format( date );
+                        String symbol = stockCode;
+                        String description = stock.getName();
+                        String price = stock.getQuote().getPrice().toPlainString();
+                        String ask = stock.getQuote().getAsk().toPlainString();
+                        String bid = stock.getQuote().getBid().toPlainString();
+                        String priceChange = stock.getQuote().getChange().toPlainString();
+                        String volume = stock.getQuote().getVolume().toString();
 
                         if( xnys.isPresent() ) {
-                            Akcija akcija = new Akcija( oznaka, xnys.get(), opis, poslednjeAzuriranje, cena, ask, bid, promena, volume );
+                            Stock newStock = new Stock( symbol, xnys.get(), description, lastUpdated, price, ask, bid, priceChange, volume );
 
-                            Collection<History> history = new ArrayList<>();
+                            Collection<StockHistory> history = new ArrayList<>();
                             for( HistoricalQuote hq: stock.getHistory() ) {
-                                History akcijaHistory = new History( hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
+                                StockHistory stockHistory = new StockHistory( hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
                                         hq.getHigh().toPlainString(), hq.getLow().toPlainString() );
 
-                                history.add( akcijaHistory );
+                                history.add( stockHistory );
 
                                 /* Predugo bi trajalo, dovoljno je za demonstraciju. */
                                 if( history.size() > 3 ) break;
                             }
 
-                            akcijaHistoryRepository.saveAll( history );
+                            stockHistoryRepository.saveAll( history );
 
-                            akcija.setHistory( history );
-                            akcijaRepository.save( akcija );
+                            newStock.setStockHistory( history );
+                            stockRepository.save( newStock );
                         }
                     }
                 } catch ( IOException e ) {
