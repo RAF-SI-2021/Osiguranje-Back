@@ -1,0 +1,9 @@
+﻿Category_Name,Contract_Size,Contract_Unit,Maintenance_Margin
+Grain and Oilseeds,5000,bushels,2650
+Livestock,40000,pounds,1400
+Dairy,200000,pounds,1500
+Forest,110000,board_feet,9500
+Softs,10,metric_tons,1300
+Natural Gas,10000,MMBtu,4300
+Base Metals,25,metric_tons,7500
+Precious Metals,100,troy_ounces,7200
