@@ -11,6 +11,7 @@ import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,21 +40,29 @@ public class DataLoader implements CommandLineRunner {
         List<List<String>> eurexData = new ArrayList<>();
         List<List<String>> categoryData = new ArrayList<>();
         File file = new File(Config.getProperty("eurex_file"));
-        BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()));
-        String line;
-        while ((line = br.readLine()) != null) {
-            String[] values = line.split(COMMA_DELIMETER);
-            List<String> list = Arrays.stream(values).toList();
-            if (list.size() > 5) {
-                eurexData.add(list);
+        BufferedReader br = null;
+        try {
+            br = new BufferedReader(new FileReader(file.getCanonicalPath()));
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(COMMA_DELIMETER);
+                List<String> list = Arrays.stream(values).toList();
+                if (list.size() > 5) {
+                    eurexData.add(list);
+                }
             }
-        }
-        file = new File(Config.getProperty("categories_file"));
-        br = new BufferedReader(new FileReader(file.getCanonicalPath()));
-        while ((line = br.readLine()) != null) {
-            String[] values = line.split(COMMA_DELIMETER);
-            List<String> list = Arrays.stream(values).toList();
-            categoryData.add(list);
+            file = new File(Config.getProperty("categories_file"));
+            br = new BufferedReader(new FileReader(file.getCanonicalPath()));
+            while ((line = br.readLine()) != null) {
+                String[] values = line.split(COMMA_DELIMETER);
+                List<String> list = Arrays.stream(values).toList();
+                categoryData.add(list);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            assert br != null;
+            br.close();
         }
         for (List<String> eurexList : eurexData) {
             for (List<String> categoryList : categoryData) {
