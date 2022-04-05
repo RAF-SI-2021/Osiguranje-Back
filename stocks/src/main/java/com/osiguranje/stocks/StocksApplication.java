@@ -9,22 +9,14 @@ import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
+import springfox.documentation.swagger2.annotations.EnableSwagger2WebMvc;
 
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
-@EnableJpaRepositories("com.osiguranje.stocks.repositories")
+@SpringBootApplication
+@EnableSwagger2
 public class StocksApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(StocksApplication.class, args);
     }
-
-    @Bean
-    public Docket api(){
-        return new Docket(DocumentationType.SWAGGER_2)
-                .select()
-                .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.any())
-                .build();
-    }
-
 }
