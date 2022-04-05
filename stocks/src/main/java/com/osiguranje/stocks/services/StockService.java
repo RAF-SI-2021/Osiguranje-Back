@@ -23,4 +23,11 @@ public class StockService {
     public StockModel save(StockModel stock){
         return stockRepository.save(stock);
     }
+
+    public List<StockModel> saveAll(List<StockModel> stocks){
+        for(StockModel stock : stocks) {
+            stockRepository.save(stock);
+        }
+        return stocks;
+    }
 }
