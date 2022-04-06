@@ -8,8 +8,8 @@ import java.util.Properties;
 public class EmailSender {
     private static EmailSender instance;
 
-    private Session session;
-    private String email;
+    private final Session session;
+    private final String email;
     private String password;
 
     public EmailSender() {

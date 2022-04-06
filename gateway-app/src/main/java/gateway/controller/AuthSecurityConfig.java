@@ -1,24 +1,19 @@
-package controller;
+package gateway.controller;
 
+import gateway.security.JwtAuthenticationConfig;
+import gateway.security.JwtUsernamePasswordAuthenticationFilter;
+import gateway.user.CustomPasswordEncoder;
+import gateway.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import security.JwtAuthenticationConfig;
-import security.JwtUsernamePasswordAuthenticationFilter;
-import user.CustomPasswordEncoder;
-import user.UserService;
-
-import javax.servlet.http.HttpServletResponse;
 
 @EnableWebSecurity
 public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -28,6 +23,9 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Autowired
     JwtAuthenticationConfig config;
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public AuthSecurityConfig(UserService userService) {
@@ -40,30 +38,18 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Bean
-    public DaoAuthenticationProvider daoAuthenticationProvider() {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(customPasswordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(userService);
-        return daoAuthenticationProvider;
-    }
-
-    @Bean
     public CustomPasswordEncoder customPasswordEncoder() {
         return new CustomPasswordEncoder();
     }
 
-//    @Autowired
-//    public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-//        PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-//        auth.inMemoryAuthentication()
-//                .withUser("admin").password(encoder.encode("admin")).roles("ADMIN", "USER")
-//                .and()
-//                .withUser("andrija").password(encoder.encode("andrija")).roles("USER");
-//    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(userService);
+        auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -77,11 +63,14 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
                 .antMatchers("/test/admin/**").hasRole("ADMIN")
+                .antMatchers("/user/logged").hasRole("USER")
+                .antMatchers("/user/password").hasRole("USER")
+                .antMatchers("/user/**").hasRole("ADMIN")
                 .antMatchers("/test/user/**").hasRole("USER")
                 .antMatchers("/test/guest/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
-                .formLogin()
+                .formLogin().defaultSuccessUrl("/currentUser", false)
                 .and()
                 .httpBasic();
     }
