@@ -19,6 +19,22 @@ services:
       - eureka:/root/.m2
     stdin_open: true
     tty: true
+  gateway:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./gateway-app
+    env_file: ./.env
+    environment:
+      spring.datasource.url: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      spring.datasource.username: root
+      spring.datasource.password: $MYSQL_PASSWORD
+    ports:
+      - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
+    volumes:
+      - gateway:/root/.m2
+    stdin_open: true
+    tty: true
   futures:
     depends_on:
       - mysqldb
@@ -40,3 +56,4 @@ volumes:
   db:
   eureka:
   futures:
+  gateway:
