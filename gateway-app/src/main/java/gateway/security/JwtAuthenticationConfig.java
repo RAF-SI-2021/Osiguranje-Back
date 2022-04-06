@@ -1,4 +1,4 @@
-package security;
+package gateway.security;
 
 import lombok.Getter;
 import lombok.ToString;
