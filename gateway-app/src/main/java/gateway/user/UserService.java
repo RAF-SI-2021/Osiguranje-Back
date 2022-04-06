@@ -1,8 +1,9 @@
-package user;
+package gateway.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,5 +32,14 @@ public class UserService implements UserDetailsService {
         }
 
         return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), permissions);
+    }
+
+    public UserInfo current() {
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+        Optional<User> user = this.userRepository.findUserByEmail(email);
+        if (user.isEmpty()) {
+            throw new UsernameNotFoundException("No logged in user found.");
+        }
+        return new UserInfo(user.get());
     }
 }

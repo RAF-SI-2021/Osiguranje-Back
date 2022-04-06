@@ -1,4 +1,4 @@
-package security;
+package gateway.security;
 
 import java.io.IOException;
 import java.time.Instant;
