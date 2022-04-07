@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <artifactId>gateway-crudApp.app</artifactId>
+    <artifactId>gateway-app</artifactId>
     <build>
         <plugins>
             <plugin>

@@ -1,4 +1,4 @@
-package user;
+package gateway.user;
 
 import lombok.Data;
 

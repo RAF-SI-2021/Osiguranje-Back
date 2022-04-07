@@ -47,6 +47,7 @@ public class User {
         this.position = position;
         this.phoneNumber = phoneNumber;
         this.active = active;
+        this.permissions = permissions;
     }
 
     public User() {
