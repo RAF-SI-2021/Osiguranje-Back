@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  mysqldb:
+    image: mysql:8.0.28
+    env_file: ./.env
+    environment:
+      - MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_NAME
+    ports:
+      - $MYSQL_EXTERNAL_PORT:$MYSQL_INTERNAL_PORT
+    volumes:
+      - db:/var/lib/mysql
+  eureka:
+    build: ./eureka
+    env_file: ./.env
+    ports:
+      - $EUREKA_EXTERNAL_PORT:$EUREKA_INTERNAL_PORT
+    volumes:
+      - eureka:/root/.m2
+    stdin_open: true
+    tty: true
+volumes:
+  db:
+  eureka:
