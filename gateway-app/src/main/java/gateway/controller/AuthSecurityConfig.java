@@ -62,6 +62,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .addFilterAfter(new JwtUsernamePasswordAuthenticationFilter(config, authenticationManager()),
                         UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers("/debug/**").hasRole("ADMIN")
                 .antMatchers("/test/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/logged").hasRole("USER")
                 .antMatchers("/user/password").hasRole("USER")

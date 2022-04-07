@@ -39,7 +39,7 @@ services:
 
   gateway:
     depends_on:
-      - user_crud
+      - usercrud
     build: ./gateway-app
     env_file: ./.env
     environment:
