@@ -92,6 +92,24 @@ services:
       - dataloader:/root/.m2
     stdin_open: true
     tty: true
+
+  stocks:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./stocks
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $STOCKS_EXTERNAL_PORT:$STOCKS_INTERNAL_PORT
+    volumes:
+      - stocks:/root/.m2
+    stdin_open: true
+    tty: true
+
 volumes:
   db:
   eureka:
@@ -99,3 +117,4 @@ volumes:
   gateway:
   usercrud:
   dataloader:
+  stocks:
