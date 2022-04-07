@@ -80,4 +80,6 @@ fabric.properties
 eureka/target
 crud-app/target
 gateway-app/target
+data-app/target
 ./target
+futures-api/target

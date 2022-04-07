@@ -37,15 +37,6 @@ public class UserService implements UserDetailsService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public UserDto current() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> user = this.userRepository.findUserByEmail(email);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("No logged in user found.");
-        }
-        return userMapper.userToUserDto(user.get());
-    }
-
     public List<UserDto> findAll() {
         List<User> users = userRepository.findAll();
         List<UserDto> dtos = new ArrayList<>();
@@ -138,15 +129,5 @@ public class UserService implements UserDetailsService {
         permissions.add(permissionMapper.permissionsToPermissionAuthority(user.get().getPermissions()));
 
         return new org.springframework.security.core.userdetails.User(user.get().getEmail(), user.get().getPassword(), permissions);
-    }
-
-    public PermissionAuthority collectPermissions() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        Optional<User> user = this.userRepository.findUserByEmail(email);
-        if (user.isEmpty()) {
-            throw new UsernameNotFoundException("No logged in user found.");
-        }
-        Collection<? extends GrantedAuthority> permissions = this.loadUserByUsername(email).getAuthorities();
-        return (PermissionAuthority) permissions.toArray()[0];
     }
 }

@@ -19,6 +19,98 @@ services:
       - eureka:/root/.m2
     stdin_open: true
     tty: true
+
+  usercrud:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./user-crud
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $USERCRUD_EXTERNAL_PORT:$USERCRUD_INTERNAL_PORT
+    volumes:
+      - usercrud:/root/.m2
+    stdin_open: true
+    tty: true
+
+  gateway:
+    depends_on:
+      - user_crud
+    build: ./gateway-app
+    env_file: ./.env
+    environment:
+      # No idea why but it doesnt work with env as in futures service
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      ZUUL_ROUTES_USER_URL: http://usercrud:$USERCRUD_INTERNAL_PORT/api/users
+    ports:
+      - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
+    volumes:
+      - gateway:/root/.m2
+    stdin_open: true
+    tty: true
+
+  futures:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./futures-api
+    env_file: ./.env
+    environment:
+      spring.datasource.url: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      spring.datasource.username: root
+      spring.datasource.password: $MYSQL_PASSWORD
+    ports:
+      - $FUTURES_EXTERNAL_PORT:$FUTURES_INTERNAL_PORT
+    volumes:
+      - futures:/root/.m2
+    stdin_open: true
+    tty: true
+
+  dataloader:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./data-loader
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $DATALOADER_EXTERNAL_PORT:$DATALOADER_INTERNAL_PORT
+    volumes:
+      - dataloader:/root/.m2
+    stdin_open: true
+    tty: true
+
+  stocks:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./stocks
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $STOCKS_EXTERNAL_PORT:$STOCKS_INTERNAL_PORT
+    volumes:
+      - stocks:/root/.m2
+    stdin_open: true
+    tty: true
+
 volumes:
   db:
   eureka:
+  futures:
+  gateway:
+  usercrud:
+  dataloader:
+  stocks:
