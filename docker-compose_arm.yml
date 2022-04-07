@@ -13,6 +13,7 @@ services:
       - $MYSQL_EXTERNAL_PORT
     volumes:
       - db:/var/lib/mysql
+
   eureka:
     build: ./eureka
     env_file: ./.env
@@ -22,10 +23,27 @@ services:
       - eureka:/root/.m2
     stdin_open: true
     tty: true
-  gateway:
+
+  usercrud:
     depends_on:
       - mysqldb
       - eureka
+    build: ./user-crud
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $USERCRUD_EXTERNAL_PORT:$USERCRUD_INTERNAL_PORT
+    volumes:
+      - usercrud:/root/.m2
+    stdin_open: true
+    tty: true
+
+  gateway:
+    depends_on:
+      - user_crud
     build: ./gateway-app
     env_file: ./.env
     environment:
@@ -33,12 +51,14 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      ZUUL_ROUTES_USER_URL: http://usercrud:$USERCRUD_INTERNAL_PORT/api/users
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     volumes:
       - gateway:/root/.m2
     stdin_open: true
     tty: true
+
   futures:
     depends_on:
       - mysqldb
@@ -55,8 +75,10 @@ services:
       - futures:/root/.m2
     stdin_open: true
     tty: true
+
 volumes:
   db:
   eureka:
   futures:
   gateway:
+  usercrud:
