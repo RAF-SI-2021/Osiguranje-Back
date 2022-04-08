@@ -26,6 +26,11 @@ public class ForexServiceImpl implements ForexService {
     }
 
     @Override
+    public List<Forex> getAll(){
+        return forexRepository.findAll();
+    }
+
+    @Override
     public void saveAll(List<Forex> pairs) {
         forexRepository.saveAll(pairs);
     }

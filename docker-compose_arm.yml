@@ -110,6 +110,23 @@ services:
     stdin_open: true
     tty: true
 
+  forex:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./forex
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $FOREX_EXTERNAL_PORT:$FOREX_INTERNAL_PORT
+    volumes:
+      - forex:/root/.m2
+    stdin_open: true
+    tty: true
+
 volumes:
   db:
   eureka:
@@ -118,3 +135,4 @@ volumes:
   usercrud:
   dataloader:
   stocks:
+  forex:
