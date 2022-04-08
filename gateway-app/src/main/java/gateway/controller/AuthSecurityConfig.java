@@ -30,19 +30,15 @@ import java.util.stream.Collectors;
 
 @EnableWebSecurity
 public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
-
-    @Autowired
     private final UserService userService;
+    private final JwtAuthenticationConfig config;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    JwtAuthenticationConfig config;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    public AuthSecurityConfig(UserService userService) {
+    public AuthSecurityConfig(UserService userService, JwtAuthenticationConfig config, PasswordEncoder passwordEncoder) {
         this.userService = userService;
+        this.config = config;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Bean
