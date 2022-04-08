@@ -26,6 +26,9 @@
         <module>eureka</module>
         <module>gateway-app</module>
         <module>futures-api</module>
+        <module>forex</module>
+        <module>stocks</module>
+        <module>exchange-app</module>
     </modules>
 
     <properties>
