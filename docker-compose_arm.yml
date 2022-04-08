@@ -52,6 +52,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       ZUUL_ROUTES_USER_URL: http://usercrud:$USERCRUD_INTERNAL_PORT/api/users
+      ZUUL_ROUTES_EXCHANGE_URL: http://exchange:$EXCHANGE_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     volumes:
@@ -146,7 +147,7 @@ services:
     ports:
       - $EXCHANGE_EXTERNAL_PORT:$EXCHANGE_INTERNAL_PORT
     volumes:
-      - forex:/root/.m2
+      - exchange:/root/.m2
     stdin_open: true
     tty: true
 
@@ -159,3 +160,4 @@ volumes:
   dataloader:
   stocks:
   forex:
+  exchange:

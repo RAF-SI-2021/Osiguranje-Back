@@ -69,6 +69,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/**").hasRole("ADMIN")
                 .antMatchers("/test/user/**").hasRole("USER")
                 .antMatchers("/test/guest/**").permitAll()
+                .antMatchers("/exchange/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().defaultSuccessUrl("/currentUser", false)
