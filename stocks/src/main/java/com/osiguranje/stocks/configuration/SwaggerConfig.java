@@ -17,12 +17,12 @@ public class SwaggerConfig {
     private ApiInfo apiInfo() {
         return new ApiInfo(
                 "Stocks API",
-                "Some custom description of API.",
+                "Stocks API",
                 "0.1.0",
-                "Terms of service",
+                "",
                 new Contact("Milica", "", "mkazandzic17@raf.com"),
-                "License of API",
-                "API license URL",
+                "",
+                "/api/stocks",
                 Collections.emptyList());
     }
 

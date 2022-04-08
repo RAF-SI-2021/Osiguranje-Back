@@ -9,6 +9,10 @@ import com.osiguranje.stocks.services.StockService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,17 +33,17 @@ public class StockController {
         return ResponseEntity.ok(stockService.getStocks());
     }
 
-    @GetMapping(value = "/{stock}")
-    public ResponseEntity<?> getStockTimeSeries(@PathVariable("stock") String stock){
-        TimeSeriesResponse res = alphavantageService.getTimeSeries(stock);
-        CompanyOverviewResponse fundamentalInfo = alphavantageService.getFundamental(stock);
-        System.out.println(fundamentalInfo.getOverview().getSharesOutstanding());
-        List<StockModel> stockModels = new ArrayList<>();
-        for(StockUnit s : res.getStockUnits()){
-            stockModels.add(new StockModel(s, stock, fundamentalInfo.getOverview().getSharesOutstanding()));
+    @GetMapping(value = "/{start}:{end}")
+    public ResponseEntity<?> getStockTimeSeries(@PathVariable("start") String start, @PathVariable("end") String end){
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startDate = new Date(sdf.parse(start).getTime());
+            Date endDate = new Date(sdf.parse(end).getTime());
+            List<StockModel> res = stockService.findByDateWindow(startDate, endDate);
+            return ResponseEntity.ok(res);
+        }catch (ParseException e){
+            return ResponseEntity.ok(e.getMessage());
         }
-        stockService.saveAll(stockModels);
-        return ResponseEntity.ok(res);
     }
 
     @PostMapping(value = "/")
