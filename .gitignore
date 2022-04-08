@@ -83,3 +83,7 @@ gateway-app/target
 data-app/target
 ./target
 futures-api/target
+exchange-app/target
+forex/target
+**/target
+**/.idea
