@@ -86,3 +86,4 @@ futures-api/target
 exchange-app/target
 forex/target
 **/target
+**/.idea
