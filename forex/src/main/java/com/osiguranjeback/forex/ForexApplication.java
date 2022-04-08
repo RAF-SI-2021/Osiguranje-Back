@@ -24,10 +24,14 @@ public class ForexApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
-        for(Currency currency: Currency.values()){
-            List<Forex> quotes = externalForexService.getQuotes(currency.getCode());
-            forexService.saveAll(quotes);
+    public void run(String... args) {
+        try{
+            for(Currency currency: Currency.values()){
+                List<Forex> quotes = externalForexService.getQuotes(currency.getCode());
+                forexService.saveAll(quotes);
+            }
+        }catch (Exception e){
+            System.out.println("Fix me");
         }
 
     }
