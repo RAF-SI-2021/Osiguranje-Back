@@ -31,10 +31,10 @@ import java.util.*;
 @EntityScan( "models" )
 public class DataLoader implements CommandLineRunner {
 
-    private final String VALUTE_CSV     = "./data-loader/src/main/resources/data/valute.csv";
-    private final String BERZE_CSV      = "./data-loader/src/main/resources/data/berze.csv";
-    private final String AKCIJE_XNYS    = "./data-loader/src/main/resources/data/xnys_codes.csv";
-    private final String AKCIJE_XNAS    = "./data-loader/src/main/resources/data/xnas_codes.csv";
+    private final String VALUTE_CSV     = "src/main/resources/data/valute.csv";
+    private final String BERZE_CSV      = "src/main/resources/data/berze.csv";
+    private final String AKCIJE_XNYS    = "src/main/resources/data/xnys_codes.csv";
+    private final String AKCIJE_XNAS    = "src/main/resources/data/xnas_codes.csv";
 
     private StockExchangeRepository stockExchangeRepository;
     private CurrencyRepository currencyRepository;
@@ -56,20 +56,10 @@ public class DataLoader implements CommandLineRunner {
     @Override
     public void run( String... args ) throws Exception {
         System.out.println( "############## DATA LOADER ##############" );
-        Scanner input = new Scanner( System.in );
-
-        System.out.print( "Would you like to start data-loader? [y/N]: " );
-        String userInput = input.nextLine();
-
-        if( userInput.equals( "y" ) ) {
             importCurrencies();
             importMarkets();
             importStocks( AKCIJE_XNYS, "XNYS" );
             importStocks( AKCIJE_XNAS, "XNAS" );
-        } else {
-            System.out.println( "Closing..." );
-        }
-
     }
 
     private void importMarkets()

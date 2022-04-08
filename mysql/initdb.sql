@@ -1,0 +1,1 @@
+INSERT INTO osiguranje.user (id, jmbg, active, email, first_name, last_name, password, contract_conclusion, is_admin, stock_overview, stock_trading, phone_number, position) VALUES (1, '2501001780033', 1, 'admin', 'Admin', 'Adminovic', '$2a$12$acwlbfLLagS1PqgZa26aw.b6e7RmXykjhTh9OJ3Eji/z3aQplLnoW', 1, 1, 1, 1, '064576', 'administrator');

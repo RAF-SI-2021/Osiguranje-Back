@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mysqldb:
-    image: mysql:8.0.28
+    build: mysql
     env_file: ./.env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
@@ -39,7 +39,7 @@ services:
 
   gateway:
     depends_on:
-      - usercrud
+      - user_crud
     build: ./gateway-app
     env_file: ./.env
     environment:
@@ -48,6 +48,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       ZUUL_ROUTES_USER_URL: http://usercrud:$USERCRUD_INTERNAL_PORT/api/users
+      ZUUL_ROUTES_EXCHANGE_URL: http://exchange:$EXCHANGE_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     volumes:
@@ -103,6 +104,46 @@ services:
       - $STOCKS_EXTERNAL_PORT:$STOCKS_INTERNAL_PORT
     volumes:
       - stocks:/root/.m2
+    stdin_open: true
+    tty: true
+
+  forex:
+    depends_on:
+      - mysqldb
+      - eureka
+    build: ./forex
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $FOREX_EXTERNAL_PORT:$FOREX_INTERNAL_PORT
+    volumes:
+      - forex:/root/.m2
+    stdin_open: true
+    tty: true
+
+  exchange:
+    depends_on:
+      - mysqldb
+      - eureka
+      - forex
+      - futures
+      - stocks
+    build: ./exchange-app
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      API_STOCKS: http://stocks:$STOCKS_INTERNAL_PORT/api/stocks/all
+      API_FOREX: http://forex:$FOREX_INTERNAL_PORT/api/v1/forex/all
+      API_FUTURES: http://futures:$FUTURES_INTERNAL_PORT/api/futures/data
+    ports:
+      - $EXCHANGE_EXTERNAL_PORT:$EXCHANGE_INTERNAL_PORT
+    volumes:
+      - exchange:/root/.m2
     stdin_open: true
     tty: true
 
