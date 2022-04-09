@@ -7,16 +7,13 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.stereotype.Component;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @DataJpaTest
+@AutoConfigureTestDatabase (replace = AutoConfigureTestDatabase.Replace.NONE)
 class UserRepositoryTest {
     @Autowired
     private UserRepository testUserRepository;
@@ -24,6 +21,7 @@ class UserRepositoryTest {
     @AfterEach
     void tearDown() {
         testUserRepository.deleteAll();
+        testUserRepository.flush();
     }
 
     @Test
@@ -44,6 +42,38 @@ class UserRepositoryTest {
         //then
         assertThat(radenkovic.isPresent()).isTrue();
     }
+
+    /*
+    @Test
+    void checkIfAddingMultipleUsersWithSameEmailThrowsException() {
+        //given
+        String testEmail = "mradenkovic@raf.rs";
+        User user1 = new User("Milos",
+                "Radenkovic",
+                testEmail,
+                "1231231231234",
+                "RAF",
+                "0641231234",
+                true,
+                new Permissions());
+        testUserRepository.save(user1);
+        User user2 = new User("Milos",
+                "Radenkovic",
+                testEmail,
+                "1231231231235",
+                "RAF",
+                "0641231234",
+                true,
+                new Permissions());
+        //when
+        Assertions.assertThrows(DataIntegrityViolationException.class, () -> {
+            testUserRepository.save(user2);
+        });
+        //then
+        assertThat(testUserRepository.findUsersByFirstName("Milos").size() == 1).isTrue();
+    }
+    */
+
 
     @Test
     void checkIfUserIsNotFoundForEmail() {
@@ -71,7 +101,7 @@ class UserRepositoryTest {
         user = new User(firstName,
                 "Milosevic",
                 "mmilosevic@raf.rs",
-                "1231231231234",
+                "1231231231235",
                 "RAF",
                 "0641231234",
                 true,
@@ -110,9 +140,9 @@ class UserRepositoryTest {
         user = new User("Radoje",
                 lastName,
                 "rradenkovic@raf.rs",
-                "1231231231234",
+                "1231231231235",
                 "RAF",
-                "0641231234",
+                "0641231235",
                 true,
                 new Permissions());
         testUserRepository.save(user);
@@ -149,9 +179,9 @@ class UserRepositoryTest {
         user = new User("Radoje",
                 "Milosevic",
                 "rradenkovic@raf.rs",
-                "1231231231234",
+                "1231231231235",
                 position,
-                "0641231234",
+                "0641231235",
                 true,
                 new Permissions());
         testUserRepository.save(user);
