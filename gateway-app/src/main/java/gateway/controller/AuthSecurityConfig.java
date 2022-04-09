@@ -1,13 +1,12 @@
 package gateway.controller;
 
 import gateway.security.JwtAuthenticationConfig;
+import gateway.security.JwtTokenAuthenticationFilter;
 import gateway.security.JwtUsernamePasswordAuthenticationFilter;
 import gateway.user.CustomPasswordEncoder;
 import gateway.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Primary;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -19,14 +18,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @EnableWebSecurity
 public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -64,7 +58,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET","POST", "OPTIONS", "PUT", "DELETE"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "OPTIONS", "PUT", "DELETE"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
@@ -82,11 +76,14 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .csrf().disable()
                 .logout().disable()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .addFilterAfter(new JwtUsernamePasswordAuthenticationFilter(config, authenticationManager()),
                         UsernamePasswordAuthenticationFilter.class)
+                .addFilterAfter(new JwtTokenAuthenticationFilter(config),
+                        UsernamePasswordAuthenticationFilter.class)
                 .authorizeRequests()
+                .antMatchers(config.getUrl()).permitAll()
                 .antMatchers("/debug/**").hasRole("ADMIN")
                 .antMatchers("/test/admin/**").hasRole("ADMIN")
                 .antMatchers("/user/logged").hasRole("USER")
@@ -97,8 +94,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/exchange/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
-                .formLogin().defaultSuccessUrl("/currentUser", false)
-                .and()
-                .httpBasic();
+                .formLogin().disable()
+                .httpBasic().disable();
     }
 }
