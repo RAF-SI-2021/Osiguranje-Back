@@ -13,8 +13,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
-import repositories.CurrencyRepository;
-import repositories.SecurityHistoryRepository;
+import repositories.*;
 import services.ForexService;
 import services.FuturesService;
 import services.StockService;
@@ -44,9 +43,9 @@ public class DataLoader implements CommandLineRunner {
     private static final int CONTRACT_UNIT = 2;
     private static final int MAINTENANCE_MARGIN = 3;
 
-    private final FuturesService futuresService;
-    private final ForexService forexService;
-    private final StockService stockService;
+    private final FuturesRepository futuresRepository;
+    private final ForexRepository forexRepository;
+    private final StocksRepository stocksRepository;
     private final CurrencyRepository currencyRepository;
     private final SecurityHistoryRepository securityHistoryRepository;
 
@@ -63,10 +62,10 @@ public class DataLoader implements CommandLineRunner {
     private String exchangeRateUrl;
 
     @Autowired
-    public DataLoader(FuturesService futuresService, ForexService forexService, StockService stockService, CurrencyRepository currencyRepository, SecurityHistoryRepository securityHistoryRepository) {
-        this.futuresService = futuresService;
-        this.forexService = forexService;
-        this.stockService = stockService;
+    public DataLoader(FuturesRepository futuresRepository, ForexRepository forexRepository, StocksRepository stocksRepository, CurrencyRepository currencyRepository, SecurityHistoryRepository securityHistoryRepository) {
+        this.futuresRepository = futuresRepository;
+        this.forexRepository = forexRepository;
+        this.stocksRepository = stocksRepository;
         this.currencyRepository = currencyRepository;
         this.securityHistoryRepository = securityHistoryRepository;
     }
@@ -98,7 +97,7 @@ public class DataLoader implements CommandLineRunner {
                 if(c2.equals(currency))
                     continue;
                 String symbol = currency.getIsoCode() + c2.getIsoCode();
-                List<Forex> forexExists = forexService.findBySymbol(symbol);
+                List<Forex> forexExists = forexRepository.findForexBySymbol(symbol);
                 if (!forexExists.isEmpty()) {
                     continue;
                 }
@@ -134,7 +133,7 @@ public class DataLoader implements CommandLineRunner {
                 securityHistoryRepository.saveAll(history);
 
                 newForex.setSecurityHistory(history);
-                forexService.save(newForex);
+                forexRepository.save(newForex);
             }
         }
     }
@@ -172,7 +171,7 @@ public class DataLoader implements CommandLineRunner {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         for(String symbol : stocksArr) {
-            List<Stock> stockExists = stockService.findBySymbol(symbol);
+            List<Stock> stockExists = stocksRepository.findStockBySymbol(symbol);
             if (!stockExists.isEmpty()) {
                 continue;
             }
@@ -205,7 +204,7 @@ public class DataLoader implements CommandLineRunner {
             securityHistoryRepository.saveAll(history);
 
             newStock.setSecurityHistory(history);
-            stockService.save(newStock);
+            stocksRepository.save(newStock);
         }
     }
 
@@ -301,7 +300,7 @@ public class DataLoader implements CommandLineRunner {
 
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                         newFuture.setSecurityHistory(history);
-                        futuresService.save(newFuture);
+                        futuresRepository.save(newFuture);
 
                         System.out.println(newFuture);
                         year++;             // todo ??
