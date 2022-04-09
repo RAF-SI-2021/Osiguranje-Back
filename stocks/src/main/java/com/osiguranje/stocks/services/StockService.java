@@ -5,6 +5,7 @@ import com.osiguranje.stocks.repositories.StockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.sql.Date;
 import java.util.List;
 
 @Service
@@ -25,9 +26,14 @@ public class StockService {
     }
 
     public List<StockModel> saveAll(List<StockModel> stocks){
-        for(StockModel stock : stocks) {
-            stockRepository.save(stock);
-        }
-        return stocks;
+        return stockRepository.saveAll(stocks);
+    }
+
+    public List<StockModel> findByDateWindow(Date startDate, Date endDate){
+        return stockRepository.findByDateWindow(startDate, endDate);
+    }
+
+    public List<StockModel> findBySymbol(String symbol){
+        return stockRepository.findStockModelBySymbol(symbol);
     }
 }
