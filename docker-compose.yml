@@ -48,7 +48,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       ZUUL_ROUTES_USER_URL: http://usercrud:$USERCRUD_INTERNAL_PORT/api/users
-      ZUUL_ROUTES_EXCHANGE_URL: http://exchange:$EXCHANGE_INTERNAL_PORT/api
+      ZUUL_ROUTES_SECURITIES_URL: http://securities:$SECURITIES_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     volumes:
@@ -56,104 +56,27 @@ services:
     stdin_open: true
     tty: true
 
-  futures:
-    depends_on:
-      - mysqldb
-      - eureka
-    build: ./futures-api
-    env_file: ./.env
-    environment:
-      spring.datasource.url: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
-      spring.datasource.username: root
-      spring.datasource.password: $MYSQL_PASSWORD
-    ports:
-      - $FUTURES_EXTERNAL_PORT:$FUTURES_INTERNAL_PORT
-    volumes:
-      - futures:/root/.m2
-    stdin_open: true
-    tty: true
 
-  dataloader:
+  securities:
     depends_on:
       - mysqldb
       - eureka
-    build: ./data-loader
+    build: ./securities
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
     ports:
-      - $DATALOADER_EXTERNAL_PORT:$DATALOADER_INTERNAL_PORT
+      - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
-      - dataloader:/root/.m2
-    stdin_open: true
-    tty: true
-
-  stocks:
-    depends_on:
-      - mysqldb
-      - eureka
-    build: ./stocks
-    env_file: ./.env
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
-    ports:
-      - $STOCKS_EXTERNAL_PORT:$STOCKS_INTERNAL_PORT
-    volumes:
-      - stocks:/root/.m2
-    stdin_open: true
-    tty: true
-
-  forex:
-    depends_on:
-      - mysqldb
-      - eureka
-    build: ./forex
-    env_file: ./.env
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
-    ports:
-      - $FOREX_EXTERNAL_PORT:$FOREX_INTERNAL_PORT
-    volumes:
-      - forex:/root/.m2
-    stdin_open: true
-    tty: true
-
-  exchange:
-    depends_on:
-      - mysqldb
-      - eureka
-      - forex
-      - futures
-      - stocks
-    build: ./exchange-app
-    env_file: ./.env
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
-      SPRING_DATASOURCE_USERNAME: root
-      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
-      API_STOCKS: http://stocks:$STOCKS_INTERNAL_PORT/api/stocks/all
-      API_FOREX: http://forex:$FOREX_INTERNAL_PORT/api/v1/forex/all
-      API_FUTURES: http://futures:$FUTURES_INTERNAL_PORT/api/futures/data
-    ports:
-      - $EXCHANGE_EXTERNAL_PORT:$EXCHANGE_INTERNAL_PORT
-    volumes:
-      - exchange:/root/.m2
+      - securities:/root/.m2
     stdin_open: true
     tty: true
 
 volumes:
   db:
   eureka:
-  futures:
   gateway:
   usercrud:
-  dataloader:
-  stocks:
-  forex:
-  exchange:
+  securities:

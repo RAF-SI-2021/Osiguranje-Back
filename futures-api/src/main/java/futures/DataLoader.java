@@ -57,7 +57,7 @@ public class DataLoader implements CommandLineRunner {
                 categoryData.add(list);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+          System.out.println(e);
         } finally {
             assert br != null;
             br.close();
