@@ -85,7 +85,7 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.err.println(e);
         }
     }
 
@@ -102,7 +102,7 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.err.println(e);
         }
     }
 
@@ -152,13 +152,13 @@ public class DataLoader implements CommandLineRunner {
                         }
                     }
                 } catch ( IOException e ) {
-                    System.out.println( "YahooFinance API Error: can't fetch data for stock [" + stockCode + "]." );
+                    System.err.println( "YahooFinance API Error: can't fetch data for stock [" + stockCode + "]." );
                 } catch ( NullPointerException e ) {
-                    System.out.println( "YahooFinance API Error: No sufficient data for stock [" + stockCode + "]." );
+                    System.err.println( "YahooFinance API Error: No sufficient data for stock [" + stockCode + "]." );
                 }
             }
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.err.println(e);
         }
     }
 
