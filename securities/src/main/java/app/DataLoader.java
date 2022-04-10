@@ -71,9 +71,14 @@ public class DataLoader implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        loadStocksData();
         loadForexData();
         loadFuturesData();
+        try {
+        loadStocksData();
+        } catch (Exception e){
+            System.err.println(e);
+        }
+
     }
 
     private void loadForexData() {
@@ -141,7 +146,6 @@ public class DataLoader implements CommandLineRunner {
     private void loadStocksData() throws IOException {
         String[] stocksArrNy = readStockSymbols(nyStocksPath);
         String[] stocksArrNa = readStockSymbols(naStocksPath);
-
         Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
         Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
 
@@ -175,20 +179,20 @@ public class DataLoader implements CommandLineRunner {
 
                 Stock newStock = new Stock(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
 
-                Collection <SecurityHistory> history = new ArrayList <>();
-                for (HistoricalQuote hq : stock.getHistory()) {
-                    SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
-                            hq.getHigh().toPlainString(), hq.getLow().toPlainString());
+//                Collection <SecurityHistory> history = new ArrayList <>();
+//                for (HistoricalQuote hq : stock.getHistory()) {
+//                    SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
+//                            hq.getHigh().toPlainString(), hq.getLow().toPlainString());
+//
+//                    history.add(stockHistory);
+//
+//                    /* Predugo bi trajalo, dovoljno je za demonstraciju. */
+//                    if (history.size() > 3) break;
+//                }
 
-                    history.add(stockHistory);
+//                securityHistoryRepository.saveAll(history);
 
-                    /* Predugo bi trajalo, dovoljno je za demonstraciju. */
-                    if (history.size() > 3) break;
-                }
-
-                securityHistoryRepository.saveAll(history);
-
-                newStock.setSecurityHistory(history);
+                newStock.setSecurityHistory(null);
                 stocksRepository.save(newStock);
             } catch (Exception e) {
             }
