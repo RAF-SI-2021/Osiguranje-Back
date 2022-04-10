@@ -24,12 +24,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
+import yahoofinance.quotes.fx.FxQuote;
 
 import java.io.*;
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.LogManager;
 
 @SpringBootApplication
 public class DataLoader implements CommandLineRunner {
@@ -79,47 +82,105 @@ public class DataLoader implements CommandLineRunner {
 
     private void loadForexData() throws IOException {
         readCurrencies();
-        List<Currency> currencies = currencyRepository.findAll();
+        List <Currency> currencies = currencyRepository.findAll();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
 
-        for(Currency currency : currencies){
+        for (Currency currency : currencies) {
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            HttpEntity<ExchangeRateAPIResponse> entity = new HttpEntity<>(headers);
-            ResponseEntity<ExchangeRateAPIResponse> response = null;
-            response = rest.exchange(exchangeRateUrl + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
-            HashMap<String, BigDecimal> rates = response.getBody().getConversionRates();
+            HttpEntity <ExchangeRateAPIResponse> entity = new HttpEntity <>(headers);
+            ResponseEntity <ExchangeRateAPIResponse> response = rest.exchange(exchangeRateUrl + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
 
-            for(Currency c2 : currencies){
-                if(c2.equals(currency))
+            HashMap <String, BigDecimal> rates = response.getBody().getConversionRates();
+            for (Currency c2 : currencies) {
+                if (c2.equals(currency))
                     continue;
+
+
                 String symbol = currency.getIsoCode() + c2.getIsoCode();
-                List<Forex> forexExists = forexRepository.findForexBySymbol(symbol);
+                List <Forex> forexExists = forexRepository.findForexBySymbol(symbol);
                 if (!forexExists.isEmpty()) {
                     continue;
                 }
+                try {
+                    BigDecimal price = rates.get(c2.getIsoCode());
+                    String lastUpdated = formatter.format(date);
+                    String description = symbol;
+                    BigDecimal ask = price;
+                    BigDecimal bid = price;
+                    BigDecimal priceChange = price;
+                    Long volume = price.longValue();
+
+                    Forex newForex = new Forex(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+                    newForex.setBaseCurrency(currency.getIsoCode());
+                    newForex.setQuoteCurrency(c2.getIsoCode());
+                    newForex.setContractSize(ContractSize.STANDARD.getSize());
+                    newForex.setSecurityHistory(null);
+                    forexRepository.save(newForex);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        }
+    }
+
+    private void readCurrencies() {
+        try {
+            BufferedReader br = new BufferedReader(new FileReader(currenciesPath));
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] columns = line.split(",");
+                Currency currency = new Currency(columns[2], columns[1], columns[3], columns[0]);
+                currencyRepository.save(currency);
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void loadStocksData() throws IOException {
+        String[] stocksArrNy = readStockSymbols(nyStocksPath);
+        String[] stocksArrNa = readStockSymbols(naStocksPath);
+
+        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
+        Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
+
+        fetchStocks(stocksArrNy, resNy);
+        fetchStocks(stocksArrNa, resNa);
+    }
+
+    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response) throws IOException {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        for (String symbol : stocksArr) {
+            List <Stock> stockExists = stocksRepository.findStockBySymbol(symbol);
+            if (!stockExists.isEmpty()) {
+                continue;
+            }
+            try {
                 yahoofinance.Stock stock = YahooFinance.get(symbol);
-                if (stock == null || stock.getHistory() == null)
+                if (stock == null || stock.getHistory() == null || !stock.isValid()) {
                     continue;
+                }
 
                 String lastUpdated = formatter.format(date);
                 String description = stock.getName();
                 BigDecimal price = stock.getQuote().getPrice();
-                //BigDecimal price = rates.get(c2.getIsoCode()); // ako ne radi yf
                 BigDecimal ask = stock.getQuote().getAsk();
                 BigDecimal bid = stock.getQuote().getBid();
                 BigDecimal priceChange = stock.getQuote().getChange();
                 Long volume = stock.getQuote().getVolume();
+                Long outstandingShares = stock.getStats().getSharesOutstanding();
 
-                Forex newForex = new Forex(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
-                newForex.setBaseCurrency(currency.getIsoCode());
-                newForex.setQuoteCurrency(c2.getIsoCode());
-                newForex.setContractSize(ContractSize.STANDARD.getSize());
+                Stock newStock = new Stock(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
 
-                Collection<SecurityHistory> history = new ArrayList<>();
+                Collection <SecurityHistory> history = new ArrayList <>();
                 for (HistoricalQuote hq : stock.getHistory()) {
                     SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
                             hq.getHigh().toPlainString(), hq.getLow().toPlainString());
@@ -132,85 +193,29 @@ public class DataLoader implements CommandLineRunner {
 
                 securityHistoryRepository.saveAll(history);
 
-                newForex.setSecurityHistory(history);
-                forexRepository.save(newForex);
+                newStock.setSecurityHistory(history);
+                stocksRepository.save(newStock);
+            } catch (Exception e) {
+                System.out.println(e);
             }
+
         }
     }
 
-    private void readCurrencies()
-    {
-        try {
-            BufferedReader br = new BufferedReader( new FileReader( currenciesPath ) );
 
-            String line;
-            while( ( line = br.readLine() ) != null ) {
-                String[] columns = line.split( "," );
-                Currency currency = new Currency( columns[2], columns[1], columns[3], columns[0] );
-                currencyRepository.save(currency);
-            }
-
-        } catch ( IOException e ) {
-            e.printStackTrace();
-        }
+    public static BigDecimal random(int range) {
+        BigDecimal max = new BigDecimal(range);
+        BigDecimal randFromDouble = new BigDecimal(Math.random());
+        BigDecimal actualRandomDec = randFromDouble.multiply(max);
+        actualRandomDec = actualRandomDec
+                .setScale(2, BigDecimal.ROUND_DOWN);
+        return actualRandomDec;
     }
 
-    private void loadStocksData() throws IOException {
-        String[] stocksArrNy = readStockSymbols(nyStocksPath);
-        String[] stocksArrNa = readStockSymbols(naStocksPath);
-
-        Map<String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
-        Map<String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
-
-        fetchStocks(stocksArrNy, resNy);
-        fetchStocks(stocksArrNa, resNa);
-    }
-
-    private void fetchStocks(String[] stocksArr, Map<String, yahoofinance.Stock> response) throws IOException {
-
-        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-        Date date = new Date();
-        for(String symbol : stocksArr) {
-            List<Stock> stockExists = stocksRepository.findStockBySymbol(symbol);
-            if (!stockExists.isEmpty()) {
-                continue;
-            }
-            yahoofinance.Stock stock = YahooFinance.get(symbol);
-            if (stock == null || stock.getHistory() == null)
-                continue;
-
-            String lastUpdated = formatter.format(date);
-            String description = stock.getName();
-            BigDecimal price = stock.getQuote().getPrice();
-            BigDecimal ask = stock.getQuote().getAsk();
-            BigDecimal bid = stock.getQuote().getBid();
-            BigDecimal priceChange = stock.getQuote().getChange();
-            Long volume = stock.getQuote().getVolume();
-            Long outstandingShares = stock.getStats().getSharesOutstanding();
-
-            Stock newStock = new Stock(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
-
-            Collection<SecurityHistory> history = new ArrayList<>();
-            for (HistoricalQuote hq : stock.getHistory()) {
-                SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
-                        hq.getHigh().toPlainString(), hq.getLow().toPlainString());
-
-                history.add(stockHistory);
-
-                /* Predugo bi trajalo, dovoljno je za demonstraciju. */
-                if (history.size() > 3) break;
-            }
-
-            securityHistoryRepository.saveAll(history);
-
-            newStock.setSecurityHistory(history);
-            stocksRepository.save(newStock);
-        }
-    }
 
     private String[] readStockSymbols(String filename) throws FileNotFoundException {
         BufferedReader br = new BufferedReader(new FileReader(filename));
-        ArrayList<String> stocks = new ArrayList<>();
+        ArrayList <String> stocks = new ArrayList <>();
         String stockCode;
         while (true) {
             try {
@@ -226,9 +231,9 @@ public class DataLoader implements CommandLineRunner {
         return stocksArr;
     }
 
-    private void loadFuturesData() throws Exception{
-        List<List<String>> eurexData = new ArrayList<>();
-        List<List<String>> categoryData = new ArrayList<>();
+    private void loadFuturesData() throws Exception {
+        List <List <String>> eurexData = new ArrayList <>();
+        List <List <String>> categoryData = new ArrayList <>();
         File file = new File(Config.getProperty("eurex_file"));
         BufferedReader br = null;
         try {
@@ -236,7 +241,7 @@ public class DataLoader implements CommandLineRunner {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(COMMA_DELIMETER);
-                List<String> list = Arrays.asList(values);
+                List <String> list = Arrays.asList(values);
                 if (list.size() > 5) {
                     eurexData.add(list);
                 }
@@ -245,7 +250,7 @@ public class DataLoader implements CommandLineRunner {
             br = new BufferedReader(new FileReader(file.getCanonicalPath()));
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(COMMA_DELIMETER);
-                List<String> list = Arrays.asList(values);
+                List <String> list = Arrays.asList(values);
                 categoryData.add(list);
             }
         } catch (IOException e) {
@@ -258,8 +263,8 @@ public class DataLoader implements CommandLineRunner {
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
 
-        for (List<String> eurexList : eurexData) {
-            for (List<String> categoryList : categoryData) {
+        for (List <String> eurexList : eurexData) {
+            for (List <String> categoryList : categoryData) {
                 if (eurexList.get(EUREX_CATEGORY).equals(categoryList.get(CATEGORY_NAME))) {
                     String symbol = eurexList.get(EUREX_SYMBOL);
                     String description = eurexList.get(EUREX_NAME);
@@ -267,7 +272,6 @@ public class DataLoader implements CommandLineRunner {
                     String contractUnit = categoryList.get(CONTRACT_UNIT);
                     Integer maintenanceMargin = Integer.parseInt(categoryList.get(MAINTENANCE_MARGIN));
                     String settlementDates = eurexList.get(EUREX_SETTLEMENT_MONTHS);
-                    System.out.println(settlementDates);
                     char[] months = new char[settlementDates.length()];
                     for (int i = 0; i < settlementDates.length(); i++) {
                         months[i] = settlementDates.toUpperCase().charAt(i);
@@ -277,32 +281,29 @@ public class DataLoader implements CommandLineRunner {
                     for (char c : months) {
                         settlementDate = getDateForMonth(c, year);
 
-                        yahoofinance.Stock stock = YahooFinance.get(symbol + c + "22");
-                        if (stock == null || stock.getHistory() == null){
-                            System.out.println("YF returned null for future symbol " + symbol);
-                            continue;
-                        }
-                        String lastUpdated = formatter.format(date);
-                        BigDecimal price = stock.getQuote().getPrice();
-                        BigDecimal ask = stock.getQuote().getAsk();
-                        BigDecimal bid = stock.getQuote().getBid();
-                        BigDecimal priceChange = stock.getQuote().getChange();
-                        Long volume = stock.getQuote().getVolume();
 
-                        Collection<SecurityHistory> history = new ArrayList<>();
-                        for (HistoricalQuote hq : stock.getHistory()) {
-                            SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
-                                    hq.getHigh().toPlainString(), hq.getLow().toPlainString());
-                            history.add(stockHistory);
-                            if (history.size() > 3) break;
-                        }
-                        securityHistoryRepository.saveAll(history);
+                        String lastUpdated = formatter.format(date);
+                        BigDecimal price = random(1000);
+                        BigDecimal ask = random(1000);
+                        BigDecimal bid = random(1000);
+                        BigDecimal priceChange = random(1000);
+
+//                        Long volume = random(1000).setScale(1, MathContext.DECIMAL64.getRoundingMode()).longValueExact();
+                        Long volume = random(1000).longValue();
+
+//                        Collection <SecurityHistory> history = new ArrayList <>();
+//                        for (HistoricalQuote hq : stock.getHistory()) {
+//                            SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
+//                                    hq.getHigh().toPlainString(), hq.getLow().toPlainString());
+//                            history.add(stockHistory);
+//                            if (history.size() > 3) break;
+//                        }
+//                        securityHistoryRepository.saveAll(nil);
 
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
-                        newFuture.setSecurityHistory(history);
+                        newFuture.setSecurityHistory(null);
                         futuresRepository.save(newFuture);
 
-                        System.out.println(newFuture);
                         year++;             // todo ??
                     }
                 }
