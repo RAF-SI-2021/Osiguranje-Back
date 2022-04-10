@@ -31,18 +31,18 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/search/firstName", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findUserByFirstName(@RequestParam(required = true) String firstName) {
-        return ResponseEntity.ok(userService.findUserByFirstName(firstName));
+    public ResponseEntity<?> findUsersByFirstName(@RequestParam(required = true) String firstName) {
+        return ResponseEntity.ok(userService.findUsersByFirstName(firstName));
     }
 
     @GetMapping(value = "/search/lastName", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findUserByLastName(@RequestParam(required = true) String lastName) {
-        return ResponseEntity.ok(userService.findUserByLastName(lastName));
+    public ResponseEntity<?> findUsersByLastName(@RequestParam(required = true) String lastName) {
+        return ResponseEntity.ok(userService.findUsersByLastName(lastName));
     }
 
     @GetMapping(value = "/search/position", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findUserByPosition(@RequestParam(required = true) String position) {
-        return ResponseEntity.ok(userService.findUserByPosition(position));
+    public ResponseEntity<?> findUsersByPosition(@RequestParam(required = true) String position) {
+        return ResponseEntity.ok(userService.findUsersByPosition(position));
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

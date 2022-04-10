@@ -26,7 +26,7 @@ public class User {
     private String JMBG;
     @Column(nullable = false)
     private String position;
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String phoneNumber;
     @Column(nullable = false)
     private Boolean active;
