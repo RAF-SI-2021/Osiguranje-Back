@@ -25,6 +25,7 @@ import yahoofinance.histquotes.Interval;
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -198,7 +199,8 @@ public class DataLoader implements CommandLineRunner {
 
     public static BigDecimal random(int range) {
         BigDecimal max = new BigDecimal(range);
-        BigDecimal randFromDouble = BigDecimal.valueOf(Math.random());
+        SecureRandom random = new SecureRandom();
+        BigDecimal randFromDouble = BigDecimal.valueOf(random.nextInt());
         BigDecimal actualRandomDec = randFromDouble.multiply(max);
         actualRandomDec = actualRandomDec.setScale(2, RoundingMode.DOWN);
         return actualRandomDec;
