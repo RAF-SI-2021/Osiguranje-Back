@@ -81,7 +81,7 @@ public class UserService implements UserDetailsService {
     public UserDto createUser(UserCreateDto dto) throws Exception {
         Optional<User> user = this.userRepository.findUserByEmail(dto.getEmail());
         if (user.isEmpty()) {
-            taskExecutor.execute(() -> EmailSender.getInstance().sendEmail(dto.getEmail(), "Setting your password", "https://docs.google.com/document/d/1kX7tSj7rEntLyHOQLQogigBC3cMYxS0GikjQxAd-3Tg/edit#"));
+            //taskExecutor.execute(() -> EmailSender.getInstance().sendEmail(dto.getEmail(), "Setting your password", "https://docs.google.com/document/d/1kX7tSj7rEntLyHOQLQogigBC3cMYxS0GikjQxAd-3Tg/edit#"));
             User u = userRepository.save(userMapper.userCreateDtoToUser(dto));
             return userMapper.userToUserDto(u);
         } else {
