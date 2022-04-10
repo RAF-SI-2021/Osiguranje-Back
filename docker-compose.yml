@@ -10,6 +10,9 @@ services:
       - $MYSQL_EXTERNAL_PORT:$MYSQL_INTERNAL_PORT
     volumes:
       - db:/var/lib/mysql
+    networks:
+      - backend
+
   eureka:
     build: ./eureka
     env_file: ./.env
@@ -19,6 +22,8 @@ services:
       - eureka:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      - backend
 
   usercrud:
     depends_on:
@@ -36,6 +41,8 @@ services:
       - usercrud:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      - backend
 
   gateway:
     depends_on:
@@ -51,6 +58,9 @@ services:
       ZUUL_ROUTES_SECURITIES_URL: http://securities:$SECURITIES_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
+    networks:
+      - nginx
+      - backend
     volumes:
       - gateway:/root/.m2
     stdin_open: true
@@ -73,6 +83,8 @@ services:
       - securities:/root/.m2
     stdin_open: true
     tty: true
+    networks:
+      - backend
 
 volumes:
   db:
@@ -80,3 +92,9 @@ volumes:
   gateway:
   usercrud:
   securities:
+
+networks:
+  nginx:
+    driver: bridge
+  backend:
+    driver: bridge
