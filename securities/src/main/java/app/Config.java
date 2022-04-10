@@ -6,14 +6,14 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Config {
-    public static Properties config;
+    public static final Properties config;
 
     static {
         config = new Properties();
         try {
             config.load(new FileInputStream("futures-api" + File.separator + "config.properties"));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 

@@ -85,7 +85,7 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -102,7 +102,7 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
@@ -158,7 +158,7 @@ public class DataLoader implements CommandLineRunner {
                 }
             }
         } catch ( IOException e ) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 

@@ -14,9 +14,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import repositories.*;
-import services.ForexService;
-import services.FuturesService;
-import services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -24,15 +21,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.histquotes.Interval;
-import yahoofinance.quotes.fx.FxQuote;
 
 import java.io.*;
 import java.math.BigDecimal;
-import java.math.MathContext;
+import java.math.RoundingMode;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.LogManager;
 
 @SpringBootApplication
 public class DataLoader implements CommandLineRunner {
@@ -80,7 +75,7 @@ public class DataLoader implements CommandLineRunner {
         loadFuturesData();
     }
 
-    private void loadForexData() throws IOException {
+    private void loadForexData() {
         readCurrencies();
         List <Currency> currencies = currencyRepository.findAll();
 
@@ -93,8 +88,12 @@ public class DataLoader implements CommandLineRunner {
             HttpHeaders headers = new HttpHeaders();
             HttpEntity <ExchangeRateAPIResponse> entity = new HttpEntity <>(headers);
             ResponseEntity <ExchangeRateAPIResponse> response = rest.exchange(exchangeRateUrl + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
-
-            HashMap <String, BigDecimal> rates = response.getBody().getConversionRates();
+            HashMap <String, BigDecimal> rates;
+            try {
+                rates = Objects.requireNonNull(response.getBody()).getConversionRates();
+            } catch (Exception e) {
+                continue;
+            }
             for (Currency c2 : currencies) {
                 if (c2.equals(currency))
                     continue;
@@ -108,29 +107,25 @@ public class DataLoader implements CommandLineRunner {
                 try {
                     BigDecimal price = rates.get(c2.getIsoCode());
                     String lastUpdated = formatter.format(date);
-                    String description = symbol;
                     BigDecimal ask = price;
                     BigDecimal bid = price;
                     BigDecimal priceChange = price;
                     Long volume = price.longValue();
 
-                    Forex newForex = new Forex(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume);
                     newForex.setBaseCurrency(currency.getIsoCode());
                     newForex.setQuoteCurrency(c2.getIsoCode());
                     newForex.setContractSize(ContractSize.STANDARD.getSize());
                     newForex.setSecurityHistory(null);
                     forexRepository.save(newForex);
                 } catch (Exception e) {
-                    System.out.println(e);
                 }
             }
         }
     }
 
     private void readCurrencies() {
-        try {
-            BufferedReader br = new BufferedReader(new FileReader(currenciesPath));
-
+        try (BufferedReader br = new BufferedReader(new FileReader(currenciesPath))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] columns = line.split(",");
@@ -139,7 +134,6 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
@@ -154,7 +148,7 @@ public class DataLoader implements CommandLineRunner {
         fetchStocks(stocksArrNa, resNa);
     }
 
-    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response) throws IOException {
+    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -196,7 +190,6 @@ public class DataLoader implements CommandLineRunner {
                 newStock.setSecurityHistory(history);
                 stocksRepository.save(newStock);
             } catch (Exception e) {
-                System.out.println(e);
             }
 
         }
@@ -205,39 +198,37 @@ public class DataLoader implements CommandLineRunner {
 
     public static BigDecimal random(int range) {
         BigDecimal max = new BigDecimal(range);
-        BigDecimal randFromDouble = new BigDecimal(Math.random());
+        BigDecimal randFromDouble = BigDecimal.valueOf(Math.random());
         BigDecimal actualRandomDec = randFromDouble.multiply(max);
-        actualRandomDec = actualRandomDec
-                .setScale(2, BigDecimal.ROUND_DOWN);
+        actualRandomDec = actualRandomDec.setScale(2, RoundingMode.DOWN);
         return actualRandomDec;
     }
 
 
-    private String[] readStockSymbols(String filename) throws FileNotFoundException {
-        BufferedReader br = new BufferedReader(new FileReader(filename));
+    private String[] readStockSymbols(String filename) throws IOException {
         ArrayList <String> stocks = new ArrayList <>();
-        String stockCode;
-        while (true) {
-            try {
-                if ((stockCode = br.readLine()) == null) break;
-                stocks.add(stockCode);
-            } catch (IOException e) {
-                e.printStackTrace();
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+
+
+            String stockCode;
+            while (true) {
+                try {
+                    if ((stockCode = br.readLine()) == null) break;
+                    stocks.add(stockCode);
+                } catch (IOException e) {
+                }
             }
         }
         String[] stocksArr = new String[stocks.size()];
-        stocksArr = stocks.toArray(stocksArr);
-
-        return stocksArr;
+        return stocks.toArray(stocksArr);
     }
 
     private void loadFuturesData() throws Exception {
         List <List <String>> eurexData = new ArrayList <>();
         List <List <String>> categoryData = new ArrayList <>();
         File file = new File(Config.getProperty("eurex_file"));
-        BufferedReader br = null;
-        try {
-            br = new BufferedReader(new FileReader(file.getCanonicalPath()));
+        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()));) {
+
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(COMMA_DELIMETER);
@@ -247,17 +238,15 @@ public class DataLoader implements CommandLineRunner {
                 }
             }
             file = new File(Config.getProperty("categories_file"));
-            br = new BufferedReader(new FileReader(file.getCanonicalPath()));
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(COMMA_DELIMETER);
-                List <String> list = Arrays.asList(values);
-                categoryData.add(list);
+            try (BufferedReader brr = new BufferedReader(new FileReader(file.getCanonicalPath()))){
+                while ((line = brr.readLine()) != null) {
+                    String[] values = line.split(COMMA_DELIMETER);
+                    List <String> list = Arrays.asList(values);
+                    categoryData.add(list);
+                }
             }
+
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            assert br != null;
-            br.close();
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -287,24 +276,11 @@ public class DataLoader implements CommandLineRunner {
                         BigDecimal ask = random(1000);
                         BigDecimal bid = random(1000);
                         BigDecimal priceChange = random(1000);
-
-//                        Long volume = random(1000).setScale(1, MathContext.DECIMAL64.getRoundingMode()).longValueExact();
                         Long volume = random(1000).longValue();
-
-//                        Collection <SecurityHistory> history = new ArrayList <>();
-//                        for (HistoricalQuote hq : stock.getHistory()) {
-//                            SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
-//                                    hq.getHigh().toPlainString(), hq.getLow().toPlainString());
-//                            history.add(stockHistory);
-//                            if (history.size() > 3) break;
-//                        }
-//                        securityHistoryRepository.saveAll(nil);
-
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                         newFuture.setSecurityHistory(null);
                         futuresRepository.save(newFuture);
-
-                        year++;             // todo ??
+                        year++;
                     }
                 }
             }
