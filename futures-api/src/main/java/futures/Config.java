@@ -13,7 +13,7 @@ public class Config {
         try {
             config.load(new FileInputStream("futures-api" + File.separator + "config.properties"));
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println(e);
         }
     }
 
