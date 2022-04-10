@@ -207,7 +207,7 @@ class UserServiceTest {
                 "0641231234",
                 true,
                 new Permissions());
-        user2.setId(1L);
+        user2.setId(2L);
         when(userRepository.save(any())).thenReturn(user2);
         when(userRepository.findUserByEmail(any())).thenReturn(ofResult);
         User user3 = new User("Radenko",
@@ -247,7 +247,7 @@ class UserServiceTest {
                 "0641231234",
                 true,
                 new Permissions());
-        user2.setId(1L);
+        user2.setId(2L);
         when(userRepository.findUserByEmail(any())).thenReturn(ofResult);
         when(userMapper.userDtoToUser(any())).thenThrow(new UsernameNotFoundException("Msg"));
         assertThrows(UsernameNotFoundException.class, () -> testUserService.updateUser(new UserDto()));
@@ -275,7 +275,7 @@ class UserServiceTest {
                 "0641231234",
                 true,
                 new Permissions());
-        user2.setId(1L);
+        user2.setId(2L);
         assertThrows(UsernameNotFoundException.class, () -> testUserService.updateUser(new UserDto()));
         verify(userRepository).findUserByEmail(any());
     }
@@ -300,7 +300,7 @@ class UserServiceTest {
                 "0641231234",
                 true,
                 new Permissions());
-        user2.setId(1L);
+        user2.setId(2L);
         when(userRepository.save(any())).thenReturn(user2);
         when(userRepository.findById(any())).thenReturn(ofResult);
         when(passwordEncoder.encode(any())).thenReturn("secret");
@@ -333,7 +333,7 @@ class UserServiceTest {
                 "0641231234",
                 true,
                 new Permissions());
-        user2.setId(1L);
+        user2.setId(2L);
         when(userRepository.findById(any())).thenReturn(ofResult);
         when(passwordEncoder.encode(any())).thenThrow(new UsernameNotFoundException("Msg"));
         assertThrows(UsernameNotFoundException.class, () -> this.testUserService.setPassword(new PasswordDto()));
@@ -368,7 +368,7 @@ class UserServiceTest {
         user2.setActive(true);
         user2.setEmail("rmilosevic@raf.rs");
         user2.setFirstName("Radoje");
-        user2.setId(123L);
+        user2.setId(2L);
         user2.setJMBG("1231231231235");
         user2.setLastName("Milosevic");
         user2.setPassword("radenko");
