@@ -11,7 +11,7 @@ public class Config {
     static {
         config = new Properties();
         try {
-            config.load(new FileInputStream("futures-api" + File.separator + "config.properties"));
+            config.load(new FileInputStream( "src/main/resources/config.properties"));
         } catch (IOException e) {
             System.err.println(e);
         }

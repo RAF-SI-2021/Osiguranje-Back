@@ -232,6 +232,7 @@ public class DataLoader implements CommandLineRunner {
     private void loadFuturesData() throws Exception {
         List <List <String>> eurexData = new ArrayList <>();
         List <List <String>> categoryData = new ArrayList <>();
+
         File file = new File(Config.getProperty("eurex_file"));
         try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()));) {
 
@@ -253,6 +254,7 @@ public class DataLoader implements CommandLineRunner {
             }
 
         } catch (IOException e) {
+            System.err.println(e);
         }
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -285,6 +287,7 @@ public class DataLoader implements CommandLineRunner {
                         Long volume = random(1000).longValue();
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                         newFuture.setSecurityHistory(null);
+                        System.out.println(newFuture);
                         futuresRepository.save(newFuture);
                         year++;
                     }
