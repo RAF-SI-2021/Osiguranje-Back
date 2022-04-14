@@ -51,8 +51,8 @@ public class UserService implements UserDetailsService {
         return user.map(userMapper::userToUserDto).orElse(null);
     }
 
-    public List<UserDto> findUserByFirstName(String firstName) {
-        List<User> users = userRepository.findUserByFirstName(firstName);
+    public List<UserDto> findUsersByFirstName(String firstName) {
+        List<User> users = userRepository.findUsersByFirstName(firstName);
         List<UserDto> dtos = new ArrayList<>();
         for (User u : users) {
             dtos.add(userMapper.userToUserDto(u));
@@ -60,8 +60,8 @@ public class UserService implements UserDetailsService {
         return dtos;
     }
 
-    public List<UserDto> findUserByLastName(String lastName) {
-        List<User> users = userRepository.findUserByLastName(lastName);
+    public List<UserDto> findUsersByLastName(String lastName) {
+        List<User> users = userRepository.findUsersByLastName(lastName);
         List<UserDto> dtos = new ArrayList<>();
         for (User u : users) {
             dtos.add(userMapper.userToUserDto(u));
@@ -69,8 +69,8 @@ public class UserService implements UserDetailsService {
         return dtos;
     }
 
-    public List<UserDto> findUserByPosition(String position) {
-        List<User> users = userRepository.findUserByPosition(position);
+    public List<UserDto> findUsersByPosition(String position) {
+        List<User> users = userRepository.findUsersByPosition(position);
         List<UserDto> dtos = new ArrayList<>();
         for (User u : users) {
             dtos.add(userMapper.userToUserDto(u));
@@ -81,7 +81,7 @@ public class UserService implements UserDetailsService {
     public UserDto createUser(UserCreateDto dto) throws Exception {
         Optional<User> user = this.userRepository.findUserByEmail(dto.getEmail());
         if (user.isEmpty()) {
-            taskExecutor.execute(() -> EmailSender.getInstance().sendEmail(dto.getEmail(), "Setting your password", "https://docs.google.com/document/d/1kX7tSj7rEntLyHOQLQogigBC3cMYxS0GikjQxAd-3Tg/edit#"));
+            //taskExecutor.execute(() -> EmailSender.getInstance().sendEmail(dto.getEmail(), "Setting your password", "https://docs.google.com/document/d/1kX7tSj7rEntLyHOQLQogigBC3cMYxS0GikjQxAd-3Tg/edit#"));
             User u = userRepository.save(userMapper.userCreateDtoToUser(dto));
             return userMapper.userToUserDto(u);
         } else {

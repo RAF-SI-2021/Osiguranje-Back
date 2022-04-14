@@ -24,7 +24,6 @@
         <module>user-crud</module>
         <module>eureka</module>
         <module>gateway-app</module>
-        <module>futures-api</module>
         <module>securities</module>
     </modules>
 
