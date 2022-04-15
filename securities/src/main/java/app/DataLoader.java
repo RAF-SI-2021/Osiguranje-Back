@@ -159,14 +159,14 @@ public class DataLoader implements CommandLineRunner {
         String[] stocksArrNy = readStockSymbols(nyStocksPath);
         String[] stocksArrNa = readStockSymbols(naStocksPath);
 
-        Map<String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
-        Map<String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
+        //Map<String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
+      //  Map<String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
 
-        fetchStocks(stocksArrNy, resNy);
-        fetchStocks(stocksArrNa, resNa);
+        fetchStocks(stocksArrNy, "XNYS");
+        fetchStocks(stocksArrNa, "XNAS");
     }
 
-    private void fetchStocks(String[] stocksArr, Map<String, yahoofinance.Stock> response) throws IOException {
+    private void fetchStocks(String[] stocksArr, String market) throws IOException {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -188,7 +188,7 @@ public class DataLoader implements CommandLineRunner {
             Long volume = stock.getQuote().getVolume();
             Long outstandingShares = stock.getStats().getSharesOutstanding();
 
-            Stock newStock = new Stock(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
+            Stock newStock = new Stock(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
 
             Collection<SecurityHistory> history = new ArrayList<>();
             for (HistoricalQuote hq : stock.getHistory()) {

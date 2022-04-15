@@ -26,7 +26,7 @@ public class Future extends Security{
     public Future(){}
 
     public Future(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Integer contractSize, String contractUnit, Integer maintenanceMargin, Date settlementDate) {
-        super(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume);
         this.contractSize = contractSize;
         this.contractUnit = contractUnit;
         this.maintenanceMargin = maintenanceMargin;

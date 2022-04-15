@@ -1,7 +1,6 @@
 package repositories;
 
 import model.Forex;
-import model.Stock;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
