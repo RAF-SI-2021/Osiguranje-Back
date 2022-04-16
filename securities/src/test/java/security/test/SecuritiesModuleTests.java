@@ -42,10 +42,10 @@ public class SecuritiesModuleTests {
 
     @Test
     void testStockService(){
-        stockService.save(new Stock("TT1","","09/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        stockService.save(new Stock("TT2","","10/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        stockService.save(new Stock("TT3","","12/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        stockService.save(new Stock("TT4","","14/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
+        stockService.save(new Stock("TT1","","","09/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
+        stockService.save(new Stock("TT2","","","10/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
+        stockService.save(new Stock("TT3","","12/10/2022","",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
+        stockService.save(new Stock("TT4","","14/10/2022","",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
 
         List<Stock> result = stockService.findBySymbol("TT1");
 

@@ -29,9 +29,9 @@ public class StockService {
         return stockRepository.saveAll(stocks);
     }
 
-    public List<Stock> findByDateWindow(Date startDate, Date endDate){
-        return stockRepository.findByDateWindow(startDate, endDate);
-    }
+//    public List<Stock> findByDateWindow(Date startDate, Date endDate){
+//        return stockRepository.findByDateWindow(startDate, endDate);
+//    }
 
     public List<Stock> findBySymbol(String symbol){
         return stockRepository.findStockBySymbol(symbol);
