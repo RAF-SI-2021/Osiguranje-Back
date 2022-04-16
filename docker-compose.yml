@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   mysqldb:
-    build: mysql
+    image: mysql:8.0.28
     env_file: ./.env
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
@@ -14,7 +14,7 @@ services:
       - backend
 
   eureka:
-    build: ./eureka
+    image: osiguranjeraf2022/eureka
     env_file: ./.env
     ports:
       - $EUREKA_EXTERNAL_PORT:$EUREKA_INTERNAL_PORT
@@ -29,7 +29,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    build: ./user-crud
+    image: osiguranjeraf2022/user-crud
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -47,10 +47,9 @@ services:
   gateway:
     depends_on:
       - usercrud
-    build: ./gateway-app
+    image: osiguranjeraf2022/gateway
     env_file: ./.env
     environment:
-      # No idea why but it doesnt work with env as in futures service
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
@@ -71,7 +70,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    build: ./securities
+    image: osiguranjeraf2022/securities
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -85,6 +84,13 @@ services:
     tty: true
     networks:
       - backend
+
+  frontend:
+    image: osiguranjeraf2022/frontend
+    ports:
+      - '80:80'
+    networks:
+      - nginx
 
 volumes:
   db:
