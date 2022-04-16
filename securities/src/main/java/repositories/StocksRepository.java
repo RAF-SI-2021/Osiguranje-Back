@@ -15,6 +15,6 @@ public interface StocksRepository extends JpaRepository<Stock, Long> {
 
     List<Stock> findStockBySymbol(String symbol);
 
-    @Query(value = "SELECT * FROM stocks WHERE date >= ?1 AND date <= ?2", nativeQuery = true)
-    List<Stock> findByDateWindow(Date startDate, Date endDate);
+//    @Query(value = "SELECT * FROM stocks WHERE date >= ?1 AND date <= ?2", nativeQuery = true)
+//    List<Stock> findByDateWindow(Date startDate, Date endDate);
 }

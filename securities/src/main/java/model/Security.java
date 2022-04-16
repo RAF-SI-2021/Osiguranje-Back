@@ -20,6 +20,8 @@ public class Security {
     @Column
     protected String description;
     @Column
+    protected String market;
+    @Column
     protected String lastUpdated;
     @Column
     protected BigDecimal price;
@@ -36,9 +38,10 @@ public class Security {
 
     public Security() {  }
 
-    public Security(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume) {
+    public Security(String symbol, String description, String market, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume) {
         this.symbol = symbol;
         this.description = description;
+        this.market = market;
         this.lastUpdated = lastUpdated;
         this.price = price;
         this.ask = ask;
