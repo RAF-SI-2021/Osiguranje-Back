@@ -30,4 +30,6 @@ public class Stock extends Security{
         super(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume);
         this.outstandingShares = outstandingShares;
     }
+
+
 }

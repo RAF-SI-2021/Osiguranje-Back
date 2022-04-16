@@ -1,4 +1,4 @@
-package gateway.app;
+package gateway;
 
 import gateway.filters.LogPreFilter;
 import org.springframework.boot.SpringApplication;
