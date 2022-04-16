@@ -234,7 +234,7 @@ public class DataLoader implements CommandLineRunner {
         List <List <String>> categoryData = new ArrayList <>();
 
         File file = new File(Config.getProperty("eurex_file"));
-        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()));) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()))) {
 
             String line;
             while ((line = br.readLine()) != null) {

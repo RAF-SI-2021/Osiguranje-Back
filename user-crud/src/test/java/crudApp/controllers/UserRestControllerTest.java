@@ -131,7 +131,7 @@ class UserRestControllerTest {
         UserRepository userRepository = mock(UserRepository.class);
         when(userRepository.findAll()).thenReturn(userList);
         UserMapper userMapper = mock(UserMapper.class);
-        when(userMapper.userToUserDto((User) any())).thenReturn(new UserDto());
+        when(userMapper.userToUserDto(any())).thenReturn(new UserDto());
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
         ResponseEntity<?> actualAllUsers = (new UserRestController(
@@ -142,7 +142,7 @@ class UserRestControllerTest {
         assertEquals(HttpStatus.OK, actualAllUsers.getStatusCode());
         assertTrue(actualAllUsers.getHeaders().isEmpty());
         verify(userRepository).findAll();
-        verify(userMapper).userToUserDto((User) any());
+        verify(userMapper).userToUserDto(any());
     }
 
     @Test
