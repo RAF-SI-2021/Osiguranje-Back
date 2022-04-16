@@ -7,6 +7,7 @@ import gateway.user.CustomPasswordEncoder;
 import gateway.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -29,6 +30,7 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
     private final PasswordEncoder passwordEncoder;
 
     @Autowired
+    @Lazy
     public AuthSecurityConfig(UserService userService, JwtAuthenticationConfig config, PasswordEncoder passwordEncoder) {
         this.userService = userService;
         this.config = config;
