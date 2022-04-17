@@ -11,11 +11,11 @@ import java.math.BigDecimal;
 @Setter
 public class Forex extends Security{
 
-    @Column(name = "base_currency", nullable = false)
+    @Column(nullable = false)
     private String baseCurrency;
-    @Column(name = "quote_currency", nullable = false)
+    @Column(nullable = false)
     private String quoteCurrency;
-    @Column(name = "contract_size", nullable = false)
+    @Column(nullable = false)
     private Integer contractSize;
 
     public BigDecimal nominalValue(BigDecimal lotSize){
@@ -23,14 +23,14 @@ public class Forex extends Security{
     }
 
     public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, String baseCurrency, String quoteCurrency, Integer contractSize) {
-        super(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume);
         this.baseCurrency = baseCurrency;
         this.quoteCurrency = quoteCurrency;
         this.contractSize = contractSize;
     }
 
     public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume) {
-        super(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume);
     }
 
     public Forex(){}

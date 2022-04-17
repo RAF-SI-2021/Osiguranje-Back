@@ -26,8 +26,10 @@ public class Stock extends Security{
         return outstandingShares * price;
     }
 
-    public Stock(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Long outstandingShares) {
-        super(symbol, description, lastUpdated, price, ask, bid, priceChange, volume);
+    public Stock(String symbol, String description, String market, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Long outstandingShares) {
+        super(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume);
         this.outstandingShares = outstandingShares;
     }
+
+
 }

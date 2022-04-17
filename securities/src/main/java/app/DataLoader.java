@@ -74,8 +74,8 @@ public class DataLoader implements CommandLineRunner {
         loadForexData();
         loadFuturesData();
         try {
-        loadStocksData();
-        } catch (Exception e){
+            loadStocksData();
+        } catch (Exception e) {
             System.err.println(e);
         }
 
@@ -149,11 +149,11 @@ public class DataLoader implements CommandLineRunner {
         Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
         Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
 
-        fetchStocks(stocksArrNy, resNy);
-        fetchStocks(stocksArrNa, resNa);
+        fetchStocks(stocksArrNy, resNy, "ny");
+        fetchStocks(stocksArrNa, resNa, "nasdaq");
     }
 
-    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response) {
+    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response, String market) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -177,7 +177,7 @@ public class DataLoader implements CommandLineRunner {
                 Long volume = stock.getQuote().getVolume();
                 Long outstandingShares = stock.getStats().getSharesOutstanding();
 
-                Stock newStock = new Stock(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
+                Stock newStock = new Stock(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
 
 //                Collection <SecurityHistory> history = new ArrayList <>();
 //                for (HistoricalQuote hq : stock.getHistory()) {
@@ -234,7 +234,7 @@ public class DataLoader implements CommandLineRunner {
         List <List <String>> categoryData = new ArrayList <>();
 
         File file = new File(Config.getProperty("eurex_file"));
-        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()));) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()))) {
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -245,7 +245,7 @@ public class DataLoader implements CommandLineRunner {
                 }
             }
             file = new File(Config.getProperty("categories_file"));
-            try (BufferedReader brr = new BufferedReader(new FileReader(file.getCanonicalPath()))){
+            try (BufferedReader brr = new BufferedReader(new FileReader(file.getCanonicalPath()))) {
                 while ((line = brr.readLine()) != null) {
                     String[] values = line.split(COMMA_DELIMETER);
                     List <String> list = Arrays.asList(values);

@@ -126,26 +126,25 @@ class UserServiceTest {
         verify(userMapper).userToUserDto(user2);
     }
 
-    @Test
-    @Disabled
-    void canCreateUser() throws Exception {
-        //given
-        UserCreateDto userCreateDto = new UserCreateDto("Milos",
-                "Radenkovic",
-                "mradenkovic@raf.rs",
-                "1231231231234",
-                "RAF",
-                "0641231234",
-                true,
-                new Permissions());
-        //when
-        testUserService.createUser(userCreateDto);
-        //then
-        ArgumentCaptor<User> argument = ArgumentCaptor.forClass(User.class);
-        verify(userRepository).save(argument.capture());
-        User capturedUser = argument.getValue();
-        assertThat(capturedUser).isEqualTo(userCreateDto);
-    }
+//    @Test
+//    void canCreateUser() throws Exception {
+//        //given
+//        UserCreateDto userCreateDto = new UserCreateDto("Milos",
+//                "Radenkovic",
+//                "mradenkovic@raf.rs",
+//                "1231231231234",
+//                "RAF",
+//                "0641231234",
+//                true,
+//                new Permissions());
+//        //when
+//        testUserService.createUser(userCreateDto);
+//        //then
+//        ArgumentCaptor<User> argument = ArgumentCaptor.forClass(User.class);
+//        verify(userRepository).save(argument.capture());
+//        User capturedUser = argument.getValue();
+//        assertThat(capturedUser).isEqualTo(userCreateDto);
+//    }
 
     @Test
     void testCreateUserThrowsException() {
