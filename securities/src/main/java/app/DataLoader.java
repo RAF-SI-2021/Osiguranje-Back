@@ -146,14 +146,14 @@ public class DataLoader implements CommandLineRunner {
     private void loadStocksData() throws IOException {
         String[] stocksArrNy = readStockSymbols(nyStocksPath);
         String[] stocksArrNa = readStockSymbols(naStocksPath);
-        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
-        Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
+//        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
+//        Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
 
-        fetchStocks(stocksArrNy, resNy, "ny");
-        fetchStocks(stocksArrNa, resNa, "nasdaq");
+        fetchStocks(stocksArrNy, "XNYS");
+        fetchStocks(stocksArrNa, "XNAS");
     }
 
-    private void fetchStocks(String[] stocksArr, Map <String, yahoofinance.Stock> response, String market) {
+    private void fetchStocks(String[] stocksArr, String market) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();

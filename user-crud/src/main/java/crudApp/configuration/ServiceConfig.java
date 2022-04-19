@@ -23,4 +23,5 @@ public class ServiceConfig {
     public UserService service(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor) {
         return new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder());
     }
+
 }
