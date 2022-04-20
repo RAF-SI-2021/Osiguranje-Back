@@ -35,6 +35,7 @@ public class UserService implements UserDetailsService {
         this.permissionMapper = permissionMapper;
         this.taskExecutor = taskExecutor;
         this.passwordEncoder = passwordEncoder;
+
     }
 
     public List<UserDto> findAll() {
