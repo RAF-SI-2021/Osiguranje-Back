@@ -5,11 +5,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface ForexRepository extends JpaRepository<Forex, Long> {
-    Optional<Forex> findByBaseCurrencyAndQuoteCurrency(String baseCurrency, String quoteCurrency);
+//    Forex findByBaseCurrencyAndQuoteCurrency(Currency baseCurrency, Currency quoteCurrency);
 
     List<Forex> findForexBySymbol(String symbol);
 }

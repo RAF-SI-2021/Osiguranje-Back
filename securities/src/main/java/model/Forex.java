@@ -2,6 +2,8 @@ package model;
 
 import lombok.Getter;
 import lombok.Setter;
+import model.Currency;
+import model.Security;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -9,28 +11,21 @@ import java.math.BigDecimal;
 @Entity
 @Getter
 @Setter
-public class Forex extends Security{
+public class Forex extends Security {
 
-    @Column(nullable = false)
-    private String baseCurrency;
-    @Column(nullable = false)
-    private String quoteCurrency;
-    @Column(nullable = false)
-    private Integer contractSize;
+    @ManyToOne
+    private Currency baseCurrency;
+    @ManyToOne
+    private Currency quoteCurrency;
 
-    public BigDecimal nominalValue(BigDecimal lotSize){
-        return lotSize.multiply(price);
-    }
-
-    public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, String baseCurrency, String quoteCurrency, Integer contractSize) {
-        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume);
+    public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Currency baseCurrency, Currency quoteCurrency, Integer contractSize) {
+        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume, contractSize);
         this.baseCurrency = baseCurrency;
         this.quoteCurrency = quoteCurrency;
-        this.contractSize = contractSize;
     }
 
-    public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume) {
-        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume);
+    public Forex(String symbol, String description, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Integer contractSize) {
+        super(symbol, description, null, lastUpdated, price, ask, bid, priceChange, volume, contractSize);
     }
 
     public Forex(){}

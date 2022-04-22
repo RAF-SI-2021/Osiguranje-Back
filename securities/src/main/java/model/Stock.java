@@ -8,28 +8,16 @@ import java.math.BigDecimal;
 @ToString
 @Entity
 @NoArgsConstructor
-@AllArgsConstructor
 public class Stock extends Security{
 
-    @Column(nullable = false)
+    @Column
     private Long outstandingShares;
+    @Column
+    private BigDecimal dividendYield;           // TODO
 
-    public Double changePercentage(double priceChange, double price){
-        return (100 * priceChange) / (price - priceChange);
-    }
-
-    public Double priceVolume(double volume, double price){
-        return volume * price;
-    }
-
-    public Double marketCap(double price){
-        return outstandingShares * price;
-    }
-
-    public Stock(String symbol, String description, String market, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Long outstandingShares) {
-        super(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume);
+    public Stock(String symbol, String description, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Long outstandingShares, BigDecimal dividendYield) {
+        super(symbol, description, exchange, lastUpdated, price, ask, bid, priceChange, volume, 1);
         this.outstandingShares = outstandingShares;
+        this.dividendYield = dividendYield;
     }
-
-
 }

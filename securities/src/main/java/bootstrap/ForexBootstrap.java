@@ -2,7 +2,7 @@ package bootstrap;
 
 import model.Forex;
 import model.forex.ContractSize;
-import model.forex.Currency;
+import model.Currency;
 import model.forex.ExchangeRateAPIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -62,28 +62,27 @@ public class ForexBootstrap {
             } catch (Exception e) {
                 continue;
             }
-            for (Currency c2 : currencies) {
-                if (c2.equals(currency))
+            for (Currency currency2 : currencies) {
+                if (currency2.equals(currency))
                     continue;
 
 
-                String symbol = currency.getIsoCode() + c2.getIsoCode();
+                String symbol = currency.getIsoCode() + currency2.getIsoCode();
                 List <Forex> forexExists = forexRepository.findForexBySymbol(symbol);
                 if (!forexExists.isEmpty()) {
                     continue;
                 }
                 try {
-                    BigDecimal price = rates.get(c2.getIsoCode());
+                    BigDecimal price = rates.get(currency2.getIsoCode());
                     String lastUpdated = formatter.format(date);
                     BigDecimal ask = price;
                     BigDecimal bid = price;
                     BigDecimal priceChange = price;
                     Long volume = price.longValue();
 
-                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume);
-                    newForex.setBaseCurrency(currency.getIsoCode());
-                    newForex.setQuoteCurrency(c2.getIsoCode());
-                    newForex.setContractSize(ContractSize.STANDARD.getSize());
+                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.STANDARD.getSize());
+                    newForex.setBaseCurrency(currency);
+                    newForex.setQuoteCurrency(currency2);
                     newForex.setSecurityHistory(null);
                     forexRepository.save(newForex);
                 } catch (Exception e) {

@@ -1,11 +1,12 @@
 package services;
 
 import model.Stock;
+import model.dto.StockDTO;
 import repositories.StocksRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -15,10 +16,6 @@ public class StockService {
     @Autowired
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
-    }
-
-    public List<Stock> getStocks(){
-        return stockRepository.findAll();
     }
 
     public Stock save(Stock stock){
@@ -39,5 +36,14 @@ public class StockService {
 
     public List<Stock> getStocksData() {
         return stockRepository.findAll();
+    }
+
+    public List<StockDTO> getStocksDTOData(){
+        List<Stock> stockList = getStocksData();
+        List<StockDTO> dtoList = new ArrayList<>();
+        for (Stock s: stockList){
+            dtoList.add(new StockDTO(s));
+        }
+        return dtoList;
     }
 }

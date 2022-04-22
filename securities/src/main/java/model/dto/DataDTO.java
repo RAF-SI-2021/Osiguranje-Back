@@ -1,4 +1,4 @@
-package model;
+package model.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 public class DataDTO {
-    private List<Future> futures;
-    private List<Forex> forex;
-    private List<Stock> stock;
+    private List<FutureDTO> futures;
+    private List<ForexDTO> forex;
+    private List<StockDTO> stock;
 }

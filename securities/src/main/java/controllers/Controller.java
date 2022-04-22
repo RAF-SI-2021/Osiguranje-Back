@@ -1,18 +1,13 @@
 package controllers;
 
-import model.DataDTO;
+import model.dto.DataDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import repositories.CurrencyRepository;
-import repositories.SecurityHistoryRepository;
 import services.ForexService;
 import services.FuturesService;
 import services.StockService;
-
-import java.security.Security;
-import java.util.ArrayList;
 
 @RestController
 @RequestMapping("/api/data")
@@ -32,7 +27,7 @@ public class Controller {
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getData(){
-        DataDTO data = new DataDTO(futuresService.getFuturesData(), forexService.getForexData(),stockService.getStocksData());
+        DataDTO data = new DataDTO(futuresService.getFutureDTOData(), forexService.getForexDTOData(),stockService.getStocksDTOData());
         return ResponseEntity.ok(data);
     }
 }

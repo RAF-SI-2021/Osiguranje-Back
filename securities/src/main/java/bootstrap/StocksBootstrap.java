@@ -1,9 +1,11 @@
 package bootstrap;
 
+import model.Exchange;
 import model.Stock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import repositories.ExchangeRepository;
 import repositories.StocksRepository;
 import yahoofinance.YahooFinance;
 
@@ -26,10 +28,12 @@ public class StocksBootstrap {
     private String naStocksPath;
 
     private final StocksRepository stocksRepository;
+    private final ExchangeRepository exchangeRepository;
 
     @Autowired
-    public StocksBootstrap(StocksRepository stocksRepository) {
+    public StocksBootstrap(StocksRepository stocksRepository, ExchangeRepository exchangeRepository) {
         this.stocksRepository = stocksRepository;
+        this.exchangeRepository = exchangeRepository;
     }
 
     public void loadStocksData()  {
@@ -37,8 +41,16 @@ public class StocksBootstrap {
             String[] stocksArrNy = readStockSymbols(nyStocksPath);
             String[] stocksArrNa = readStockSymbols(naStocksPath);
 
-            fetchStocks(stocksArrNy, "XNYS");
-            fetchStocks(stocksArrNa, "XNAS");
+            Exchange xnys = null, xnas = null;
+            try{
+                xnys = exchangeRepository.findByMIC("XNYS");
+                xnas = exchangeRepository.findByMIC("XNAS");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            fetchStocks(stocksArrNy, xnys);
+            fetchStocks(stocksArrNa, xnas);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -64,7 +76,7 @@ public class StocksBootstrap {
         return stocks.toArray(stocksArr);
     }
 
-    private void fetchStocks(String[] stocksArr, String market) {
+    private void fetchStocks(String[] stocksArr, Exchange stockExchange) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -88,7 +100,7 @@ public class StocksBootstrap {
                 Long volume = stock.getQuote().getVolume();
                 Long outstandingShares = stock.getStats().getSharesOutstanding();
 
-                Stock newStock = new Stock(symbol, description, market, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares);
+                Stock newStock = new Stock(symbol, description, stockExchange, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares, null);
 
 //                Collection <SecurityHistory> history = new ArrayList <>();
 //                for (HistoricalQuote hq : stock.getHistory()) {

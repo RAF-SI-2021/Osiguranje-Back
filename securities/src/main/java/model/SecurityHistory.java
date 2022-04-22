@@ -1,34 +1,33 @@
 package model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.math.BigDecimal;
+import java.util.Date;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
+@Getter
 public class SecurityHistory {
 
     @GeneratedValue( strategy = GenerationType.AUTO )
     @Id
     private long id;
-
     @Column
-    private String open;
-
+    private String date;
     @Column
-    private String close;
-
+    private BigDecimal price;
     @Column
-    private String high;
-
+    private BigDecimal ask;
     @Column
-    private String low;
-
-    public SecurityHistory(String open, String close, String high, String low ) {
-        this.open = open;
-        this.close = close;
-        this.high = high;
-        this.low = low;
-    }
+    private BigDecimal bid;
+    @Column
+    private BigDecimal change;
+    @Column
+    private Long volume;
 
 }

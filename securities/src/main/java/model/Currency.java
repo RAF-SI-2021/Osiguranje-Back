@@ -1,9 +1,10 @@
-package model.forex;
+package model;
 
 import lombok.Data;
 import lombok.Getter;
 
 import javax.persistence.*;
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -11,34 +12,33 @@ import java.util.Objects;
 @Getter
 public class Currency {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-    @Column(name = "name")
+    @Column
     private String name;
 
-    @Column(name = "iso_code")
+    @Column
     private String isoCode;
 
-    @Column(name = "symbol")
+    @Column
     private String symbol;
 
-    @Column(name = "region")
-    private String region;
+    @Column
+    private String country;
 
-
-    // TODO: Dodati polje za procenat inflacije.
-
+    @OneToMany
+    private Collection<InflationRate> inflationRates;        //TODO
 
     public Currency() {
     }
 
-    public Currency(String name, String isoCode, String symbol, String region) {
+    public Currency(String name, String isoCode, String symbol, String country) {
         this.name = name;
         this.isoCode = isoCode;
         this.symbol = symbol;
-        this.region = region;
+        this.country = country;
     }
 
     @Override
@@ -49,11 +49,9 @@ public class Currency {
         return Objects.equals(isoCode, currency.isoCode);
     }
 
-
     @Override
     public int hashCode() {
         return 0;
     }
-
 
 }
