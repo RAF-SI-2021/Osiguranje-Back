@@ -46,7 +46,7 @@ public class FuturesBootstrap {
 
         ClassLoader classLoader = FuturesBootstrap.class.getClassLoader();
         File file = new File(classLoader.getResource(Config.getProperty("eurex_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file.getCanonicalPath()))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -56,8 +56,9 @@ public class FuturesBootstrap {
                     eurexData.add(list);
                 }
             }
-            file = new File(Config.getProperty("categories_file"));
-            try (BufferedReader brr = new BufferedReader(new FileReader(file.getCanonicalPath()))) {
+            file = new File(classLoader.getResource(Config.getProperty("categories_file")).getFile());
+
+            try (BufferedReader brr = new BufferedReader(new FileReader(file))) {
                 while ((line = brr.readLine()) != null) {
                     String[] values = line.split(COMMA_DELIMETER);
                     List <String> list = Arrays.asList(values);
@@ -99,7 +100,7 @@ public class FuturesBootstrap {
                         Long volume = random(1000).longValue();
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                         newFuture.setSecurityHistory(null);
-                        System.out.println(newFuture);
+                        //System.out.println(newFuture);
                         futuresRepository.save(newFuture);
                         year++;
                     }
