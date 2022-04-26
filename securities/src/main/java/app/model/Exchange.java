@@ -44,7 +44,7 @@ public class Exchange {
 
     public Exchange() { }
 
-    public Exchange( String name, String acronym, String mic, String country, String timeZone, String open, String closed ) {
+    public Exchange(String name, String acronym, String mic, String country, String timeZone, String open, String closed) {
         this.name = name;
         this.acronym = acronym;
         this.MIC = mic;
