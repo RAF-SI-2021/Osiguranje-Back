@@ -1,24 +1,21 @@
 package security.test;
 
 import app.App;
-import controllers.Controller;
-import model.DataDTO;
-import model.Forex;
-import model.Future;
-import model.Stock;
+import app.controllers.Controller;
+import app.model.*;
+import app.model.dto.DataDTO;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import services.ForexService;
-import services.FuturesService;
-import services.StockService;
+import app.services.ForexService;
+import app.services.FuturesService;
+import app.services.StockService;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -49,25 +46,28 @@ public class SecuritiesModuleTests {
 
         List<Stock> toReturn = new ArrayList<>();
 
-        toReturn.add(new Stock("TT1","","BGD","09/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        toReturn.add(new Stock("TT2","","BGD","10/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        toReturn.add(new Stock("TT3","","BGD","12/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
-        toReturn.add(new Stock("TT4","","BGD","14/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L));
+        Exchange e = new Exchange("Belgrade Stock Exchange", "BSE", "XBES", "Serbia", "0", "9", "15");
 
+        toReturn.add(new Stock("TT1","",e,"09/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L, new BigDecimal(2)));
+        toReturn.add(new Stock("TT2","",e,"10/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L,  new BigDecimal(2)));
+        toReturn.add(new Stock("TT3","",e,"12/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L,  new BigDecimal(2)));
+        toReturn.add(new Stock("TT4","",e,"14/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L,  new BigDecimal(2)));
 
         return toReturn;
-
     }
 
     private List<Forex> getForex(){
         List<Forex> toReturn = new ArrayList<>();
 
-        toReturn.add(new Forex("FF1","","20/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,"Dinar","Runa",1000));
-        toReturn.add(new Forex("FF2","","21/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,"Dinar","Runa",1000));
-        toReturn.add(new Forex("FF3","","23/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,"Dinar","Runa",2000));
-        toReturn.add(new Forex("FF4","","20/03/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,"Dinar","Runa",3000));
-        toReturn.add(new Forex("FF5","","20/03/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,"Dinar","Kuna",3000));
+        Currency dinar = new Currency("Dinar", "RSD", "rsd", "Serbia");
+        Currency kuna = new Currency("Kuna", "HRK", "kn", "Croatia");
+        Currency runa = new Currency("Runa", "HRR", "rn", "Croatia");
 
+        toReturn.add(new Forex("FF1","","20/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L, dinar,runa,1000));
+        toReturn.add(new Forex("FF2","","21/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L, dinar,runa,1000));
+        toReturn.add(new Forex("FF3","","23/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,dinar,runa,2000));
+        toReturn.add(new Forex("FF4","","20/03/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,dinar,runa,3000));
+        toReturn.add(new Forex("FF5","","20/03/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L,dinar,kuna,3000));
 
         return toReturn;
     }
@@ -80,10 +80,8 @@ public class SecuritiesModuleTests {
         toReturn.add(new Future("TF3","","14/2/2019",new BigDecimal(14),new BigDecimal(14),new BigDecimal(14),new BigDecimal(14),100L,12,"$",10,new Date(2023,1,15)));
         toReturn.add(new Future("TF4","","12/1/2020",new BigDecimal(14),new BigDecimal(14),new BigDecimal(14),new BigDecimal(14),100L,12,"$",10,new Date(2023,1,15)));
 
-
         return toReturn;
     }
-
 
     @BeforeAll
     void fillDataBase(){
@@ -92,13 +90,11 @@ public class SecuritiesModuleTests {
         forexService.saveAll(getForex());
     }
 
-
     @Test
     void testStockService() {
-
         assertThat(stockService).isNotNull();
 
-        List<Stock> result = stockService.findBySymbol("TT1");
+        List<Stock> result = stockService.findByTicker("TT1");
 
         Assertions.assertEquals(1,result.size());
         assertThat(result.get(0).getLastUpdated().equals("09/10/2022")).isTrue();
@@ -106,41 +102,42 @@ public class SecuritiesModuleTests {
 
     @Test
     void testFutureService(){
-
         assertThat(futuresService).isNotNull();
 
         List<Future> result = futuresService.getFuturesData();
 
         Assertions.assertEquals(4,result.size());
-        assertThat(result.get(0).getSymbol().equals("TF1")).isTrue();
+        assertThat(result.get(0).getTicker().equals("TF1")).isTrue();
         assertThat(result.get(2).getSettlementDate().compareTo(new Date(2023,1,15))).isEqualTo(0);
     }
 
     @Test
     void testForexService(){
-
         assertThat(forexService).isNotNull();
 
-        List<Forex> result = forexService.findBySymbol("FF2");
+        List<Forex> result = forexService.findByTicker("FF2");
 
         Assertions.assertEquals(1,result.size());
 
         assertThat(result.get(0).getLastUpdated().equals("21/02/2021")).isTrue();
     }
 
-    @Test
-    void testForexServicePair(){
-        Assertions.assertThrows(IncorrectResultSizeDataAccessException.class, () -> {
-            forexService.getPair("Dinar","Runa");
-        });
-
-        Forex forex = forexService.getPair("Dinar","Kuna");
-        Assertions.assertNotNull(forex);
-    }
+//    @Test
+//    void testForexServicePair(){
+//        Currency dinar = new Currency("Dinar", "RSD", "rsd", "Serbia");
+//        Currency kuna = new Currency("Kuna", "HRK", "kn", "Croatia")
+//        Currency runa = new Currency("Runa", "HRR", "rn", "Croatia")
+//
+//        Assertions.assertThrows(IncorrectResultSizeDataAccessException.class, () -> {
+//            forexService.getPair(dinar,runa);
+//        });
+//
+//        Forex forex = forexService.getPair("Dinar","Kuna");
+//        Assertions.assertNotNull(forex);
+//    }
 
     @Test
     void testController(){
-
         assertThat(controller).isNotNull();
 
         ResponseEntity<?> responseEntity = controller.getData();
