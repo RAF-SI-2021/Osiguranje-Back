@@ -1,6 +1,7 @@
 package app.repositories;
 
 import app.model.Currency;
+import app.model.Region;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +11,5 @@ import java.util.Optional;
 public interface CurrencyRepository extends JpaRepository<Currency, Long> {
 
     Currency findByIsoCode(String isoCode);
-    Optional<Currency> findByCountry(String country);
-
+    Currency findByRegion(Region region);
 }

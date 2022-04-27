@@ -42,20 +42,16 @@ public class StocksBootstrap {
         try {
 
             ClassLoader classLoader = Config.class.getClassLoader();
-            File xnysFile = new File(classLoader.getResource(Config.getProperty("xnys_file")).getFile());
-            String[] stocksArrNy = readStockSymbols(xnysFile);
             File xnasFile = new File(classLoader.getResource(Config.getProperty("xnas_file")).getFile());
             String[] stocksArrNa = readStockSymbols(xnasFile);
 
-            Exchange xnys = null, xnas = null;
+            Exchange xnas = null;
             try{
-                xnys = exchangeRepository.findByMIC("XNYS");
                 xnas = exchangeRepository.findByMIC("XNAS");
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
-            fetchStocks(stocksArrNy, xnys);
             fetchStocks(stocksArrNa, xnas);
         } catch (IOException e) {
             e.printStackTrace();

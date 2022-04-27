@@ -1,4 +1,4 @@
-package app.model.forex;
+package app.model;
 
 import lombok.Getter;
 

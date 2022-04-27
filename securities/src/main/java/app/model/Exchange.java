@@ -37,7 +37,7 @@ public class Exchange {
     private String closed;
 
     @ManyToOne
-    private Currency currency;          // TODO
+    private Currency currency;
 
     @OneToMany
     Collection<Stock> stocks;

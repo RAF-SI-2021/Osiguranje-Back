@@ -1,10 +1,9 @@
 package app.bootstrap;
 
-import app.Config;
 import app.model.Forex;
-import app.model.forex.ContractSize;
+import app.model.ContractSize;
 import app.model.Currency;
-import app.model.forex.ExchangeRateAPIResponse;
+import app.model.api.ExchangeRateAPIResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,10 +15,6 @@ import org.springframework.web.client.RestTemplate;
 import app.repositories.CurrencyRepository;
 import app.repositories.ForexRepository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -46,7 +41,6 @@ public class ForexBootstrap {
     }
 
     public void loadForexData() {
-        readCurrencies();
         List<Currency> currencies = currencyRepository.findAll();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -67,7 +61,6 @@ public class ForexBootstrap {
             for (Currency currency2 : currencies) {
                 if (currency2.equals(currency))
                     continue;
-
 
                 String symbol = currency.getIsoCode() + currency2.getIsoCode();
                 List <Forex> forexExists = forexRepository.findForexByTicker(symbol);
@@ -90,21 +83,6 @@ public class ForexBootstrap {
                 } catch (Exception e) {
                 }
             }
-        }
-    }
-
-    private void readCurrencies() {
-        ClassLoader classLoader = ForexBootstrap.class.getClassLoader();
-        File file = new File(classLoader.getResource(Config.getProperty("currencies_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] columns = line.split(",");
-                Currency currency = new Currency(columns[2], columns[1], columns[3], columns[0]);
-                currencyRepository.save(currency);
-            }
-
-        } catch (IOException e) {
         }
     }
 }

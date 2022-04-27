@@ -100,7 +100,6 @@ public class FuturesBootstrap {
                         Long volume = random(1000).longValue();
                         Future newFuture = new Future(symbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                         newFuture.setSecurityHistory(null);
-                        //System.out.println(newFuture);
                         futuresRepository.save(newFuture);
                         year++;
                     }
