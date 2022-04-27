@@ -22,7 +22,6 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(classes = App.class)
@@ -46,7 +45,9 @@ public class SecuritiesModuleTests {
 
         List<Stock> toReturn = new ArrayList<>();
 
-        Exchange e = new Exchange("Belgrade Stock Exchange", "BSE", "XBES", "Serbia", "0", "9", "15");
+        Region region = new Region("Serbia", "SRB");
+        Exchange e = new Exchange("Belgrade Stock Exchange", "BSE", "XBES", "0", "9", "15");
+        e.setRegion(region);
 
         toReturn.add(new Stock("TT1","",e,"09/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L, new BigDecimal(2)));
         toReturn.add(new Stock("TT2","",e,"10/10/2022",new BigDecimal(15),new BigDecimal(15),new BigDecimal(15),new BigDecimal(1),100L,100L,  new BigDecimal(2)));
@@ -58,10 +59,12 @@ public class SecuritiesModuleTests {
 
     private List<Forex> getForex(){
         List<Forex> toReturn = new ArrayList<>();
+        Region serbia = new Region("Serbia", "SRB");
+        Region croatia = new Region("Croatia", "CRO");
 
-        Currency dinar = new Currency("Dinar", "RSD", "rsd", "Serbia");
-        Currency kuna = new Currency("Kuna", "HRK", "kn", "Croatia");
-        Currency runa = new Currency("Runa", "HRR", "rn", "Croatia");
+        Currency dinar = new Currency("Dinar", "RSD", "rsd", serbia);
+        Currency kuna = new Currency("Kuna", "HRK", "kn", croatia);
+        Currency runa = new Currency("Runa", "HRR", "rn", croatia);
 
         toReturn.add(new Forex("FF1","","20/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L, dinar,runa,1000));
         toReturn.add(new Forex("FF2","","21/02/2021",new BigDecimal(180),new BigDecimal(180),new BigDecimal(180),new BigDecimal(1821),143L, dinar,runa,1000));
