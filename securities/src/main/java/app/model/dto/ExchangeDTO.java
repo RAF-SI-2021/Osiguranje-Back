@@ -20,7 +20,7 @@ public class ExchangeDTO {
         this.name = exchange.getName();
         this.acronym = exchange.getAcronym();
         this.MIC = exchange.getMIC();
-        this.country = exchange.getCountry();
+        this.country = exchange.getRegion().getName();
         this.timeZone = exchange.getTimeZone();
         this.open = exchange.getOpen();
         this.closed = exchange.getClosed();

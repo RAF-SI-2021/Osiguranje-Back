@@ -19,7 +19,7 @@ public class Region {
     String name;
     @Column
     String code;
-    @OneToOne
+    @OneToOne       //TODO
     Currency currency;
 
     public Region(String name, String code) {
