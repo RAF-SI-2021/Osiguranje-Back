@@ -1,39 +1,25 @@
-package buyingMarket.model;
+package buyingMarket.model.dto;
 
-import lombok.*;
+import buyingMarket.model.OrderType;
+import lombok.Getter;
+import lombok.Setter;
 
-import javax.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@ToString
-@Entity
-@NoArgsConstructor
-@AllArgsConstructor
-public class Transaction {
-    @GeneratedValue( strategy = GenerationType.AUTO )
-    @Id
-    private long id;
-    @Column
+public class TransactionDto {
     private long userId;
-    @Column
     private LocalDateTime time;
-    @Column
     private String security;
-    @Column
     private BigDecimal price;
-    @Column
     private BigDecimal volume;
-    @Column
     private OrderType orderType;
-    @Column
     private boolean allOrNone;
-    @Column
     private boolean margin;
 
-    public Transaction(long userId, LocalDateTime time, String security, BigDecimal price, BigDecimal volume, OrderType orderType, boolean allOrNone, boolean margin) {
+    public TransactionDto(long userId, LocalDateTime time, String security, BigDecimal price, BigDecimal volume, OrderType orderType, boolean allOrNone, boolean margin) {
         this.userId = userId;
         this.time = time;
         this.security = security;

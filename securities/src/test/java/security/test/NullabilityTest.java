@@ -2,14 +2,14 @@ package security.test;
 
 
 import app.App;
-import controllers.Controller;
+import app.controllers.Controller;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
-import services.ForexService;
-import services.FuturesService;
-import services.StockService;
+import app.services.ForexService;
+import app.services.FuturesService;
+import app.services.StockService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +36,6 @@ public class NullabilityTest {
         assertThat(futuresService).isNotNull();
         assertThat(forexService).isNotNull();
         assertThat(controller).isNotNull();
-
     }
 
 }
