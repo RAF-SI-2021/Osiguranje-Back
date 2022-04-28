@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -14,26 +15,26 @@ import java.math.BigDecimal;
 public class Transaction {
     @GeneratedValue( strategy = GenerationType.AUTO )
     @Id
-    protected long id;
+    private long id;
     @Column
-    protected long userId;
+    private long userId;
     @Column
-    protected String baseCurrencySymbol;
+    private LocalDateTime time;
     @Column
-    protected String quoteCurrencySymbol;
+    private String security;
     @Column
-    protected String time;
+    private BigDecimal price;
     @Column
-    protected BigDecimal price;
+    private BigDecimal volume;
     @Column
-    protected BigDecimal volume;
+    private OrderType orderType;
 
-    public Transaction(long userId, String baseCurrencySymbol, String quoteCurrencySymbol, String time, BigDecimal price, BigDecimal volume) {
+    public Transaction(long userId, LocalDateTime time, String security, BigDecimal price, BigDecimal volume, OrderType orderType) {
         this.userId = userId;
-        this.baseCurrencySymbol = baseCurrencySymbol;
-        this.quoteCurrencySymbol = quoteCurrencySymbol;
         this.time = time;
+        this.security = security;
         this.price = price;
         this.volume = volume;
+        this.orderType = orderType;
     }
 }
