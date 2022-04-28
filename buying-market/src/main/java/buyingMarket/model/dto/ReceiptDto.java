@@ -9,11 +9,11 @@ import java.util.Collection;
 
 @Getter
 @Setter
-public class ReceiptCreateDto {
+public class ReceiptDto {
     private User user;
     private Collection<Transaction> transactions;
 
-    public ReceiptCreateDto(User user, Collection<Transaction> transactions) {
+    public ReceiptDto(User user, Collection<Transaction> transactions) {
         this.user = user;
         this.transactions = transactions;
     }

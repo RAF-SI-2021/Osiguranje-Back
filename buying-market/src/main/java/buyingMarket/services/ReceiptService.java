@@ -4,8 +4,8 @@ import buyingMarket.mappers.ReceiptMapper;
 import buyingMarket.mappers.TransactionMapper;
 import buyingMarket.model.Receipt;
 import buyingMarket.model.Transaction;
-import buyingMarket.model.dto.ReceiptCreateDto;
-import buyingMarket.model.dto.TransactionCreateDto;
+import buyingMarket.model.dto.ReceiptDto;
+import buyingMarket.model.dto.TransactionDto;
 import buyingMarket.repositories.ReceiptRepository;
 import buyingMarket.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,11 +33,11 @@ public class ReceiptService {
         return receiptRepository.findAllByUser(userId);
     }
 
-    public Receipt createReceipt(ReceiptCreateDto dto) {
+    public Receipt createReceipt(ReceiptDto dto) {
         return receiptRepository.save(receiptMapper.receiptCreateDtoToReceipt(dto));
     }
 
-    public Receipt addTransaction(long receiptId, TransactionCreateDto dto){
+    public Receipt addTransaction(long receiptId, TransactionDto dto){
         Transaction transaction = transactionMapper.transactionCreateDtoToTransaction(dto);
         transactionRepository.save(transaction);
         Optional<Receipt> receipt = receiptRepository.findById(receiptId);

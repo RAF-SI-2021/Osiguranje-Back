@@ -28,13 +28,19 @@ public class Transaction {
     private BigDecimal volume;
     @Column
     private OrderType orderType;
+    @Column
+    private boolean allOrNone;
+    @Column
+    private boolean margin;
 
-    public Transaction(long userId, LocalDateTime time, String security, BigDecimal price, BigDecimal volume, OrderType orderType) {
+    public Transaction(long userId, LocalDateTime time, String security, BigDecimal price, BigDecimal volume, OrderType orderType, boolean allOrNone, boolean margin) {
         this.userId = userId;
         this.time = time;
         this.security = security;
         this.price = price;
         this.volume = volume;
         this.orderType = orderType;
+        this.allOrNone = allOrNone;
+        this.margin = margin;
     }
 }

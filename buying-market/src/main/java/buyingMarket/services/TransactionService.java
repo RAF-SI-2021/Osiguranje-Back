@@ -2,7 +2,7 @@ package buyingMarket.services;
 
 import buyingMarket.mappers.TransactionMapper;
 import buyingMarket.model.Transaction;
-import buyingMarket.model.dto.TransactionCreateDto;
+import buyingMarket.model.dto.TransactionDto;
 import buyingMarket.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class TransactionService {
         return transactionRepository.findAllByUser(userId);
     }
 
-    public Transaction save(TransactionCreateDto dto){
+    public Transaction save(TransactionDto dto){
         return transactionRepository.save(transactionMapper.transactionCreateDtoToTransaction(dto));
     }
 }
