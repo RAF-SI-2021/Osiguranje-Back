@@ -10,11 +10,15 @@ import java.util.Collection;
 @Getter
 @Setter
 public class ReceiptDto {
-    private User user;
+    private long userId;
     private Collection<Transaction> transactions;
 
-    public ReceiptDto(User user, Collection<Transaction> transactions) {
-        this.user = user;
+    public ReceiptDto(long userId) {
+        this.userId = userId;
+    }
+
+    public ReceiptDto(long userId, Collection<Transaction> transactions) {
+        this.userId = userId;
         this.transactions = transactions;
     }
 }

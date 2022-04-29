@@ -7,6 +7,6 @@ import org.springframework.stereotype.Component;
 @Component
 public class ReceiptMapper {
     public Receipt receiptCreateDtoToReceipt(ReceiptDto dto) {
-        return new Receipt(dto.getUser(), dto.getTransactions());
+        return new Receipt(dto.getUserId(), dto.getTransactions());
     }
 }
