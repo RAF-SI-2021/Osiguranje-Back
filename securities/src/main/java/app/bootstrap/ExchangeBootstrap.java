@@ -42,7 +42,7 @@ public class ExchangeBootstrap {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );
-                Exchange stockExchange = new Exchange(columns[2], columns[2], columns[4], columns[5], columns[3], columns[0] );
+                Exchange stockExchange = new Exchange(columns[2], columns[6], columns[4], columns[5], columns[3], columns[0] );
 
                 Region region = regionRepository.findByName(columns[1]);
                 if (region == null)
