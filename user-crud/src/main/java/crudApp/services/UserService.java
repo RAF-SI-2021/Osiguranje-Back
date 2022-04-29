@@ -47,6 +47,11 @@ public class UserService implements UserDetailsService {
         return dtos;
     }
 
+    public UserDto findUserById(long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.map(userMapper::userToUserDto).orElse(null);
+    }
+
     public UserDto findUserByEmail(String email) {
         Optional<User> user = userRepository.findUserByEmail(email);
         return user.map(userMapper::userToUserDto).orElse(null);
