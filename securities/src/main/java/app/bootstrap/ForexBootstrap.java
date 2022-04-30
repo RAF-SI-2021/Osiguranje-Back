@@ -14,13 +14,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import app.repositories.CurrencyRepository;
 import app.repositories.ForexRepository;
+import yahoofinance.YahooFinance;
+import yahoofinance.quotes.fx.FxQuote;
+import yahoofinance.quotes.fx.FxSymbols;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class ForexBootstrap {
@@ -72,8 +72,8 @@ public class ForexBootstrap {
                     String lastUpdated = formatter.format(date);
                     BigDecimal ask = price;
                     BigDecimal bid = price;
-                    BigDecimal priceChange = price;
-                    Long volume = price.longValue();
+                    BigDecimal priceChange = bid.subtract(ask);
+                    Long volume = null;
 
                     Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.STANDARD.getSize());
                     newForex.setBaseCurrency(currency);

@@ -23,13 +23,13 @@ public class Security {
     protected Exchange exchange;
     @Column
     protected String lastUpdated;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal price;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal ask;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal bid;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal priceChange;
     @Column
     protected Long volume;

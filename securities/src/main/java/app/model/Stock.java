@@ -16,7 +16,7 @@ public class Stock extends Security {
 
     @Column
     private Long outstandingShares;
-    @Column
+    @Column(precision = 10, scale = 4)
     private BigDecimal dividendYield;
 
     public Stock(String symbol, String description, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, Long outstandingShares, BigDecimal dividendYield) {

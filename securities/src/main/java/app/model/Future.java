@@ -16,10 +16,10 @@ public class Future extends Security{
 
     @Column(nullable = false)
     private String contractUnit;
-    @Column(nullable = false)
+    @Column(nullable = false, precision = 10, scale = 4)
     private BigDecimal maintenanceMargin;
     @Column(nullable = false)
-    private Date settlementDate;        //TODO
+    private Date settlementDate;
 
     public Future(){}
 
