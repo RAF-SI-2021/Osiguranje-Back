@@ -1,9 +1,11 @@
 package app.bootstrap;
 
+import app.Config;
 import app.model.Forex;
 import app.model.ContractSize;
 import app.model.Currency;
 import app.model.api.ExchangeRateAPIResponse;
+import app.services.ForexService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -25,19 +27,15 @@ import java.util.*;
 @Component
 public class ForexBootstrap {
 
-    @Value("${exchangerate.api.url}")
-    private String exchangeRateUrl;
-
-//    @Value("${currencies}")
-//    private String currenciesPath;
-
     private final ForexRepository forexRepository;
     private final CurrencyRepository currencyRepository;
+    private final ForexService forexService;
 
     @Autowired
-    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository) {
+    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository, ForexService forexService) {
         this.forexRepository = forexRepository;
         this.currencyRepository = currencyRepository;
+        this.forexService = forexService;
     }
 
     public void loadForexData() {
@@ -45,13 +43,14 @@ public class ForexBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+        forexService.setLastupdated(date);
 
         for (Currency currency : currencies) {
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<ExchangeRateAPIResponse> entity = new HttpEntity <>(headers);
-            ResponseEntity<ExchangeRateAPIResponse> response = rest.exchange(exchangeRateUrl + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
+            ResponseEntity<ExchangeRateAPIResponse> response = rest.exchange(Config.getProperty("exchangerate_url") + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
             HashMap<String, BigDecimal> rates;
             try {
                 rates = Objects.requireNonNull(response.getBody()).getConversionRates();
@@ -63,8 +62,8 @@ public class ForexBootstrap {
                     continue;
 
                 String symbol = currency.getIsoCode() + currency2.getIsoCode();
-                List <Forex> forexExists = forexRepository.findForexByTicker(symbol);
-                if (!forexExists.isEmpty()) {
+                Forex forexExists = forexRepository.findForexByTicker(symbol);
+                if (forexExists != null) {
                     continue;
                 }
                 try {

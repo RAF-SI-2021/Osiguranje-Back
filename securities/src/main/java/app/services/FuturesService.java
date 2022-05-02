@@ -3,17 +3,20 @@ package app.services;
 import app.model.Future;
 import app.model.dto.FutureDTO;
 import app.repositories.FuturesRepository;
+import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
+@Setter
 public class FuturesService {
-    private final FuturesRepository futuresRepository;
+    private Date lastupdated;
 
-    @Autowired
+    private final FuturesRepository futuresRepository;
     public FuturesService(FuturesRepository futuresContractRepository) {
         this.futuresRepository = futuresContractRepository;
     }
@@ -34,4 +37,5 @@ public class FuturesService {
     public Future save(Future future) {
         return this.futuresRepository.save(future);
     }
+
 }

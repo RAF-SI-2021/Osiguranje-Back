@@ -5,6 +5,7 @@ import app.model.Future;
 import app.model.InflationRate;
 import app.model.api.FutureAPIResponse;
 import app.model.api.InflationRateAPIResponse;
+import app.services.FuturesService;
 import org.hibernate.type.BigDecimalType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -41,10 +42,12 @@ public class FuturesBootstrap {
     private static final int MAINTENANCE_MARGIN = 3;
 
     private final FuturesRepository futuresRepository;
+    private final FuturesService futuresService;
 
     @Autowired
-    public FuturesBootstrap(FuturesRepository futuresRepository) {
+    public FuturesBootstrap(FuturesRepository futuresRepository, FuturesService futuresService) {
         this.futuresRepository = futuresRepository;
+        this.futuresService = futuresService;
     }
 
     public void loadFuturesData() throws Exception {
@@ -77,6 +80,7 @@ public class FuturesBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+        futuresService.setLastupdated(date);
 
         for (List<String> eurexList : eurexData) {
             for (List <String> categoryList : categoryData) {
