@@ -1,6 +1,5 @@
 package security.test;
 
-
 import app.App;
 import app.controllers.Controller;
 import org.junit.jupiter.api.Test;
@@ -28,7 +27,6 @@ public class NullabilityTest {
 
     @Autowired
     private ForexService forexService;
-
 
     @Test
     void testFirmness(){

@@ -11,17 +11,20 @@ public class BootstrapData implements CommandLineRunner {
     private final FuturesBootstrap futuresBootstrap;
     private final ForexBootstrap forexBootstrap;
     private final ExchangeBootstrap exchangeBootstrap;
+    private final CurrencyBootstrap currencyBootstrap;
 
     @Autowired
-    public BootstrapData(StocksBootstrap stocksBootstrap, FuturesBootstrap futuresBootstrap, ForexBootstrap forexBootstrap, ExchangeBootstrap exchangeBootstrap) {
+    public BootstrapData(StocksBootstrap stocksBootstrap, FuturesBootstrap futuresBootstrap, ForexBootstrap forexBootstrap, ExchangeBootstrap exchangeBootstrap, CurrencyBootstrap currencyBootstrap) {
         this.stocksBootstrap = stocksBootstrap;
         this.futuresBootstrap = futuresBootstrap;
         this.forexBootstrap = forexBootstrap;
         this.exchangeBootstrap = exchangeBootstrap;
+        this.currencyBootstrap = currencyBootstrap;
     }
 
     @Override
     public void run(String... args) throws Exception {
+        currencyBootstrap.loadCurrenciesData();
         forexBootstrap.loadForexData();
         exchangeBootstrap.loadStockExchangeData();
         stocksBootstrap.loadStocksData();
