@@ -7,7 +7,6 @@ import app.model.Currency;
 import app.model.api.ExchangeRateAPIResponse;
 import app.services.ForexService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,9 +15,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import app.repositories.CurrencyRepository;
 import app.repositories.ForexRepository;
-import yahoofinance.YahooFinance;
-import yahoofinance.quotes.fx.FxQuote;
-import yahoofinance.quotes.fx.FxSymbols;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;

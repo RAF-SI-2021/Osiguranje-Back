@@ -25,10 +25,14 @@ public class ForexService  {
 
     private Date lastupdated = new Date();
 
+    private final ForexRepository forexRepository;
+    private final CurrencyRepository currencyRepository;
+
     @Autowired
-    private ForexRepository forexRepository;
-    @Autowired
-    private CurrencyRepository currencyRepository;
+    public ForexService(ForexRepository forexRepository, CurrencyRepository currencyRepository) {
+        this.forexRepository = forexRepository;
+        this.currencyRepository = currencyRepository;
+    }
 
     public void save(Forex forex){
         forexRepository.save(forex);
