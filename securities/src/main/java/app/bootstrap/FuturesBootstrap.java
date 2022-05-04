@@ -82,6 +82,7 @@ public class FuturesBootstrap {
         Date date = new Date();
         futuresService.setLastupdated(date);
 
+        SecureRandom random = new SecureRandom();
         for (List<String> eurexList : eurexData) {
             for (List <String> categoryList : categoryData) {
                 if (eurexList.get(EUREX_CATEGORY).equals(categoryList.get(CATEGORY_NAME))) {
@@ -124,7 +125,7 @@ public class FuturesBootstrap {
                             BigDecimal priceChange = bid.subtract(ask);
                             Long volume = (long)Double.parseDouble(data.get(5));
                             if(volume == 0)
-                                volume = 5000 + (long)(new Random().nextDouble()*20000);
+                                volume = 5000 + (long)(random.nextDouble()*20000);
 
                             Future newFuture = new Future(currSymbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                             newFuture.setSecurityHistory(null);
