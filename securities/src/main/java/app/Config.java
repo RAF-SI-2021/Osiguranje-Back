@@ -11,7 +11,10 @@ public class Config {
     static {
         config = new Properties();
         try {
-            config.load(new FileInputStream( "src/main/resources/config.properties"));
+            ClassLoader classLoader = Config.class.getClassLoader();
+            File f = new File(classLoader.getResource("config.properties").getFile());
+            //File f = new File("src/main/resources/config.properties");
+            config.load(new FileInputStream(f));
         } catch (IOException e) {
             System.err.println(e);
         }
