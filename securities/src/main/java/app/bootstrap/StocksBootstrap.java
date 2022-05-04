@@ -4,7 +4,6 @@ import app.Config;
 import app.model.Exchange;
 import app.model.SecurityHistory;
 import app.model.Stock;
-import app.model.api.AlphaVantageQuoteAPIResponse;
 import app.model.api.InflationRateAPIResponse;
 import app.repositories.SecurityHistoryRepository;
 import app.repositories.StocksRepository;
