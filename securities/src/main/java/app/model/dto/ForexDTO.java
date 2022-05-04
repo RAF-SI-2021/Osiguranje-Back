@@ -1,11 +1,7 @@
 package app.model.dto;
 
 import app.model.Forex;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
 public class ForexDTO extends SecurityDTO {
 
     private String baseCurrency;
