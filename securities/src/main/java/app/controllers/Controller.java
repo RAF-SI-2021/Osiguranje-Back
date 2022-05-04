@@ -30,4 +30,22 @@ public class Controller {
         DataDTO data = new DataDTO(futuresService.getFutureDTOData(), forexService.getForexDTOData(),stockService.getStocksDTOData());
         return ResponseEntity.ok(data);
     }
+
+//    @CrossOrigin(origins = "*")
+//    @GetMapping(value = "/forex/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> findForexById(@PathVariable long id) {
+//        return ResponseEntity.ok(forexService.findById(id));
+//    }
+//
+//    @CrossOrigin(origins = "*")
+//    @GetMapping(value = "/futures/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> findFutureById(@PathVariable long id) {
+//        return ResponseEntity.ok(futuresService.findById(id));
+//    }
+//
+//    @CrossOrigin(origins = "*")
+//    @GetMapping(value = "/stocks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> findStockById(@PathVariable long id) {
+//        return ResponseEntity.ok(stockService.findById(id));
+//    }
 }

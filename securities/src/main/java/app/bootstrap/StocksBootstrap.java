@@ -4,10 +4,10 @@ import app.Config;
 import app.model.Exchange;
 import app.model.SecurityHistory;
 import app.model.Stock;
-import app.model.api.AlphaVantageQuoteAPIResponse;
 import app.model.api.InflationRateAPIResponse;
 import app.repositories.SecurityHistoryRepository;
 import app.repositories.StocksRepository;
+import app.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -41,12 +41,14 @@ public class StocksBootstrap {
     private final StocksRepository stocksRepository;
     private final ExchangeRepository exchangeRepository;
     private final SecurityHistoryRepository securityHistoryRepository;
+    private final StockService stockService;
 
     @Autowired
-    public StocksBootstrap(StocksRepository stocksRepository, ExchangeRepository exchangeRepository, SecurityHistoryRepository securityHistoryRepository) {
+    public StocksBootstrap(StocksRepository stocksRepository, ExchangeRepository exchangeRepository, SecurityHistoryRepository securityHistoryRepository, StockService stockService) {
         this.stocksRepository = stocksRepository;
         this.exchangeRepository = exchangeRepository;
         this.securityHistoryRepository = securityHistoryRepository;
+        this.stockService = stockService;
     }
 
     public void loadStocksData()  {
@@ -85,6 +87,8 @@ public class StocksBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+        stockService.setLastupdated(date);
+
         for (String symbol : stocksArr) {
             List<Stock> stockExists = stocksRepository.findStockByTicker(symbol);
             if (!stockExists.isEmpty()) {

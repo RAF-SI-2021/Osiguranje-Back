@@ -5,6 +5,7 @@ import app.model.Future;
 import app.model.InflationRate;
 import app.model.api.FutureAPIResponse;
 import app.model.api.InflationRateAPIResponse;
+import app.services.FuturesService;
 import org.hibernate.type.BigDecimalType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -25,6 +26,7 @@ import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 public class FuturesBootstrap {
@@ -40,10 +42,12 @@ public class FuturesBootstrap {
     private static final int MAINTENANCE_MARGIN = 3;
 
     private final FuturesRepository futuresRepository;
+    private final FuturesService futuresService;
 
     @Autowired
-    public FuturesBootstrap(FuturesRepository futuresRepository) {
+    public FuturesBootstrap(FuturesRepository futuresRepository, FuturesService futuresService) {
         this.futuresRepository = futuresRepository;
+        this.futuresService = futuresService;
     }
 
     public void loadFuturesData() throws Exception {
@@ -76,7 +80,9 @@ public class FuturesBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+        futuresService.setLastupdated(date);
 
+        SecureRandom random = new SecureRandom();
         for (List<String> eurexList : eurexData) {
             for (List <String> categoryList : categoryData) {
                 if (eurexList.get(EUREX_CATEGORY).equals(categoryList.get(CATEGORY_NAME))) {
@@ -93,11 +99,10 @@ public class FuturesBootstrap {
                     int year = 2022;
                     Date settlementDate;
                     for (char c : months) {
-                        settlementDate = getDateForMonth(c, year);
-
+                        int quoteYear = calculateYear(c, year);
+                        settlementDate = getDateForMonth(c, quoteYear);
                         String lastUpdated = formatter.format(date);
-
-                        String currSymbol = symbol + c + year;
+                        String currSymbol = symbol + c + quoteYear;
                         try{
                             RestTemplate rest = new RestTemplate();
                             HttpHeaders headers = new HttpHeaders();
@@ -112,9 +117,15 @@ public class FuturesBootstrap {
                                 continue;
                             BigDecimal price = new BigDecimal(data.get(4));
                             BigDecimal ask = new BigDecimal(data.get(2));
+                            if(ask.compareTo(BigDecimal.valueOf(0)) == 0)
+                                ask = price;
                             BigDecimal bid = new BigDecimal(data.get(3));
+                            if(bid.compareTo(BigDecimal.valueOf(0)) == 0)
+                                bid = price;
                             BigDecimal priceChange = bid.subtract(ask);
                             Long volume = (long)Double.parseDouble(data.get(5));
+                            if(volume == 0)
+                                volume = 5000 + (long)(random.nextDouble()*20000);
 
                             Future newFuture = new Future(currSymbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
                             newFuture.setSecurityHistory(null);
@@ -129,77 +140,87 @@ public class FuturesBootstrap {
         }
     }
 
-    private Date getDateForMonth(char month, int year) throws ParseException {
-        Date settlementDate;
-        switch (month) {
+    private int getMonth(char monthChar) throws ParseException {
+        int month;
+        switch (monthChar) {
             case 'F':
-                if (year == 2022) {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("01", year + 1));
-                } else {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("01", year));
-                }
+                month = 1;
                 break;
             case 'G':
-                if (year == 2022) {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("02", year + 1));
-                } else {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("02", year));
-                }
+                month = 2;
                 break;
             case 'H':
-                if (year == 2022) {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("03", year + 1));
-                } else {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("03", year));
-                }
+                month = 3;
                 break;
             case 'J':
-                if (year == 2022) {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("04", year + 1));
-                } else {
-                    settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("04", year));
-                }
+                month = 4;
                 break;
             case 'K':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("05", year));
+                month = 5;
                 break;
             case 'M':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("06", year));
+                month = 6;
                 break;
             case 'N':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("07", year));
+                month = 7;
                 break;
             case 'Q':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("08", year));
+                month = 8;
                 break;
             case 'U':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("09", year));
+                month = 9;
                 break;
             case 'V':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("10", year));
+                month = 10;
                 break;
             case 'X':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("11", year));
+                month = 11;
                 break;
             case 'Z':
-                settlementDate = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder("12", year));
+                month = 12;
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + month);
+                throw new IllegalStateException("Unexpected value: " + monthChar);
         }
+        return month;
+    }
+
+    private int calculateYear(char monthChar, int year) throws ParseException{
+        Date currDate = new Date();
+        SimpleDateFormat formatter = new SimpleDateFormat("MM");
+        String currMonthStr = formatter.format(currDate);
+        int currMonth = Integer.parseInt(currMonthStr);
+        int month = getMonth(monthChar);
+        if(month <= currMonth)
+            year++;
+        return year;
+    }
+
+    private Date getDateForMonth(char monthChar, int year) throws ParseException {
+        int month = getMonth(monthChar);
+
+        Date settlementDate  = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder(month, year));
         return settlementDate;
     }
 
-    private String dateFormatBuilder(String month, int year) {
-        return "01/" + month + "/" + year;
+    private String dateFormatBuilder(int month, int year) {
+        int day = 31;
+        if (month == 2)
+            day = 28;
+        int[] shortMonths = {4, 6, 9, 11};
+        List<Integer> list = Arrays.stream(shortMonths).boxed().collect(Collectors.toList());
+        if(list.contains(month))
+            day = 30;
+
+        return day + "/" + month + "/" + year;
     }
 
-    public static BigDecimal random(int range) {
-        BigDecimal max = new BigDecimal(range);
-        SecureRandom random = new SecureRandom();
-        BigDecimal randFromDouble = BigDecimal.valueOf(random.nextInt());
-        BigDecimal actualRandomDec = randFromDouble.multiply(max);
-        actualRandomDec = actualRandomDec.setScale(2, RoundingMode.DOWN);
-        return actualRandomDec;
-    }
+//    public static BigDecimal random(int range) {
+//        BigDecimal max = new BigDecimal(range);
+//        SecureRandom random = new SecureRandom();
+//        BigDecimal randFromDouble = BigDecimal.valueOf(random.nextInt());
+//        BigDecimal actualRandomDec = randFromDouble.multiply(max);
+//        actualRandomDec = actualRandomDec.setScale(2, RoundingMode.DOWN);
+//        return actualRandomDec;
+//    }
 }
