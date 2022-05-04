@@ -34,11 +34,10 @@ public class ExchangeBootstrap {
 
     public void loadStockExchangeData()
     {
-        try {
-            ClassLoader classLoader = ExchangeBootstrap.class.getClassLoader();
-            File f = new File(classLoader.getResource(Config.getProperty("exchange_file")).getFile());
-            BufferedReader br = new BufferedReader(new FileReader(f));
+        ClassLoader classLoader = ExchangeBootstrap.class.getClassLoader();
+        File f = new File(classLoader.getResource(Config.getProperty("exchange_file")).getFile());
 
+        try(BufferedReader br = new BufferedReader(new FileReader(f))) {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );
