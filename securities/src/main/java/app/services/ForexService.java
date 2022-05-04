@@ -55,6 +55,15 @@ public class ForexService  {
         return forexRepository.findForexByTicker(symbol);
     }
 
+    public ForexDTO findById(long id) {
+        Optional<Forex> opForex = forexRepository.findById(id);
+        if(!opForex.isPresent())
+            return null;
+        Forex forex = opForex.get();
+        ForexDTO dto = new ForexDTO(forex);
+        return dto;
+    }
+
     private List<Forex> getForexData() {
         Date currDate = new Date();
         long timeDifference = currDate.getTime() - lastupdated.getTime();
