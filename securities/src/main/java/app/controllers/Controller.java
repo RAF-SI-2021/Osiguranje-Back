@@ -1,6 +1,9 @@
 package app.controllers;
 
 import app.model.dto.DataDTO;
+import app.model.dto.ForexDTO;
+import app.model.dto.FutureDTO;
+import app.model.dto.StockDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,21 +34,30 @@ public class Controller {
         return ResponseEntity.ok(data);
     }
 
-//    @CrossOrigin(origins = "*")
-//    @GetMapping(value = "/forex/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<?> findForexById(@PathVariable long id) {
-//        return ResponseEntity.ok(forexService.findById(id));
-//    }
-//
-//    @CrossOrigin(origins = "*")
-//    @GetMapping(value = "/futures/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<?> findFutureById(@PathVariable long id) {
-//        return ResponseEntity.ok(futuresService.findById(id));
-//    }
-//
-//    @CrossOrigin(origins = "*")
-//    @GetMapping(value = "/stocks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-//    public ResponseEntity<?> findStockById(@PathVariable long id) {
-//        return ResponseEntity.ok(stockService.findById(id));
-//    }
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/forex/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findForexById(@PathVariable long id) {
+        ForexDTO dto = forexService.findById(id);
+        if(dto == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/futures/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findFutureById(@PathVariable long id) {
+        FutureDTO dto = futuresService.findById(id);
+        if(dto == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/stocks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findStockById(@PathVariable long id) {
+        StockDTO dto = stockService.findById(id);
+        if(dto == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
 }

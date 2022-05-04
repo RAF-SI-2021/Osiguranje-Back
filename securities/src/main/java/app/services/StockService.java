@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Setter
@@ -91,5 +92,14 @@ public class StockService {
             stockRepository.save(s);
         }
         return stocks;
+    }
+
+    public StockDTO findById(long id) {
+        Optional<Stock> opStock = stockRepository.findById(id);
+        if(!opStock.isPresent())
+            return null;
+        Stock stock = opStock.get();
+        StockDTO dto = new StockDTO(stock);
+        return dto;
     }
 }
