@@ -43,7 +43,7 @@ public class OptionDTO {
         double stockDividend = this.stockListing.getDividendYield().doubleValue();
         double optionImplVol = this.impliedVolatility.doubleValue();
 
-        double timeToExpiration = 100 * ChronoUnit.DAYS.between(LocalDate.now(), setDate) / 365;
+        double timeToExpiration = 100.0 * ChronoUnit.DAYS.between(LocalDate.now(), setDate) / 365;
 
         double d1 = Math.log(stockPrice / optionStrikePrice) + (-1 * stockDividend + optionImplVol * optionImplVol / 2) * timeToExpiration;
 
