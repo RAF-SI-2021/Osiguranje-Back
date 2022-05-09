@@ -20,7 +20,7 @@ public class CurrencyDTO {
         this.name = currency.getName();
         this.isoCode = currency.getIsoCode();
         this.symbol = currency.getSymbol();
-        this.country = currency.getCountry();
+        this.country = currency.getRegion().getName();
 
         if(currency.getInflationRates() == null)
             return;
