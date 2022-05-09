@@ -2,7 +2,6 @@ package app.model.dto;
 
 import app.model.Forex;
 
-
 public class ForexDTO extends SecurityDTO {
 
     private String baseCurrency;

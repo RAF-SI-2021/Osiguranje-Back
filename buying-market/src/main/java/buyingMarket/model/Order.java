@@ -3,7 +3,11 @@ package buyingMarket.model;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import java.math.BigDecimal;
 
 @Getter
 @Setter
@@ -24,23 +28,13 @@ public class Order {
     @Column
     private boolean margin;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "position_id")
-    private Position position;
-
-    public Order (long securityId, int amount, OrderType orderType, SecurityType securityType, boolean allOrNone, boolean margin, User user, Position position) {
+    public Order (long securityId, int amount, OrderType orderType, SecurityType securityType, boolean allOrNone, boolean margin) {
         this.securityId = securityId;
         this.amount = amount;
         this.orderType = orderType;
         this.securityType = securityType;
         this.allOrNone = allOrNone;
         this.margin = margin;
-        this.user = user;
-        this.position = position;
     }
 
     /*public BigDecimal getEstimatedPrice() {

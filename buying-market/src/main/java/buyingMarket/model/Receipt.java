@@ -1,12 +1,10 @@
 package buyingMarket.model;
 
-import crudApp.model.User;
 import lombok.*;
 
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Getter
 @Setter
@@ -16,20 +14,19 @@ import java.util.List;
 public class Receipt {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    private long recieptId;
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
+    private long receiptId;
+    @Column
+    private long userId;
     @OneToMany(cascade = CascadeType.ALL)
     private Collection<Transaction> transactions;
 
-    public Receipt(User user) {
-        this.user = user;
+    public Receipt(long userId) {
+        this.userId = userId;
         this.transactions = new ArrayList<>();
     }
 
-    public Receipt(User user, Collection<Transaction> transactions) {
-        this.user = user;
+    public Receipt(long userId, Collection<Transaction> transactions) {
+        this.userId = userId;
         this.transactions = transactions;
     }
 }

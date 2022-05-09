@@ -11,7 +11,6 @@ import buyingMarket.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -29,7 +28,7 @@ public class ReceiptService {
         this.receiptMapper = receiptMapper;
     }
 
-    public List<Receipt> findReceiptByUser(long userId){
+    public Optional<Receipt> findReceiptByUser(long userId){
         return receiptRepository.findAllByUser(userId);
     }
 
