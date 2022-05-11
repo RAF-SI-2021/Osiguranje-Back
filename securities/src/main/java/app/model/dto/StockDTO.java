@@ -1,9 +1,11 @@
 package app.model.dto;
 
 import app.model.Stock;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 
+@Getter
 public class StockDTO extends SecurityDTO {
 
     private Long outstandingShares;

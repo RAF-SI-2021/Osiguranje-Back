@@ -25,20 +25,20 @@ public class Currency {
     @Column
     private String symbol;
 
-    @Column
-    private String country;
+    @OneToOne
+    private Region region;
 
-    @OneToMany
+    @OneToMany(cascade=CascadeType.ALL)
     private Collection<InflationRate> inflationRates;        //TODO
 
     public Currency() {
     }
 
-    public Currency(String name, String isoCode, String symbol, String country) {
+    public Currency(String name, String isoCode, String symbol, Region region) {
         this.name = name;
         this.isoCode = isoCode;
         this.symbol = symbol;
-        this.country = country;
+        this.region = region;
     }
 
     @Override

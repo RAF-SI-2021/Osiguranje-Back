@@ -1,4 +1,4 @@
-package app.model.forex;
+package app.model.api;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;

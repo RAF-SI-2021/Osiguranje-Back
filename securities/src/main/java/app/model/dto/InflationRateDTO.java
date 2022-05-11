@@ -2,12 +2,14 @@ package app.model.dto;
 
 import app.model.InflationRate;
 
+import java.util.Date;
+
 public class InflationRateDTO {
-    private Integer year;
+    private Date date;
     private Float value;
 
     public InflationRateDTO(InflationRate inflationRate) {
-        this.year = inflationRate.getYear();
+        this.date = inflationRate.getDate();
         this.value = inflationRate.getValue();
     }
 }
