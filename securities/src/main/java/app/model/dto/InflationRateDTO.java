@@ -10,6 +10,6 @@ public class InflationRateDTO {
 
     public InflationRateDTO(InflationRate inflationRate) {
         this.date = inflationRate.getDate();
-        this.value = inflationRate.getValue();
+        this.value = inflationRate.getInflationValue();
     }
 }
