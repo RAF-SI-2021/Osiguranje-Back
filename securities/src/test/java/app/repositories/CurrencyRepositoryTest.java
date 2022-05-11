@@ -2,6 +2,7 @@ package app.repositories;
 
 import app.model.Currency;
 import app.model.Region;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -20,7 +21,7 @@ class CurrencyRepositoryTest {
     @Test
     void findByIsoCode() {
         /* Given. */
-        final String ISO_CODE = "EUR";
+        final String ISO_CODE = "EUR-TEST";
         Currency currency = new Currency();
         currency.setIsoCode( ISO_CODE );
 
@@ -36,7 +37,7 @@ class CurrencyRepositoryTest {
     @Test
     void findByRegion() {
         /* Given. */
-        final Region region = new Region( "Europe", "testcode");
+        final Region region = new Region( "Europe-Test", "testcode");
         Currency currency = new Currency();
         currency.setRegion( region );
         region.setCurrency( currency );

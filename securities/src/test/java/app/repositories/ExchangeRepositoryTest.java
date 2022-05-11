@@ -1,6 +1,7 @@
 package app.repositories;
 
 import app.model.Exchange;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -16,7 +17,7 @@ class ExchangeRepositoryTest {
     @Test
     void findByMIC() {
         /* Given. */
-        final String MIC = "XNYS";
+        final String MIC = "XNYS-TEST";
         Exchange exchange = new Exchange();
         exchange.setMIC( MIC );
 
@@ -32,16 +33,16 @@ class ExchangeRepositoryTest {
     @Test
     void findByAcronym() {
         /* Given. */
-        final String ACRONYM = "NYSE";
+        final String ACRONYM = "NYSE-TETS";
         Exchange exchange = new Exchange();
         exchange.setAcronym( ACRONYM );
 
         underTest.save( exchange );
 
         /* When. */
-        Exchange testExhange = underTest.findByAcronym( ACRONYM );
+        Exchange testExchange = underTest.findByAcronym( ACRONYM );
 
         /* Then. */
-        assertEquals( testExhange.getAcronym(), ACRONYM );
+        assertEquals( testExchange.getAcronym(), ACRONYM );
     }
 }

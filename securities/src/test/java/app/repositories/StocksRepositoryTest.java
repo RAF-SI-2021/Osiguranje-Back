@@ -2,7 +2,8 @@ package app.repositories;
 
 import app.model.Exchange;
 import app.model.Stock;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,14 +29,14 @@ class StocksRepositoryTest {
 
     @BeforeEach
     public void setup() {
+        underTest.deleteAll();
         exchange = new Exchange( "New York Stock Exchange", "NYSE", "XNYS", "−5", "09:30", "16:00" );
         exchangeRepository.save( exchange );
         // exchangeRepository.save( new Exchange( "Nasdaq", "NASDAQ", "XNAS", "−5", "09:30", "16:00" ) );
     }
 
-    private Stock generateNextStock( String suffix ) {
-        // Exchange exchange = exchangeRepository.findByAcronym( "NYSE" );
-        Random random =  new Random();
+    private Stock generateNextStock(String suffix ) {
+        Random random = new Random();
         Stock stock =
                 new Stock( "symbol" + suffix,
                         "desc" + suffix,
@@ -87,6 +88,7 @@ class StocksRepositoryTest {
 
     @Test
     void findStockByTicker() {
+        /* Given. */
         final String TICKER = "TT1";
         final int STOCK_COUNT = 20;
 
