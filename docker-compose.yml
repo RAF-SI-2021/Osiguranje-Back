@@ -92,12 +92,26 @@ services:
     networks:
       - nginx
 
+  flask:
+    container_name: python-flask
+    image: osiguranjeraf2022/python-service
+    build:
+      context: python-service
+      dockerfile: Dockerfile
+    ports:
+      - "9999:5000"
+    volumes:
+      - ./python-service:/app
+    networks:
+      - backend
+
 volumes:
   db:
   eureka:
   gateway:
   usercrud:
   securities:
+  flask:
 
 networks:
   nginx:
