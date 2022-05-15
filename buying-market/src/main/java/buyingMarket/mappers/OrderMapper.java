@@ -14,4 +14,8 @@ public class OrderMapper {
     public OrderDto orderToOrderDto(Order order) {
         return new OrderDto(order.getOrderId(), order.getSecurityId(), order.getAmount(), order.getOrderType(), order.getSecurityType(), order.isAllOrNone(), order.isMargin());
     }
+
+    public OrderCreateDto orderToOrderCreateDto(Order order) {
+        return new OrderCreateDto(order.getSecurityId(), order.getAmount(), order.getOrderType(), order.getSecurityType(), order.isAllOrNone(), order.isMargin());
+    }
 }

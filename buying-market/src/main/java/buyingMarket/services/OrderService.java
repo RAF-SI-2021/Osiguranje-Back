@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -45,7 +46,7 @@ public class OrderService {
         return orderRepository.findById(id);
     }
 
-    public OrderDto order(long userId, OrderCreateDto orderCreateDto, boolean buy, boolean sell) {
+    public OrderDto order(long userId, OrderCreateDto orderCreateDto, boolean buy, boolean sell, BigDecimal value) {
         Order order = orderRepository.save(orderMapper.orderCreateDtoToOrder(orderCreateDto));
         UserDto userDto;
         SecurityDTO securityDTO;
@@ -57,13 +58,13 @@ public class OrderService {
                     UserDto.class
             );
             userDto = userResponseEntity.getBody();
-            ResponseEntity<SecurityDTO> seurityResponseEntity = serviceCommunicationRestTemplate.exchange(
-                    "http://localhost:2000/api/data" + order.getSecurityId() + "?securityType=" + order.getSecurityType(),
+            ResponseEntity<SecurityDTO> securityResponseEntity = serviceCommunicationRestTemplate.exchange(
+                    "http://localhost:2000/api/data/" + order.getSecurityType() + '/' + order.getSecurityId(),
                     HttpMethod.GET,
                     null,
                     SecurityDTO.class
             );
-            securityDTO = seurityResponseEntity.getBody();
+            securityDTO = securityResponseEntity.getBody();
         } catch (HttpClientErrorException e) {
             e.printStackTrace();
             return null;
@@ -80,9 +81,11 @@ public class OrderService {
             receipt = optionalReceipt.get();
         }
 
-        int transactionAmount = ThreadLocalRandom.current().nextInt(order.getAmount()) + 1;
-        long transactionTime = ThreadLocalRandom.current().nextInt((int) (20 * 60 / (securityDTO.getVolume()) / order.getAmount())) * 1000L;
-        taskScheduler.schedule(new BuySecurityTask(taskScheduler, receiptService, this, serviceCommunicationRestTemplate, receipt.getReceiptId(), order.getOrderId(), transactionAmount), new Date(System.currentTimeMillis() + transactionTime));
+//        int transactionAmount = ThreadLocalRandom.current().nextInt(order.getAmount()) + 1;
+//        long transactionTime = ThreadLocalRandom.current().nextInt((int) (20 * 60 / (securityDTO.getVolume()) / order.getAmount())) * 1000L;
+//        taskScheduler.schedule(new BuySecurityTask(taskScheduler, receiptService, this, serviceCommunicationRestTemplate, receipt.getReceiptId(), order.getOrderId(), transactionAmount), new Date(System.currentTimeMillis() + transactionTime));
+
+        BuySecurityTask.formatTask(userId, taskScheduler, receiptService, this, serviceCommunicationRestTemplate, securityDTO, value, receipt.getReceiptId(), order.getOrderId(), 0, buy, sell);
         return orderMapper.orderToOrderDto(order);
     }
 }

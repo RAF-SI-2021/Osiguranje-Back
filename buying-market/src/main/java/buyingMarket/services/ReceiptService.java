@@ -32,6 +32,10 @@ public class ReceiptService {
         return receiptRepository.findAllByUser(userId);
     }
 
+    public Optional<Receipt> findReceiptById(long receiptId){
+        return receiptRepository.findById(receiptId);
+    }
+
     public Receipt createReceipt(ReceiptDto dto) {
         return receiptRepository.save(receiptMapper.receiptCreateDtoToReceipt(dto));
     }
