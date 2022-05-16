@@ -1,10 +1,10 @@
 package app.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+import app.model.Currency;
 import app.model.Exchange;
+import app.model.Region;
+import lombok.AllArgsConstructor;
 
-@NoArgsConstructor
 @AllArgsConstructor
 public class ExchangeDTO {
     private String name;
@@ -17,6 +17,9 @@ public class ExchangeDTO {
     private CurrencyDTO currency;
 
     public ExchangeDTO(Exchange exchange) {
+        this();
+        if (exchange == null) return;
+
         this.name = exchange.getName();
         this.acronym = exchange.getAcronym();
         this.MIC = exchange.getMIC();
@@ -25,5 +28,33 @@ public class ExchangeDTO {
         this.open = exchange.getOpen();
         this.closed = exchange.getClosed();
         this.currency = new CurrencyDTO(exchange.getCurrency());
+    }
+
+    public ExchangeDTO() {
+        this.name = "NAME";
+        this.acronym = "ACRONYM";
+        this.MIC = "MIC";
+        this.country = "COUNTRY";
+        this.timeZone = "TIME_ZONE";
+        this.open = "OPEN";
+        this.closed = "CLOSED";
+        this.currency = new CurrencyDTO(new Currency("CURRENCY_NAME",
+                                                    "ISO_CODE",
+                                                    "SYMBOL",
+                                                    new Region("REGION_NAME", "REGION_CODE")));
+    }
+
+    @Override
+    public String toString() {
+        return "ExchangeDTO{" +
+                "name='" + name + '\'' +
+                ", acronym='" + acronym + '\'' +
+                ", MIC='" + MIC + '\'' +
+                ", country='" + country + '\'' +
+                ", timeZone='" + timeZone + '\'' +
+                ", open='" + open + '\'' +
+                ", closed='" + closed + '\'' +
+                ", currency=" + currency +
+                '}';
     }
 }
