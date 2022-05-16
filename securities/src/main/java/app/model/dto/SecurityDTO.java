@@ -54,8 +54,33 @@ public class SecurityDTO {
             }
         }
 
-        this.changePercent = price.multiply(BigDecimal.valueOf(100)).divide(price.subtract(change));
+        this.changePercent = BigDecimal.valueOf(0L);
+        if (!price.equals(BigDecimal.valueOf(0L))) {
+            this.changePercent = BigDecimal.valueOf(100L).multiply(change.subtract(price)).divide(price);
+        }
         this.dollarVolume = price.multiply(BigDecimal.valueOf(volume));
         this.nominalValue = price.multiply(BigDecimal.valueOf(contractSize));
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityDTO{" +
+                "ticker='" + ticker + '\'' +
+                ", name='" + name + '\'' +
+                ", exchange=" + exchange +
+                ", lastUpdated='" + lastUpdated + '\'' +
+                ", price=" + price +
+                ", ask=" + ask +
+                ", bid=" + bid +
+                ", change=" + change +
+                ", volume=" + volume +
+                ", contractSize=" + contractSize +
+                ", securityHistory=" + securityHistory +
+                ", changePercent=" + changePercent +
+                ", dollarVolume=" + dollarVolume +
+                ", nominalValue=" + nominalValue +
+                ", initialMarginCost=" + initialMarginCost +
+                ", maintenanceMargin=" + maintenanceMargin +
+                '}';
     }
 }

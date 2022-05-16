@@ -30,4 +30,15 @@ public class CurrencyDTO {
             inflationRates.add(new InflationRateDTO(inflationRate));
         }
     }
+
+    @Override
+    public String toString() {
+        return "CurrencyDTO{" +
+                "name='" + name + '\'' +
+                ", isoCode='" + isoCode + '\'' +
+                ", symbol='" + symbol + '\'' +
+                ", country='" + country + '\'' +
+                ", inflationRates=" + inflationRates +
+                '}';
+    }
 }
