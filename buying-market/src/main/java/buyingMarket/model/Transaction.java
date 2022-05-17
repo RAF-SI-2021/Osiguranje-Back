@@ -8,30 +8,23 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
+@Builder
 @ToString
 @Entity
+@Table(name = "transactions")
 @NoArgsConstructor
 @AllArgsConstructor
 public class Transaction {
     @GeneratedValue( strategy = GenerationType.AUTO )
     @Id
-    private long id;
-    @Column
-    private long receiptId;
+    private Long id;
     @Column
     private LocalDateTime time;
-    @Column
-    private String security;
     @Column
     private BigDecimal price;
     @Column
     private Long volume;
-
-    public Transaction(long receiptId, LocalDateTime time, String security, BigDecimal price, Long volume) {
-        this.receiptId = receiptId;
-        this.time = time;
-        this.security = security;
-        this.price = price;
-        this.volume = volume;
-    }
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "order_id", nullable = false)
+    private Order order;
 }

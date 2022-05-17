@@ -1,17 +1,65 @@
 package buyingMarket.mappers;
 
 import buyingMarket.model.Order;
-import buyingMarket.model.dto.OrderCreateDto;
 import buyingMarket.model.dto.OrderDto;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class OrderMapper {
-    public Order orderCreateDtoToOrder(OrderCreateDto dto) {
-        return new Order(dto.getSecurityId(), dto.getAmount(), dto.getOrderType(), dto.getSecurityType(), dto.isAllOrNone(), dto.isMargin());
+
+    private final TransactionMapper transactionMapper;
+
+    @Autowired
+    public OrderMapper(TransactionMapper transactionMapper) {
+        this.transactionMapper = transactionMapper;
+    }
+
+    public Order orderDtoToOrder(OrderDto dto) {
+        return Order.builder()
+                .orderId(dto.getOrderId())
+                .securityId(dto.getSecurityId())
+                .userId(dto.getUserId())
+                .amount(dto.getAmount())
+                .orderType(dto.getOrderType())
+                .securityType(dto.getSecurityType())
+                .allOrNone(dto.getAllOrNone())
+                .margin(dto.getMargin())
+                .price(dto.getPrice())
+                .stopPrice(dto.getStopPrice())
+                .fee(dto.getFee())
+                .cost(dto.getCost())
+                .active(Boolean.TRUE)
+                .build();
     }
 
     public OrderDto orderToOrderDto(Order order) {
-        return new OrderDto(order.getOrderId(), order.getSecurityId(), order.getAmount(), order.getOrderType(), order.getSecurityType(), order.isAllOrNone(), order.isMargin());
+        return OrderDto.builder()
+                .orderId(order.getOrderId())
+                .securityId(order.getSecurityId())
+                .userId(order.getUserId())
+                .amount(order.getAmount())
+                .orderType(order.getOrderType())
+                .securityType(order.getSecurityType())
+                .allOrNone(order.getAllOrNone())
+                .margin(order.getMargin())
+                .price(order.getPrice())
+                .stopPrice(order.getStopPrice())
+                .fee(order.getFee())
+                .cost(order.getCost())
+                .active(order.getActive())
+                .transactions(transactionMapper.transactionsToTransactionDtos(order.getTransactions()))
+                .build();
+    }
+
+    public List<OrderDto> ordersToOrderDtos(List<Order> orders) {
+        List<OrderDto> orderDtos = new ArrayList<>();
+        orders.stream().forEach(order -> orderDtos.add(orderToOrderDto(order)));
+        return orderDtos;
     }
 }
+

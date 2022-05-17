@@ -1,34 +1,59 @@
 package buyingMarket.controllers;
 
-import buyingMarket.model.dto.OrderCreateDto;
+import buyingMarket.model.dto.OrderDto;
 import buyingMarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin
 @RestController
 @RequestMapping("/api/orders")
 public class OrderRestController {
-    private final OrderService orderService;
+
+    private OrderService orderService;
 
     @Autowired
     public OrderRestController(OrderService orderService) {
         this.orderService = orderService;
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> findOrderById(@PathVariable long id) {
-        return ResponseEntity.ok(orderService.findOrderById(id));
+    @PostMapping
+    public ResponseEntity<HttpStatus> createOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
+        orderService.createOrder(orderDto, authorization);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @PostMapping(value = "/order/{userId}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> order(@PathVariable long userId, @RequestBody OrderCreateDto order, @RequestParam boolean buy, @RequestParam boolean sell) {
-        if (buy && sell || !buy && !sell) {
-            return ResponseEntity.status(400).build();
-        }
-        orderService.order(userId, order, buy, sell);
-        return ResponseEntity.ok().build();
+    @GetMapping
+    public ResponseEntity<List<OrderDto>> findAll(@RequestHeader("Authorization") String authorization) {
+        List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
+        return new ResponseEntity<>(orders, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<OrderDto> findOrder(@PathVariable Long id, @RequestHeader("Authorization") String authorization) {
+        OrderDto order = orderService.findOrderForUser(id, authorization);
+        return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+
+    @PutMapping
+    public ResponseEntity<HttpStatus> updateOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
+        orderService.updateOrder(orderDto, authorization);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<HttpStatus> deleteOrder(@PathVariable Long id, @RequestHeader("Authorization") String authorization) {
+        orderService.deleteOrder(id, authorization);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<HttpStatus> deleteAll(@RequestHeader("Authorization") String authorization) {
+        orderService.deleteAllOrdersForUser(authorization);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }

@@ -1,43 +1,55 @@
 package buyingMarket.model;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import java.math.BigDecimal;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 
+import java.math.BigDecimal;
+import java.util.Set;
+
+@Entity
+@Table(name = "orders")
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    private long orderId;
+    private Long orderId;
     @Column
-    private long securityId;
+    private Long securityId;
     @Column
-    private int amount;
+    private Long userId;
+    @Column
+    private Integer amount;
     @Column
     private OrderType orderType;
     @Column
     private SecurityType securityType;
     @Column
-    private boolean allOrNone;
+    private Boolean allOrNone;
     @Column
-    private boolean margin;
-
-    public Order (long securityId, int amount, OrderType orderType, SecurityType securityType, boolean allOrNone, boolean margin) {
-        this.securityId = securityId;
-        this.amount = amount;
-        this.orderType = orderType;
-        this.securityType = securityType;
-        this.allOrNone = allOrNone;
-        this.margin = margin;
-    }
-
-    /*public BigDecimal getEstimatedPrice() {
-        return security.getPrice().multiply(BigDecimal.valueOf(amount));
-    }*/
+    private BigDecimal margin;
+    @Column
+    private BigDecimal price;
+    @Column
+    private BigDecimal stopPrice;
+    @Column
+    private BigDecimal fee;
+    @Column
+    private BigDecimal cost;
+    @Column
+    private Boolean active;
+    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private Set<Transaction> transactions;
 }
