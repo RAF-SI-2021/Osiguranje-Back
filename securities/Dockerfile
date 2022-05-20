@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM openjdk:11
+LABEL org.opencontainers.image.source https://github.com/RAF-SI-2021/Osiguranje-Back
+
 WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
