@@ -22,7 +22,7 @@ public class CurrencyDTO {
         this.symbol = currency.getSymbol();
         this.country = currency.getRegion().getName();
 
-        if(currency.getInflationRates() == null)
+        if(currency.getInflationRates() == null || currency.getInflationRates().isEmpty())
             return;
 
         inflationRates = new ArrayList<>();

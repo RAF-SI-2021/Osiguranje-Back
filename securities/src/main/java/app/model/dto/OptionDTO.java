@@ -6,6 +6,7 @@ import app.model.OptionType;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -29,7 +30,7 @@ public class OptionDTO {
         this.impliedVolatility = option.getImpliedVolatility();
         this.openInterest = option.getOpenInterest();
         this.settlementDate = option.getSettlementDate();
-        this.maintenanceMargin = stockListing.getPrice().divide(BigDecimal.valueOf(2)).multiply(BigDecimal.valueOf(stockListing.getContractSize()));
+        this.maintenanceMargin = stockListing.getPrice().divide(BigDecimal.valueOf(2), 4, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(stockListing.getContractSize()));
         this.theta = calculateTheta();
         this.contractSize = 100;
     }

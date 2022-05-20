@@ -28,8 +28,8 @@ public class Currency {
     @OneToOne
     private Region region;
 
-    @OneToMany(cascade=CascadeType.ALL)
-    private Collection<InflationRate> inflationRates;        //TODO
+    @OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    private Collection<InflationRate> inflationRates;
 
     public Currency() {
     }

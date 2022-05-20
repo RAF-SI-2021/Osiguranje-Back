@@ -35,7 +35,7 @@ public class Security {
     protected Long volume;
     @Column
     protected int contractSize;
-    @OneToMany(cascade=CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     protected Collection<SecurityHistory> securityHistory;
 
     public Security() {  }
