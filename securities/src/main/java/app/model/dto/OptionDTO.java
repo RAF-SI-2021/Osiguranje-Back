@@ -3,6 +3,7 @@ package app.model.dto;
 import app.model.Option;
 import app.model.OptionType;
 
+import lombok.Getter;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 import java.math.BigDecimal;
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 
+@Getter
 public class OptionDTO {
 
     StockDTO stockListing;

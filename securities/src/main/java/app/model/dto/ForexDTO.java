@@ -1,10 +1,11 @@
 package app.model.dto;
 
 import app.model.Forex;
+import lombok.Getter;
 
 import java.util.Objects;
 
-
+@Getter
 public class ForexDTO extends SecurityDTO {
 
     private String baseCurrency;

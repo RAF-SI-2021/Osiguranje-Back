@@ -1,11 +1,13 @@
 package app.model.dto;
 
 import app.model.Future;
+import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Objects;
 
+@Getter
 public class FutureDTO extends SecurityDTO{
     private String contractUnit;
     private Date settlementDate;
