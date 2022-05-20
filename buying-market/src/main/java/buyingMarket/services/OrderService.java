@@ -1,15 +1,11 @@
 package buyingMarket.services;
 
-import app.model.dto.SecurityDTO;
 import buyingMarket.mappers.OrderMapper;
 import buyingMarket.model.Order;
 import buyingMarket.model.Receipt;
-import buyingMarket.model.dto.OrderCreateDto;
-import buyingMarket.model.dto.OrderDto;
-import buyingMarket.model.dto.ReceiptDto;
+import buyingMarket.model.dto.*;
 import buyingMarket.repositories.OrderRepository;
 import buyingMarket.tasks.BuySecurityTask;
-import crudApp.dto.UserDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;

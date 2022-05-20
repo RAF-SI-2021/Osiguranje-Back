@@ -1,10 +1,10 @@
 package buyingMarket.tasks;
 
-import app.model.dto.SecurityDTO;
 import buyingMarket.mappers.OrderMapper;
 import buyingMarket.model.Order;
 import buyingMarket.model.OrderType;
 import buyingMarket.model.Receipt;
+import buyingMarket.model.dto.SecurityDTO;
 import buyingMarket.model.dto.TransactionDto;
 import buyingMarket.services.OrderService;
 import buyingMarket.services.ReceiptService;
