@@ -4,8 +4,10 @@ import app.model.Currency;
 import app.model.Exchange;
 import app.model.Region;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
+@Getter
 public class ExchangeDTO {
     private String name;
     private String acronym;     // TODO
