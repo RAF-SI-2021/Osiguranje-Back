@@ -1,7 +1,6 @@
 package buyingMarket.model.dto;
 
 import buyingMarket.model.Transaction;
-import crudApp.model.User;
 import lombok.Getter;
 import lombok.Setter;
 
