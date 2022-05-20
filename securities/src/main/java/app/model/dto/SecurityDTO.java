@@ -8,6 +8,7 @@ import app.model.Security;
 import app.model.SecurityHistory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -46,20 +47,21 @@ public class SecurityDTO {
         this.change = stock.getPriceChange();
         this.volume = stock.getVolume();
         this.contractSize = stock.getContractSize();
-
-        if (stock.getSecurityHistory() != null){
-            this.securityHistory = new ArrayList<>();
-            for (SecurityHistory history: stock.getSecurityHistory()){
-                this.securityHistory.add(new SecurityHistoryDTO(history));
-            }
-        }
-
         this.changePercent = BigDecimal.valueOf(0L);
-        if (!price.equals(BigDecimal.valueOf(0L))) {
-            this.changePercent = BigDecimal.valueOf(100L).multiply(change.subtract(price)).divide(price);
-        }
-        this.dollarVolume = price.multiply(BigDecimal.valueOf(volume));
-        this.nominalValue = price.multiply(BigDecimal.valueOf(contractSize));
+
+        try{
+            this.dollarVolume = price.multiply(BigDecimal.valueOf(volume));
+            this.nominalValue = price.multiply(BigDecimal.valueOf(contractSize));
+            this.changePercent = BigDecimal.valueOf(100L).multiply(change.subtract(price)).divide(price, 4, RoundingMode.HALF_EVEN);
+        } catch (Exception e){}
+
+//        if (stock.getSecurityHistory() == null || stock.getSecurityHistory().isEmpty())
+//            return;
+//
+//        this.securityHistory = new ArrayList<>();
+//        for (SecurityHistory history: stock.getSecurityHistory()){
+//            this.securityHistory.add(new SecurityHistoryDTO(history));
+//        }
     }
 
     @Override

@@ -30,7 +30,7 @@ public class Controller {
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getData(){
-        DataDTO data = new DataDTO(futuresService.getFutureDTOData(), forexService.getForexDTOData(),stockService.getStocksDTOData());
+        DataDTO data = new DataDTO(futuresService.getFutureDTOData(), forexService.getForexDTOData(), stockService.getStocksDTOData());
         return ResponseEntity.ok(data);
     }
 
