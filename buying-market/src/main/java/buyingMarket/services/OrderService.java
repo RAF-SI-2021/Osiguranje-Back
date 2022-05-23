@@ -121,6 +121,25 @@ public class OrderService {
                 executeMarketOrder(order, amount, orderType, security, user);
             }
             break;
+            case STOP: {
+                BigDecimal stopPrice = order.getStopPrice();
+                if(stopPrice == null) {
+                    throw new IllegalArgumentException("Stop order requires a stop price, please provide one");
+                }
+                Integer amount = order.getAmount();
+                if(amount == null) {
+                    throw new IllegalArgumentException("Stop order requires an amount, please provide one");
+                }
+                if(
+                        (amount < 0 && stopPrice.compareTo(security.getBid()) < 0) ||
+                                (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)
+                ) {
+                    executeMarketOrder(order, amount, orderType, security, user);
+                } else {
+                    orderRepository.save(order);
+                }
+            }
+            break;
             default:
         }
     }
@@ -155,6 +174,9 @@ public class OrderService {
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
                     throw new UpdateNotAllowedException("Order has been fully filled already");
                 }
+                if(transactions.size() == 0) {
+                    order.setAllOrNone(orderDto.getAllOrNone());
+                }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
                     throw new UpdateNotAllowedException("Orders can't switch sides");
                 } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
@@ -175,6 +197,9 @@ public class OrderService {
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
                     throw new UpdateNotAllowedException("Order has been fully filled already");
                 }
+                if(transactions.size() == 0) {
+                    order.setAllOrNone(orderDto.getAllOrNone());
+                }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
                     throw new UpdateNotAllowedException("Orders can't switch sides");
                 } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
@@ -187,6 +212,29 @@ public class OrderService {
                 orderRepository.save(order);
             }
                 break;
+            case STOP: {
+                Set<Transaction> transactions = order.getTransactions();
+                long totalFilledAmount = 0;
+                for(Transaction transaction: transactions) {
+                    totalFilledAmount += transaction.getVolume();
+                }
+                if(Math.abs(order.getAmount()) == totalFilledAmount) {
+                    throw new UpdateNotAllowedException("Order has been fully filled already");
+                }
+                if(transactions.size() == 0) {
+                    order.setAllOrNone(orderDto.getAllOrNone());
+                }
+                if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
+                    throw new UpdateNotAllowedException("Orders can't switch sides");
+                } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
+                    throw new UpdateNotAllowedException("Can't reduce size to less than what is already filled");
+                }
+                order.setAmount(orderDto.getAmount());
+                order.setStopPrice(orderDto.getStopPrice());
+                order.setMargin(orderDto.getMargin());
+                orderRepository.save(order);
+            }
+            break;
             default:
         }
     }
@@ -268,13 +316,8 @@ public class OrderService {
         order.setCost(cost);
         order.setUserId(user.getId());
         order = orderRepository.save(order);
-        Transaction transaction = Transaction.builder()
-                .time(LocalDateTime.now())
-                .price(amount > 0 ? security.getAsk() : security.getBid())
-                .volume((long) amount)
-                .order(order)
-                .build();
-        transactionService.save(transaction);
+        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (security.getVolume() / Math.abs(amount))) * 1000L;
+        taskScheduler.schedule(new ExecuteOrderTask(amount, order, security.getVolume()), new Date(System.currentTimeMillis() + waitTime));
     }
 
     public class ExecuteOrderTask implements Runnable {
@@ -292,10 +335,15 @@ public class OrderService {
         @Override
         public void run() {
             int amountNotFilled = Math.abs(amount);
-            if(amountNotFilled > 0) {
-                int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
-                Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
-                if(orderFromRepo.getActive().booleanValue()) {
+            int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
+            Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
+            if (orderFromRepo.getActive().booleanValue()) {
+                Boolean allOrNone = order.getAllOrNone();
+                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled) {
+                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+
+                    taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
+                } else {
                     amountNotFilled -= amountFilled;
                     Transaction transaction = Transaction.builder()
                             .time(LocalDateTime.now())
@@ -304,8 +352,10 @@ public class OrderService {
                             .order(order)
                             .build();
                     transactionService.save(transaction);
-                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
-                    taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
+                    if (amountNotFilled > 0) {
+                        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                        taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
+                    }
                 }
             }
         }
