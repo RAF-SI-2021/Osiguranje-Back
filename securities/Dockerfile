@@ -10,4 +10,3 @@ RUN dos2unix ./mvnw && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt
 RUN ./mvnw dependency:go-offline
 COPY src ./src
 CMD ["./mvnw", "spring-boot:run"]
-
