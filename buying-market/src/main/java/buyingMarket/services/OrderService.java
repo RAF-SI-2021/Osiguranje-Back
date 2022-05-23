@@ -12,17 +12,19 @@ import crudApp.dto.UserDto;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.task.SimpleAsyncTaskExecutor;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.TaskScheduler;
+import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Service
@@ -31,6 +33,7 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final TransactionService transactionService;
     private final FormulaCalculator formulaCalculator;
+    private final TaskScheduler taskScheduler;
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -44,6 +47,7 @@ public class OrderService {
         this.orderMapper = orderMapper;
         this.transactionService = transactionService;
         this.formulaCalculator = formulaCalculator;
+        this.taskScheduler = new ConcurrentTaskScheduler(Executors.newScheduledThreadPool(10));
     }
 
     public void createOrder(OrderDto orderDto, String jws) {
@@ -248,34 +252,8 @@ public class OrderService {
         order.setCost(cost);
         order.setUserId(user.getId());
         orderRepository.save(order);
-        TaskExecutor executor = new SimpleAsyncTaskExecutor();
-        executor.execute(new Runnable() {
-            @Override
-            public void run() {
-                int amountNotFilled = Math.abs(amount);
-                while(amountNotFilled > 0) {
-                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
-                    try {
-                        Thread.sleep(waitTime);
-                    } catch(InterruptedException e) {
-                    }
-                    int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
-                    Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
-                    if(!orderFromRepo.getActive().booleanValue()) {
-                        break;
-                    }
-
-                    amountNotFilled -= amountFilled;
-                    Transaction transaction = Transaction.builder()
-                            .time(LocalDateTime.now())
-                            .price(order.getPrice())
-                            .volume((long) amountFilled)
-                            .order(order)
-                            .build();
-                    transactionService.save(transaction);
-                }
-            }
-        });
+        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
+        taskScheduler.schedule(new ExecuteOrderTask(amount, order, volume), new Date(System.currentTimeMillis() + waitTime));
     }
 
     private void executeMarketOrder(Order order,Integer amount,OrderType orderType,SecurityDTO security,UserDto user) {
@@ -297,5 +275,39 @@ public class OrderService {
                 .order(order)
                 .build();
         transactionService.save(transaction);
+    }
+
+    public class ExecuteOrderTask implements Runnable {
+
+        private int amount;
+        private Order order;
+        private Long volume;
+
+        public ExecuteOrderTask(int amount, Order order, Long volume) {
+            this.amount = amount;
+            this.order = order;
+            this.volume = volume;
+        }
+
+        @Override
+        public void run() {
+            int amountNotFilled = Math.abs(amount);
+            if(amountNotFilled > 0) {
+                int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
+                Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
+                if(orderFromRepo.getActive().booleanValue()) {
+                    amountNotFilled -= amountFilled;
+                    Transaction transaction = Transaction.builder()
+                            .time(LocalDateTime.now())
+                            .price(order.getPrice())
+                            .volume((long) amountFilled)
+                            .order(order)
+                            .build();
+                    transactionService.save(transaction);
+                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                    taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
+                }
+            }
+        }
     }
 }
