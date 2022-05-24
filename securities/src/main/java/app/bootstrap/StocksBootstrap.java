@@ -128,9 +128,7 @@ public class StocksBootstrap {
 
                 newStock.setSecurityHistory(history);
                 stocksRepository.save(newStock);
-            } catch (Exception e) {
-            }
-
+            } catch (Exception e) {}
         }
     }
 }
