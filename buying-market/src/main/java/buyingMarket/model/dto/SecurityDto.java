@@ -1,13 +1,11 @@
 package buyingMarket.model.dto;
 
-import app.model.dto.ExchangeDTO;
-import app.model.dto.SecurityHistoryDTO;
+import buyingMarket.model.Security;
+import buyingMarket.model.SecurityHistory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import app.model.Security;
-import app.model.SecurityHistory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

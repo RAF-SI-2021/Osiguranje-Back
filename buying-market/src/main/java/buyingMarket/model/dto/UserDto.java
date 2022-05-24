@@ -1,6 +1,6 @@
 package buyingMarket.model.dto;
 
-import crudApp.model.Permissions;
+import buyingMarket.model.Permissions;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
