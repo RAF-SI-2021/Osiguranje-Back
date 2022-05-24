@@ -2,7 +2,6 @@ package buyingMarket.exceptions.handlers;
 
 import buyingMarket.exceptions.OrderNotFoundException;
 import buyingMarket.exceptions.UpdateNotAllowedException;
-import buyingMarket.model.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

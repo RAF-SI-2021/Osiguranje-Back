@@ -1,14 +1,14 @@
 package buyingMarket.services;
 
-import app.model.dto.SecurityDTO;
 import buyingMarket.exceptions.OrderNotFoundException;
 import buyingMarket.exceptions.UpdateNotAllowedException;
 import buyingMarket.formulas.FormulaCalculator;
 import buyingMarket.mappers.OrderMapper;
 import buyingMarket.model.*;
 import buyingMarket.model.dto.OrderDto;
+import buyingMarket.model.dto.SecurityDto;
+import buyingMarket.model.dto.UserDto;
 import buyingMarket.repositories.OrderRepository;
-import crudApp.dto.UserDto;
 import io.jsonwebtoken.Jwts;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,7 +69,7 @@ public class OrderService {
         if(securityType == null) {
             throw new IllegalArgumentException("Please provide an SecurityType");
         }
-        SecurityDTO security = getSecurityByTypeAndId(securityType, securityId);
+        SecurityDto security = getSecurityByTypeAndId(securityType, securityId);
         if(security == null) {
             throw new IllegalArgumentException("Something went wrong trying to find security");
         }
@@ -273,18 +273,18 @@ public class OrderService {
         return user;
     }
 
-    private SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
+    private SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
         StringBuilder sb = new StringBuilder("http://localhost:2000/api/data/");
         sb.append(securityType.toString().toLowerCase()).append(securityId);
         String urlString = sb.toString();
         RestTemplate rest = new RestTemplate();
-        ResponseEntity<SecurityDTO> response = null;
-        response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDTO.class);
-        SecurityDTO security = response.getBody();
+        ResponseEntity<SecurityDto> response = null;
+        response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
+        SecurityDto security = response.getBody();
         return security;
     }
 
-    private void executeLimitOrder(Order order, Integer amount, OrderType orderType, BigDecimal price, SecurityDTO security, UserDto user, Long volume){
+    private void executeLimitOrder(Order order, Integer amount, OrderType orderType, BigDecimal price, SecurityDto security, UserDto user, Long volume){
         BigDecimal cost;
         if(amount > 0 ) {
             order.setFee(formulaCalculator.calculateSecurityFee(orderType, (long) Math.abs(amount), security.getAsk(), price));
@@ -304,7 +304,7 @@ public class OrderService {
         taskScheduler.schedule(new ExecuteOrderTask(amount, order, volume), new Date(System.currentTimeMillis() + waitTime));
     }
 
-    private void executeMarketOrder(Order order,Integer amount,OrderType orderType,SecurityDTO security,UserDto user) {
+    private void executeMarketOrder(Order order,Integer amount,OrderType orderType,SecurityDto security,UserDto user) {
         BigDecimal cost;
         if(amount > 0 ) {
             order.setFee(formulaCalculator.calculateSecurityFee(orderType, (long) Math.abs(amount), security.getAsk()));
