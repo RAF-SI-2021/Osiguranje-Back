@@ -3,6 +3,7 @@ package app.bootstrap;
 import app.services.ForexService;
 import app.services.FuturesService;
 import app.services.StockService;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -16,6 +17,8 @@ public class UpdaterThread implements Runnable {
     private final ForexService forexService;
     private final FuturesService futuresService;
 
+    private boolean running = true;
+
     @Autowired
     public UpdaterThread(StockService stockService, ForexService forexService, FuturesService futuresService) {
         this.stockService = stockService;
@@ -23,14 +26,11 @@ public class UpdaterThread implements Runnable {
         this.futuresService = futuresService;
     }
 
+    @SneakyThrows
     @Override
     public void run() {
-        while(true){
-            try {
-                TimeUnit.MINUTES.sleep(2);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        while(running){
+            TimeUnit.MINUTES.sleep(15);
 
             try {
                 stockService.updateData();
@@ -40,5 +40,9 @@ public class UpdaterThread implements Runnable {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void setRunning(boolean b){
+        running = b;
     }
 }
