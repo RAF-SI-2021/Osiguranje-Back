@@ -1,5 +1,7 @@
 # syntax=docker/dockerfile:1
 FROM openjdk:11
+LABEL org.opencontainers.image.source https://github.com/RAF-SI-2021/Osiguranje-Back
+
 WORKDIR /app
 COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
@@ -8,4 +10,3 @@ RUN dos2unix ./mvnw && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt
 RUN ./mvnw dependency:go-offline
 COPY src ./src
 CMD ["./mvnw", "spring-boot:run"]
-
