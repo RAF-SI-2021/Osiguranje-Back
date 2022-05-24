@@ -1,6 +1,8 @@
 # syntax=docker/dockerfile:1
 
 FROM python:3.8.13-slim-bullseye
+LABEL org.opencontainers.image.source https://github.com/RAF-SI-2021/Osiguranje-Back
+
 
 WORKDIR /app
 
