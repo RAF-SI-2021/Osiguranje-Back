@@ -52,25 +52,18 @@ public class StockService {
     }
 
     private List<Stock> getStocksData() {
-        Date currDate = new Date();
-        long timeDifference = currDate.getTime() - lastupdated.getTime();
-        long minutesDifference = timeDifference / 60000;
         List<Stock> stocks = stockRepository.findAll();
-        if(minutesDifference > 15) {
-            System.out.println("Updating stocks data");
-            try {
-                return updateData(stocks);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         return stocks;
     }
 
-    private List<Stock> updateData(List<Stock> stocks) throws IOException {
+    public List<Stock> updateData() throws IOException {
+        System.out.println("Updating stocks");
+
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         setLastupdated(date);
+
+        List<Stock> stocks = stockRepository.findAll();
 
         for (Stock s: stocks){
             yahoofinance.Stock stock = YahooFinance.get(s.getTicker());
