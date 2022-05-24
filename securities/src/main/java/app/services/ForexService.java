@@ -65,25 +65,18 @@ public class ForexService  {
     }
 
     private List<Forex> getForexData() {
-        Date currDate = new Date();
-        long timeDifference = currDate.getTime() - lastupdated.getTime();
-        long minutesDifference = timeDifference / 60000;
         List<Forex> forexList = forexRepository.findAll();
-        if(minutesDifference > 15) {
-            System.out.println("Updating forex data");
-            try {
-                return updateData(forexList);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
         return forexList;
     }
 
-    private List<Forex> updateData(List<Forex> forexList) {
+    public List<Forex> updateData() {
+        System.out.println("Updating forex");
+
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         setLastupdated(date);
+
+        List<Forex> forexList = forexRepository.findAll();
 
         List<Currency> currencies = currencyRepository.findAll();
         for (Currency currency : currencies) {
