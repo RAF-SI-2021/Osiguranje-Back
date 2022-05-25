@@ -277,7 +277,7 @@ public class OrderService {
             throw new UserNotFoundException("Something went wrong while trying to retrieve user info");
         }
         UserDto user = null;
-        if(response != null) {
+        if(response != null && response.getBody() != null) {
             user = response.getBody();
         }
         return user;
@@ -295,7 +295,7 @@ public class OrderService {
             throw new SecurityNotFoundException("Something went wrong while trying to retrieve user info");
         }
         SecurityDto security = null;
-        if(response != null) {
+        if(response != null && response.getBody() != null) {
             security = response.getBody();
         }
         return security;
