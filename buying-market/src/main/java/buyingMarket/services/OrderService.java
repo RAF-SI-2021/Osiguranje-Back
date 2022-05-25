@@ -19,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
@@ -270,11 +271,15 @@ public class OrderService {
         String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
         RestTemplate rest = new RestTemplate();
         ResponseEntity<UserDto> response = null;
-        response = rest.exchange(urlTemplate, HttpMethod.GET, null, UserDto.class);
-        if(response == null) {
+        try {
+            response = rest.exchange(urlTemplate, HttpMethod.GET, null, UserDto.class);
+        } catch(RestClientException e) {
             throw new UserNotFoundException("Something went wrong while trying to retrieve user info");
         }
-        UserDto user = response.getBody();
+        UserDto user = null;
+        if(response != null) {
+            user = response.getBody();
+        }
         return user;
     }
 
@@ -284,11 +289,15 @@ public class OrderService {
         String urlString = sb.toString();
         RestTemplate rest = new RestTemplate();
         ResponseEntity<SecurityDto> response = null;
-        response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
-        if(response == null) {
+        try {
+            response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
+        } catch(RestClientException e) {
             throw new SecurityNotFoundException("Something went wrong while trying to retrieve user info");
         }
-        SecurityDto security = response.getBody();
+        SecurityDto security = null;
+        if(response != null) {
+            security = response.getBody();
+        }
         return security;
     }
 
