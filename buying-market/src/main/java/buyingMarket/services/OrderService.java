@@ -24,6 +24,7 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -150,6 +151,9 @@ public class OrderService {
     public List<OrderDto> findAllOrdersForUser(String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new UserNotFoundException("Something went wrong retrieving user info");
+        }
         List<Order> orders = orderRepository.findAllByUserId(user.getId());
         return orderMapper.ordersToOrderDtos(orders);
     }
@@ -157,6 +161,9 @@ public class OrderService {
     public OrderDto findOrderForUser(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new UserNotFoundException("Something went wrong retrieving user info");
+        }
         Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
         return orderMapper.orderToOrderDto(order);
     }
@@ -164,6 +171,9 @@ public class OrderService {
     public void updateOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new UserNotFoundException("Something went wrong retrieving user info");
+        }
         Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
         switch(order.getOrderType()) {
             case MARKET:
@@ -245,6 +255,9 @@ public class OrderService {
     public void deleteOrder(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new UserNotFoundException("Something went wrong retrieving user info");
+        }
         Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
         order.setActive(Boolean.FALSE);
         orderRepository.save(order);
@@ -253,6 +266,9 @@ public class OrderService {
     public void deleteAllOrdersForUser(String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new UserNotFoundException("Something went wrong retrieving user info");
+        }
         List<Order> orders = orderRepository.findAllByUserIdAndActive(user.getId(), Boolean.TRUE);
         orders.stream().forEach(order -> {order.setActive(Boolean.FALSE);});
         orderRepository.saveAll(orders);
