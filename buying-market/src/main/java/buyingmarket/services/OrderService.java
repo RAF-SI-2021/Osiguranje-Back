@@ -191,7 +191,7 @@ public class OrderService {
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
                     throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
-                if(transactions.size() == 0) {
+                if(transactions.isEmpty()) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
@@ -214,7 +214,7 @@ public class OrderService {
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
                     throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
-                if(transactions.size() == 0) {
+                if(transactions.isEmpty()) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
@@ -238,7 +238,7 @@ public class OrderService {
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
                     throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
-                if(transactions.size() == 0) {
+                if(transactions.isEmpty()) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
@@ -274,15 +274,14 @@ public class OrderService {
             throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
         List<Order> orders = orderRepository.findAllByUserIdAndActive(user.getId(), Boolean.TRUE);
-        orders.stream().forEach(order -> {order.setActive(Boolean.FALSE);});
+        orders.stream().forEach(order -> order.setActive(Boolean.FALSE));
         orderRepository.saveAll(orders);
     }
 
     private String extractUsername(String jws) {
-        String username = Jwts.parserBuilder()
+        return Jwts.parserBuilder()
                 .setSigningKey(jwtSecret).build()
                 .parseClaimsJws(jws).getBody().getSubject();
-        return username;
     }
 
     private UserDto getUserByUsernameFromUserService(String username) {
