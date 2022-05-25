@@ -1,6 +1,7 @@
 package buyingMarket.exceptions.handlers;
 
 import buyingMarket.exceptions.OrderNotFoundException;
+import buyingMarket.exceptions.SecurityNotFoundException;
 import buyingMarket.exceptions.UpdateNotAllowedException;
 import buyingMarket.exceptions.UserNotFoundException;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,10 @@ public class ControllerExceptionHandler {
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<String> handleUserNotFoundException(UserNotFoundException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+    @ExceptionHandler(SecurityNotFoundException.class)
+    public ResponseEntity<String> handleSecurityNotFoundException(SecurityNotFoundException e) {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

@@ -1,6 +1,7 @@
 package buyingMarket.services;
 
 import buyingMarket.exceptions.OrderNotFoundException;
+import buyingMarket.exceptions.SecurityNotFoundException;
 import buyingMarket.exceptions.UpdateNotAllowedException;
 import buyingMarket.exceptions.UserNotFoundException;
 import buyingMarket.formulas.FormulaCalculator;
@@ -75,7 +76,7 @@ public class OrderService {
             throw new IllegalArgumentException("Something went wrong trying to find security");
         }
         Long volume = security.getVolume();
-        if(security == null) {
+        if(volume == null) {
             throw new IllegalArgumentException("Something went wrong retrieving security data");
         }
         switch (orderType) {
@@ -284,6 +285,9 @@ public class OrderService {
         RestTemplate rest = new RestTemplate();
         ResponseEntity<SecurityDto> response = null;
         response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
+        if(response == null) {
+            throw new SecurityNotFoundException("Something went wrong while trying to retrieve user info");
+        }
         SecurityDto security = response.getBody();
         return security;
     }
