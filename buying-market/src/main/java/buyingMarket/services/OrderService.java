@@ -2,6 +2,7 @@ package buyingMarket.services;
 
 import buyingMarket.exceptions.OrderNotFoundException;
 import buyingMarket.exceptions.UpdateNotAllowedException;
+import buyingMarket.exceptions.UserNotFoundException;
 import buyingMarket.formulas.FormulaCalculator;
 import buyingMarket.mappers.OrderMapper;
 import buyingMarket.model.*;
@@ -269,6 +270,9 @@ public class OrderService {
         RestTemplate rest = new RestTemplate();
         ResponseEntity<UserDto> response = null;
         response = rest.exchange(urlTemplate, HttpMethod.GET, null, UserDto.class);
+        if(response == null) {
+            throw new UserNotFoundException("Something went wrong while trying to retrieve user info");
+        }
         UserDto user = response.getBody();
         return user;
     }
