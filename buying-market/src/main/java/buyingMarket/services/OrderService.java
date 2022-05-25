@@ -38,6 +38,11 @@ public class OrderService {
     private final TransactionService transactionService;
     private final FormulaCalculator formulaCalculator;
     private final TaskScheduler taskScheduler;
+    private final String USER_RETRIEVE_ERROR = "Something went wrong retrieving user info";
+    private final String ORDER_NOT_FOUND_ERROR = "No order with given id could be found for user";
+    private final String ORDER_FULLY_FILLED_ERROR = "Order has been fully filled already";
+    private final String ORDER_SIDE_ERROR = "Orders can't switch sides";
+    private final String ORDER_REDUCE_ERROR = "Can't reduce size to less than what is already filled";
 
     @Value("${jwt.secret}")
     private String jwtSecret;
@@ -152,7 +157,7 @@ public class OrderService {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
         if(user == null) {
-            throw new UserNotFoundException("Something went wrong retrieving user info");
+            throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
         List<Order> orders = orderRepository.findAllByUserId(user.getId());
         return orderMapper.ordersToOrderDtos(orders);
@@ -162,9 +167,9 @@ public class OrderService {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
         if(user == null) {
-            throw new UserNotFoundException("Something went wrong retrieving user info");
+            throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
+        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         return orderMapper.orderToOrderDto(order);
     }
 
@@ -172,9 +177,9 @@ public class OrderService {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
         if(user == null) {
-            throw new UserNotFoundException("Something went wrong retrieving user info");
+            throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
-        Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
+        Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         switch(order.getOrderType()) {
             case MARKET:
                 throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
@@ -185,15 +190,15 @@ public class OrderService {
                     totalFilledAmount += transaction.getVolume();
                 }
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Order has been fully filled already");
+                    throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
                 if(transactions.size() == 0) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                    throw new UpdateNotAllowedException("Orders can't switch sides");
+                    throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
                 } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Can't reduce size to less than what is already filled");
+                    throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
                 }
                 order.setAmount(orderDto.getAmount());
                 order.setPrice(orderDto.getPrice());
@@ -208,15 +213,15 @@ public class OrderService {
                     totalFilledAmount += transaction.getVolume();
                 }
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Order has been fully filled already");
+                    throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
                 if(transactions.size() == 0) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                    throw new UpdateNotAllowedException("Orders can't switch sides");
+                    throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
                 } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Can't reduce size to less than what is already filled");
+                    throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
                 }
                 order.setAmount(orderDto.getAmount());
                 order.setPrice(orderDto.getPrice());
@@ -232,15 +237,15 @@ public class OrderService {
                     totalFilledAmount += transaction.getVolume();
                 }
                 if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Order has been fully filled already");
+                    throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
                 }
                 if(transactions.size() == 0) {
                     order.setAllOrNone(orderDto.getAllOrNone());
                 }
                 if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                    throw new UpdateNotAllowedException("Orders can't switch sides");
+                    throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
                 } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                    throw new UpdateNotAllowedException("Can't reduce size to less than what is already filled");
+                    throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
                 }
                 order.setAmount(orderDto.getAmount());
                 order.setStopPrice(orderDto.getStopPrice());
@@ -256,9 +261,9 @@ public class OrderService {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
         if(user == null) {
-            throw new UserNotFoundException("Something went wrong retrieving user info");
+            throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException("No order with given id could be found for user"));
+        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         order.setActive(Boolean.FALSE);
         orderRepository.save(order);
     }
@@ -267,7 +272,7 @@ public class OrderService {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
         if(user == null) {
-            throw new UserNotFoundException("Something went wrong retrieving user info");
+            throw new UserNotFoundException(USER_RETRIEVE_ERROR);
         }
         List<Order> orders = orderRepository.findAllByUserIdAndActive(user.getId(), Boolean.TRUE);
         orders.stream().forEach(order -> {order.setActive(Boolean.FALSE);});
