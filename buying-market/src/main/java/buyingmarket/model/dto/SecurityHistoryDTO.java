@@ -1,11 +1,14 @@
 package buyingmarket.model.dto;
 
-import buyingmarket.model.SecurityHistory;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class SecurityHistoryDTO {
@@ -16,13 +19,4 @@ public class SecurityHistoryDTO {
     private BigDecimal bid;
     private BigDecimal change;
     private Long volume;
-
-    public SecurityHistoryDTO(SecurityHistory securityHistory) {
-        this.date = securityHistory.getDate();
-        this.price = securityHistory.getPrice();
-        this.ask = securityHistory.getAsk();
-        this.bid = securityHistory.getBid();
-        this.change = securityHistory.getPriceChange();
-        this.volume = securityHistory.getVolume();
-    }
 }
