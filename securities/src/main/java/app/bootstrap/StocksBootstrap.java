@@ -43,7 +43,7 @@ public class StocksBootstrap {
             String[] stocksArrNa = readStockSymbols(xnasFile);
 
             fetchStocks(stocksArrNa);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
