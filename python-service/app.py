@@ -17,13 +17,13 @@ def stock_price_data():
     result = None
     try:
         if 'start_date' in data and 'end_date' in data:
-            result = si.get_data(data['name'],start_date = data['start_date'], end_date = data['end_date'])
+            result = si.get_data(data['name'], start_date=data['start_date'], end_date=data['end_date'])
         else:
             result = si.get_data(data['name'])
     except Exception as e:
         print(e)
         return jsonify({'message' : f'invalid arguments {data.keys()}'}), 500
-    return result.to_json(orient="index",date_format='iso')
+    return result.to_json(orient="index", date_format='iso')
 
 
 @app.route("/stock/quote", methods=["GET"])
@@ -60,7 +60,7 @@ def next_session():
         calendar = xcals.get_calendar(data["calendar"])
     except:
         return jsonify({'message': f'Calendar does\'t exist {data["calendar"]}'}), 500
-    return jsonify(calendar.date_to_session(data["date"],direction="next"))
+    return jsonify(calendar.date_to_session(data["date"], direction="next"))
 
 
 @app.route("/future/all", methods=["GET"])
@@ -80,9 +80,10 @@ def get_calls_options():
     symbol = request.args.get('symbol')
     try:
         chain = options.get_options_chain(symbol)
-        return chain['calls'].to_json(orient="index",date_format='iso')
-    except:
-        return f'Unknown symbol {symbol} for options calls',500
+        return chain['calls'].to_json(orient="table", date_format='iso')
+    except Exception as e:
+        print(e)
+        return f'Unknown symbol {symbol} for options calls', 500
 
 
 @app.route("/options/puts", methods=["GET"])
@@ -90,9 +91,10 @@ def get_puts_options():
     symbol = request.args.get('symbol')
     try:
         chain = options.get_options_chain(symbol)
-        return chain['puts'].to_json(orient="index",date_format='iso')
-    except:
-        return f'Unknown symbol {symbol} for options puts',500
+        return chain['puts'].to_json(orient="table", date_format='iso')
+    except Exception as e:
+        print(e)
+        return f'Unknown symbol {symbol} for options puts', 500
 
 
 @app.route("/options/quote", methods=["GET"])
@@ -100,14 +102,15 @@ def get_quote_options():
     symbol = request.args.get('symbol')
     try:
         return si.get_quote_data(symbol)
-    except:
-        return f'Unknown symbol {symbol} for options price',500
+    except Exception as e:
+        print(e)
+        return f'Unknown symbol {symbol} for options price', 500
 
 
 if __name__ == '__main__':
     address = 'localhost'
     pport = 9999
     print(f"Running on {address}:{pport}")
-    app.run(host = address, port = pport)
+    app.run(host=address, port=pport)
 
 
