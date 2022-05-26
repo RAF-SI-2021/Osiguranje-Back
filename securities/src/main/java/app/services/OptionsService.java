@@ -55,7 +55,6 @@ public class OptionsService {
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<OptionsAPIResponse> entity = new HttpEntity<>(headers);
 
             List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
@@ -72,7 +71,7 @@ public class OptionsService {
                 continue;
             }
 
-            if(responseContent.size() == 0)
+            if(responseContent.isEmpty())
                 continue;
 
             HashMap<String, String> optionMap = responseContent.get(0);
