@@ -70,7 +70,7 @@ public class ForexBootstrap {
                     BigDecimal priceChange = bid.subtract(ask);
                     Long volume = null;
 
-                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.STANDARD.getSize());
+                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.MICRO.getSize());
                     newForex.setBaseCurrency(currency);
                     newForex.setQuoteCurrency(currency2);
                     newForex.setSecurityHistory(null);

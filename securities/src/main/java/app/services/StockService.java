@@ -19,8 +19,6 @@ import java.util.Optional;
 @Service
 @Setter
 public class StockService {
-    private Date lastupdated = new Date();
-
     private final StocksRepository stockRepository;
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
@@ -28,10 +26,6 @@ public class StockService {
 
     public Stock save(Stock stock){
         return stockRepository.save(stock);
-    }
-
-    public List<Stock> saveAll(List<Stock> stocks){
-        return stockRepository.saveAll(stocks);
     }
 
 //    public List<Stock> findByDateWindow(Date startDate, Date endDate){
@@ -51,9 +45,8 @@ public class StockService {
         return dtoList;
     }
 
-    private List<Stock> getStocksData() {
-        List<Stock> stocks = stockRepository.findAll();
-        return stocks;
+    public List<Stock> getStocksData() {
+        return stockRepository.findAll();
     }
 
     public List<Stock> updateData() throws IOException {
@@ -61,7 +54,6 @@ public class StockService {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        setLastupdated(date);
 
         List<Stock> stocks = stockRepository.findAll();
 
@@ -77,9 +69,9 @@ public class StockService {
             s.setPriceChange(stock.getQuote().getChange());
             s.setVolume(stock.getQuote().getVolume());
 
-            if(s.getOutstandingShares() != stock.getStats().getSharesOutstanding())
+            if(!s.getOutstandingShares().equals(stock.getStats().getSharesOutstanding()))
                 s.setOutstandingShares(stock.getStats().getSharesOutstanding());
-            if(s.getDividendYield() != stock.getDividend().getAnnualYield())
+            if(!s.getDividendYield().equals(stock.getDividend().getAnnualYield()))
                 s.setDividendYield(stock.getDividend().getAnnualYield());
 
             stockRepository.save(s);
@@ -89,10 +81,9 @@ public class StockService {
 
     public StockDTO findById(long id) {
         Optional<Stock> opStock = stockRepository.findById(id);
-        if(!opStock.isPresent())
+        if(opStock.isEmpty())
             return null;
         Stock stock = opStock.get();
-        StockDTO dto = new StockDTO(stock);
-        return dto;
+        return new StockDTO(stock);
     }
 }
