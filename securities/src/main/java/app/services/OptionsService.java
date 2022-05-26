@@ -67,12 +67,11 @@ public class OptionsService {
             try {
                 ResponseEntity<OptionsAPIResponse> response = rest.exchange(Config.getProperty("python_service_url") + "options/" + o.getOptionType() + "?symbol=" + o.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
                 responseContent = Objects.requireNonNull(response.getBody()).getData();
+                if(responseContent.isEmpty())
+                    throw new Exception("Empty response");
             } catch (Exception e) {
                 continue;
             }
-
-            if(responseContent.isEmpty())
-                continue;
 
             HashMap<String, String> optionMap = responseContent.get(0);
             try{
