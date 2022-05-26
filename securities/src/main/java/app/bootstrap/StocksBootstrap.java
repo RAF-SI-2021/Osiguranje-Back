@@ -22,13 +22,6 @@ import java.util.*;
 
 @Component
 public class StocksBootstrap {
-
-//    @Value("${ny.stocks.symbols}")
-//    private String nyStocksPath;
-//
-//    @Value("${na.stocks.symbols}")
-//    private String naStocksPath;
-
     private final StocksRepository stocksRepository;
     private final ExchangeRepository exchangeRepository;
     private final SecurityHistoryRepository securityHistoryRepository;
@@ -46,11 +39,11 @@ public class StocksBootstrap {
         try {
 
             ClassLoader classLoader = Config.class.getClassLoader();
-            File xnasFile = new File(classLoader.getResource(Config.getProperty("xnas_file")).getFile());
+            File xnasFile = new File(classLoader.getResource(Config.getProperty("stocks_file")).getFile());
             String[] stocksArrNa = readStockSymbols(xnasFile);
 
             fetchStocks(stocksArrNa);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
@@ -78,7 +71,6 @@ public class StocksBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        stockService.setLastupdated(date);
 
         for (String symbol : stocksArr) {
             List<Stock> stockExists = stocksRepository.findStockByTicker(symbol);
