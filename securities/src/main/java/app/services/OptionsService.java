@@ -42,7 +42,7 @@ public class OptionsService {
         return optionsRepository.findAll();
     }
 
-    public List<Option> updateData() throws IOException {
+    public List<Option> updateData() {
         System.out.println("Updating options");
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
@@ -58,7 +58,7 @@ public class OptionsService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<OptionsAPIResponse> entity = new HttpEntity<>(headers);
 
-            List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+            List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
             MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
             converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
             messageConverters.add(converter);
@@ -78,7 +78,7 @@ public class OptionsService {
             HashMap<String, String> optionMap = responseContent.get(0);
             try{
                 o.setOpenInterest(Long.parseLong(optionMap.get("Open Interest").replace("-", "0")));
-                o.setImpliedVolatility(BigDecimal.valueOf(Double.valueOf(optionMap.get("Implied Volatility").replace("%", "").replace("-", "0").replace(",", ""))));
+                o.setImpliedVolatility(BigDecimal.valueOf(Double.parseDouble(optionMap.get("Implied Volatility").replace("%", "").replace("-", "0").replace(",", ""))));
             } catch (Exception e){}
             optionsRepository.save(o);
         }

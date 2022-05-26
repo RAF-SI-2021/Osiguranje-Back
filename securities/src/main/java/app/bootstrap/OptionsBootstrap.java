@@ -45,7 +45,7 @@ public class OptionsBootstrap {
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 HttpEntity<OptionsAPIResponse> entity = new HttpEntity<>(headers);
 
-                List<HttpMessageConverter<?>> messageConverters = new ArrayList<HttpMessageConverter<?>>();
+                List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
                 MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
                 converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
                 messageConverters.add(converter);
@@ -66,15 +66,15 @@ public class OptionsBootstrap {
                     Option option;
                     try{
                         option = new Option(optionMap.get("Contract Name"), optionMap.get("Contract Name"), stock.getExchange(), lastUpdated,
-                                (BigDecimal.valueOf(Double.valueOf(optionMap.get("Last Price").replace("-", "0")))),
-                                (BigDecimal.valueOf(Double.valueOf(optionMap.get("Ask").replace("-", "0")))),
-                                (BigDecimal.valueOf(Double.valueOf(optionMap.get("Bid").replace("-", "0")))),
-                                (BigDecimal.valueOf(Double.valueOf(optionMap.get("Change").replace("-", "0")))),
+                                (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Last Price").replace("-", "0")))),
+                                (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Ask").replace("-", "0")))),
+                                (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Bid").replace("-", "0")))),
+                                (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Change").replace("-", "0")))),
                                 Long.parseLong(optionMap.get("Volume").replace("-", "1")), 100);
                         option.setStockListing(stock);
                         option.setOptionType(optionType);
-                        option.setStrikePrice(BigDecimal.valueOf(Double.valueOf(optionMap.get("Strike").replace("-", "0"))));
-                        option.setImpliedVolatility(BigDecimal.valueOf(Double.valueOf(optionMap.get("Implied Volatility").replace("%", "").replace("-", "0").replace(",", ""))));
+                        option.setStrikePrice(BigDecimal.valueOf(Double.parseDouble(optionMap.get("Strike").replace("-", "0"))));
+                        option.setImpliedVolatility(BigDecimal.valueOf(Double.parseDouble(optionMap.get("Implied Volatility").replace("%", "").replace("-", "0").replace(",", ""))));
                         option.setOpenInterest(Long.parseLong(optionMap.get("Open Interest").replace("-", "0")));
                         String dateString = "20" + optionMap.get("Contract Name").replace(stock.getTicker(), "").substring(0, 6);
                         Date settlementDate = new SimpleDateFormat("yyyyMMdd").parse(dateString);

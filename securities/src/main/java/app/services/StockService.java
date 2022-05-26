@@ -46,8 +46,7 @@ public class StockService {
     }
 
     public List<Stock> getStocksData() {
-        List<Stock> stocks = stockRepository.findAll();
-        return stocks;
+        return stockRepository.findAll();
     }
 
     public List<Stock> updateData() throws IOException {
@@ -70,9 +69,9 @@ public class StockService {
             s.setPriceChange(stock.getQuote().getChange());
             s.setVolume(stock.getQuote().getVolume());
 
-            if(s.getOutstandingShares() != stock.getStats().getSharesOutstanding())
+            if(!s.getOutstandingShares().equals(stock.getStats().getSharesOutstanding()))
                 s.setOutstandingShares(stock.getStats().getSharesOutstanding());
-            if(s.getDividendYield() != stock.getDividend().getAnnualYield())
+            if(!s.getDividendYield().equals(stock.getDividend().getAnnualYield()))
                 s.setDividendYield(stock.getDividend().getAnnualYield());
 
             stockRepository.save(s);
@@ -82,10 +81,9 @@ public class StockService {
 
     public StockDTO findById(long id) {
         Optional<Stock> opStock = stockRepository.findById(id);
-        if(!opStock.isPresent())
+        if(opStock.isEmpty())
             return null;
         Stock stock = opStock.get();
-        StockDTO dto = new StockDTO(stock);
-        return dto;
+        return new StockDTO(stock);
     }
 }

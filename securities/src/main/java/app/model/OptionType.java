@@ -4,7 +4,7 @@ public enum OptionType {
     CALL("calls"), PUT("puts");
 
     private String str;
-    private OptionType(String str) {
+    OptionType(String str) {
         this.str = str;
     }
 
