@@ -51,7 +51,6 @@ services:
     image: osiguranjeraf2022/gateway
     env_file: ./.env
     environment:
-      # No idea why but it doesnt work with env as in futures service
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
@@ -90,9 +89,21 @@ services:
   frontend:
     image: osiguranjeraf2022/frontend
     ports:
-      - '80:80'
+      - $FRONTEND_EXTERNAL_PORT:$FRONTEND_INTERNAL_PORT
     networks:
       - nginx
+
+  pythonflask:
+    image: osiguranjeraf2022/python-flask
+    env_file: ./.env
+    ports:
+      - $PYTHONFLASK_EXTERNAL_PORT:$PYTHONFLASK_INTERNAL_PORT
+    volumes:
+      - pythonflask:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
 
 volumes:
   db:
@@ -100,6 +111,7 @@ volumes:
   gateway:
   usercrud:
   securities:
+  pythonflask:
 
 networks:
   nginx:

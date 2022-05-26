@@ -88,20 +88,19 @@ services:
   frontend:
     image: osiguranjeraf2022/frontend
     ports:
-      - '80:80'
+      - $FRONTEND_EXTERNAL_PORT:$FRONTEND_INTERNAL_PORT
     networks:
       - nginx
 
-  flask:
-    container_name: python-flask
-    image: osiguranjeraf2022/python-service
-    build:
-      context: python-service
-      dockerfile: Dockerfile
+  pythonflask:
+    image: osiguranjeraf2022/python-flask
+    env_file: ./.env
     ports:
-      - "9999:5000"
+      - $PYTHONFLASK_EXTERNAL_PORT:$PYTHONFLASK_INTERNAL_PORT
     volumes:
-      - ./python-service:/app
+      - pythonflask:/root/.m2
+    stdin_open: true
+    tty: true
     networks:
       - backend
 
@@ -111,7 +110,7 @@ volumes:
   gateway:
   usercrud:
   securities:
-  flask:
+  pythonflask:
 
 networks:
   nginx:
