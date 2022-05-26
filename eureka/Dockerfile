@@ -16,4 +16,4 @@ RUN ./mvnw clean package
 FROM openjdk:11-jre-slim as run
 COPY --from=build /app/target/eureka-1.0-SNAPSHOT.jar eureka-1.0-SNAPSHOT.jar
 
-CMD ["java", "-jar", "my-app-1.0-SNAPSHOT.jar"]
+CMD ["java", "-jar", "eureka-1.0-SNAPSHOT.jar"]
