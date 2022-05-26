@@ -12,14 +12,16 @@ public class BootstrapData implements CommandLineRunner {
     private final ForexBootstrap forexBootstrap;
     private final ExchangeBootstrap exchangeBootstrap;
     private final CurrencyBootstrap currencyBootstrap;
+    private final UpdaterThread updaterThread;
 
     @Autowired
-    public BootstrapData(StocksBootstrap stocksBootstrap, FuturesBootstrap futuresBootstrap, ForexBootstrap forexBootstrap, ExchangeBootstrap exchangeBootstrap, CurrencyBootstrap currencyBootstrap) {
+    public BootstrapData(StocksBootstrap stocksBootstrap, FuturesBootstrap futuresBootstrap, ForexBootstrap forexBootstrap, ExchangeBootstrap exchangeBootstrap, CurrencyBootstrap currencyBootstrap, UpdaterThread updaterThread) {
         this.stocksBootstrap = stocksBootstrap;
         this.futuresBootstrap = futuresBootstrap;
         this.forexBootstrap = forexBootstrap;
         this.exchangeBootstrap = exchangeBootstrap;
         this.currencyBootstrap = currencyBootstrap;
+        this.updaterThread = updaterThread;
     }
 
     @Override
@@ -29,6 +31,9 @@ public class BootstrapData implements CommandLineRunner {
         exchangeBootstrap.loadStockExchangeData();
         stocksBootstrap.loadStocksData();
         futuresBootstrap.loadFuturesData();
+
+        Thread updater = new Thread(updaterThread);
+        updater.start();
     }
 
 }
