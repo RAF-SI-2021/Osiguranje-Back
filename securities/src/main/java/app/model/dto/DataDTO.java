@@ -12,5 +12,5 @@ import java.util.List;
 public class DataDTO {
     private List<FutureDTO> futures;
     private List<ForexDTO> forex;
-    private List<StockDTO> stock;
+    private List<StockDTO> stocks;
 }

@@ -19,8 +19,6 @@ import java.util.Optional;
 @Service
 @Setter
 public class StockService {
-    private Date lastupdated = new Date();
-
     private final StocksRepository stockRepository;
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
@@ -28,10 +26,6 @@ public class StockService {
 
     public Stock save(Stock stock){
         return stockRepository.save(stock);
-    }
-
-    public List<Stock> saveAll(List<Stock> stocks){
-        return stockRepository.saveAll(stocks);
     }
 
 //    public List<Stock> findByDateWindow(Date startDate, Date endDate){
@@ -51,7 +45,7 @@ public class StockService {
         return dtoList;
     }
 
-    private List<Stock> getStocksData() {
+    public List<Stock> getStocksData() {
         List<Stock> stocks = stockRepository.findAll();
         return stocks;
     }
@@ -61,7 +55,6 @@ public class StockService {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        setLastupdated(date);
 
         List<Stock> stocks = stockRepository.findAll();
 

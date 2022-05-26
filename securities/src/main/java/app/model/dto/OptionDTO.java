@@ -9,37 +9,43 @@ import org.apache.commons.math3.distribution.NormalDistribution;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 
 @Getter
-public class OptionDTO {
+public class OptionDTO extends SecurityDTO {
 
     StockDTO stockListing;
     OptionType optionType;
     BigDecimal strikePrice;
     BigDecimal impliedVolatility;
     Long openInterest;
-    String settlementDate;
+    Date settlementDate;
     BigDecimal maintenanceMargin;
     BigDecimal theta;
     int contractSize;
 
     public OptionDTO(Option option) {
+        super(option);
+
         this.stockListing = new StockDTO(option.getStockListing());
         this.optionType = option.getOptionType();
         this.strikePrice = option.getStrikePrice();
         this.impliedVolatility = option.getImpliedVolatility();
         this.openInterest = option.getOpenInterest();
         this.settlementDate = option.getSettlementDate();
-        this.maintenanceMargin = stockListing.getPrice().divide(BigDecimal.valueOf(2), 4, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(stockListing.getContractSize()));
-        this.theta = calculateTheta();
         this.contractSize = 100;
+
+        try{
+            this.maintenanceMargin = stockListing.getPrice().divide(BigDecimal.valueOf(2), 4, RoundingMode.HALF_EVEN).multiply(BigDecimal.valueOf(stockListing.getContractSize()));
+            this.theta = calculateTheta();
+        } catch(Exception e){}
     }
 
     private BigDecimal calculateTheta(){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        LocalDate setDate = LocalDate.parse(this.settlementDate, formatter);
+        LocalDate setDate = settlementDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
 
         double stockPrice = this.stockListing.getPrice().doubleValue();
         double optionStrikePrice = this.strikePrice.doubleValue();
