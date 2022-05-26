@@ -4,6 +4,8 @@ import app.model.Stock;
 import lombok.Getter;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
 
 @Getter
 public class StockDTO extends SecurityDTO {
@@ -17,9 +19,36 @@ public class StockDTO extends SecurityDTO {
 
         this.outstandingShares = stock.getOutstandingShares();
         this.dividendYield = stock.getDividendYield();
-        this.marketCap = price.multiply(BigDecimal.valueOf(outstandingShares));
+        try {
+            this.marketCap = price.multiply(BigDecimal.valueOf(outstandingShares));
+            this.maintenanceMargin = price.divide(BigDecimal.valueOf(2), 4, RoundingMode.HALF_EVEN);
+            this.initialMarginCost = maintenanceMargin.multiply(BigDecimal.valueOf(1.1));
+        } catch (Exception e){}
+    }
 
-        this.maintenanceMargin = price.divide(BigDecimal.valueOf(2));
-        this.initialMarginCost = maintenanceMargin.multiply(BigDecimal.valueOf(1.1));
+    @Override
+    public String toString() {
+        return "StockDTO{" +
+                "outstandingShares=" + outstandingShares +
+                ", dividendYield=" + dividendYield +
+                ", marketCap=" + marketCap +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        StockDTO stockDTO = (StockDTO) o;
+        return Objects.equals(outstandingShares, stockDTO.outstandingShares) && Objects.equals(dividendYield, stockDTO.dividendYield) && Objects.equals(marketCap, stockDTO.marketCap);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(outstandingShares, dividendYield, marketCap);
     }
 }
+
+
+
+

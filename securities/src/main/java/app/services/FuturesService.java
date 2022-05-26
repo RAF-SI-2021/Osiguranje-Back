@@ -1,11 +1,13 @@
 package app.services;
 
 import app.model.Future;
+import app.model.Stock;
 import app.model.dto.FutureDTO;
 import app.repositories.FuturesRepository;
 import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +47,10 @@ public class FuturesService {
 
     public Future save(Future future) {
         return this.futuresRepository.save(future);
+    }
+
+    public void updateData() throws IOException {
+        System.out.println("Updating futures");
     }
 
 }

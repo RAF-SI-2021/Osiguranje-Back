@@ -23,11 +23,11 @@ public class InflationRate {
     private Date date;
 
     @Column
-    private Float value;
+    private Float inflationValue;
 
     public InflationRate(Currency currency, Date date, Float value) {
         this.currency = currency;
         this.date = date;
-        this.value = value;
+        this.inflationValue = value;
     }
 }
