@@ -22,9 +22,7 @@ public class TransactionMapper {
 
     public Set<TransactionDto> transactionsToTransactionDtos(Set<Transaction> transactions) {
         Set<TransactionDto> transactionDtos = new HashSet<>();
-        transactions.stream().forEach(transaction -> {
-            transactionDtos.add(transactionToTransactionDto(transaction));
-        });
+        transactions.stream().forEach(transaction -> transactionDtos.add(transactionToTransactionDto(transaction)));
         return transactionDtos;
     }
 }
