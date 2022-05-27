@@ -18,7 +18,7 @@ class PermissionMapperTest {
     @Test
     void permissionsToPermissionAuthorityTest() {
         //given
-        Permissions permissions = new Permissions(true, false, true, false);
+        Permissions permissions = new Permissions(true, false, true, false, true, false);
         //when
         PermissionAuthority permissionAuthority = testPermissionMapper.permissionsToPermissionAuthority(permissions);
         //then

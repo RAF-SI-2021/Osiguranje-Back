@@ -17,6 +17,9 @@ public class UserCreateDto {
     private String phoneNumber;
     private Boolean active;
     private Permissions permissions;
+    private long limit;
+    private long limitUsed;
+    private boolean hardApproval;
 
     public UserCreateDto(String firstName, String lastName, String email, String JMBG, String position, String phoneNumber, Boolean active, Permissions permissions) {
         this.firstName = firstName;
