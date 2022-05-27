@@ -1,8 +1,7 @@
 package app.model.dto;
 
-import app.model.Option;
 import app.model.OptionType;
-
+import app.model.StockOption;
 import lombok.Getter;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
@@ -10,7 +9,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
@@ -27,7 +25,7 @@ public class OptionDTO extends SecurityDTO {
     BigDecimal theta;
     int contractSize;
 
-    public OptionDTO(Option option) {
+    public OptionDTO(StockOption option) {
         super(option);
 
         this.stockListing = new StockDTO(option.getStockListing());
