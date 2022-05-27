@@ -4,6 +4,7 @@ import buyingmarket.model.OrderType;
 import buyingmarket.model.SecurityType;
 import lombok.*;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Set;
 
@@ -14,14 +15,18 @@ import java.util.Set;
 @NoArgsConstructor
 public class OrderDto {
     private Long orderId;
+    @NotNull
     private Long securityId;
+    @NotNull
     private Long userId;
+    @NotNull
     private Integer amount;
     private OrderType orderType;
+    @NotNull
     private SecurityType securityType;
     private Boolean allOrNone;
     private BigDecimal margin;
-    private BigDecimal price;
+    private BigDecimal limitPrice;
     private BigDecimal stopPrice;
     private BigDecimal fee;
     private BigDecimal cost;

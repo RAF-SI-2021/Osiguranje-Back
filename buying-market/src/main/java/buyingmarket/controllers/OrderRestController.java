@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @CrossOrigin
@@ -21,7 +23,7 @@ public class OrderRestController {
     }
 
     @PostMapping
-    public ResponseEntity<HttpStatus> createOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
         orderService.createOrder(orderDto, authorization);
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -33,19 +35,19 @@ public class OrderRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> findOrder(@PathVariable Long id, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<OrderDto> findOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
         OrderDto order = orderService.findOrderForUser(id, authorization);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
     @PutMapping
-    public ResponseEntity<HttpStatus> updateOrder(@RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<HttpStatus> updateOrder(@Valid @RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
         orderService.updateOrder(orderDto, authorization);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<HttpStatus> deleteOrder(@PathVariable Long id, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<HttpStatus> deleteOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
         orderService.deleteOrder(id, authorization);
         return new ResponseEntity<>(HttpStatus.OK);
     }

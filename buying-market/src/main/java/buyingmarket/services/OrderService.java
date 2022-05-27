@@ -76,12 +76,6 @@ public class OrderService {
         if(orderType == null) {
             throw new IllegalArgumentException("Please provide an OrderType");
         }
-        if(securityId == null) {
-            throw new IllegalArgumentException("Please provide an SecurityId");
-        }
-        if(securityType == null) {
-            throw new IllegalArgumentException("Please provide an SecurityType");
-        }
         SecurityDto security = getSecurityByTypeAndId(securityType, securityId);
         if(security == null) {
             throw new IllegalArgumentException("Something went wrong trying to find security");
@@ -93,10 +87,7 @@ public class OrderService {
         switch (orderType) {
             case LIMIT: {
                 Integer amount = order.getAmount();
-                if(amount == null) {
-                    throw new IllegalArgumentException("Limit order requires an amount, please provide one");
-                }
-                BigDecimal price = orderDto.getPrice();
+                BigDecimal price = orderDto.getLimitPrice();
                 if(price == null) {
                     throw new IllegalArgumentException("Limit order requires a price, please provide one");
                 }
@@ -109,9 +100,6 @@ public class OrderService {
                     throw new IllegalArgumentException("Stop-limit order requires a stop price, please provide one");
                 }
                 Integer amount = order.getAmount();
-                if(amount == null) {
-                    throw new IllegalArgumentException("Stop-limit order requires an amount, please provide one");
-                }
                 BigDecimal price = order.getPrice();
                 if(price == null) {
                     throw new IllegalArgumentException("Stop-limit order requires a price, please provide one");
@@ -128,9 +116,6 @@ public class OrderService {
                 break;
             case MARKET: {
                 Integer amount = order.getAmount();
-                if(amount == null) {
-                    throw new IllegalArgumentException("Market order requires an amount, please provide one");
-                }
                 executeMarketOrder(order, amount, orderType, security, user);
             }
             break;
@@ -140,9 +125,6 @@ public class OrderService {
                     throw new IllegalArgumentException("Stop order requires a stop price, please provide one");
                 }
                 Integer amount = order.getAmount();
-                if(amount == null) {
-                    throw new IllegalArgumentException("Stop order requires an amount, please provide one");
-                }
                 if(
                         (amount < 0 && stopPrice.compareTo(security.getBid()) < 0) ||
                                 (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)
@@ -205,7 +187,7 @@ public class OrderService {
                     throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
                 }
                 order.setAmount(orderDto.getAmount());
-                order.setPrice(orderDto.getPrice());
+                order.setPrice(orderDto.getLimitPrice());
                 order.setMargin(orderDto.getMargin());
                 orderRepository.save(order);
             }
@@ -228,7 +210,7 @@ public class OrderService {
                     throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
                 }
                 order.setAmount(orderDto.getAmount());
-                order.setPrice(orderDto.getPrice());
+                order.setPrice(orderDto.getLimitPrice());
                 order.setStopPrice(orderDto.getStopPrice());
                 order.setMargin(orderDto.getMargin());
                 orderRepository.save(order);
