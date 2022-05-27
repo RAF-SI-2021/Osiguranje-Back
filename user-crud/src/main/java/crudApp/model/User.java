@@ -41,7 +41,7 @@ public class User {
     })
     private Permissions permissions;
     @Column
-    private long limit;
+    private long spendingLimit;
     @Column
     private long limitUsed;
     @Column
