@@ -66,16 +66,10 @@ public class OrderService {
     public void createOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        if(user == null) {
-            throw new IllegalArgumentException("Something went wrong trying to find user");
-        }
         Order order = orderMapper.orderDtoToOrder(orderDto);
         SecurityType securityType = order.getSecurityType();
         Long securityId = order.getSecurityId();
         SecurityDto security = getSecurityByTypeAndId(securityType, securityId);
-        if (security == null) {
-            throw new IllegalArgumentException("Something went wrong trying to find security");
-        }
         Long volume = security.getVolume();
         if(order.getLimitPrice() != null && order.getStopPrice() == null) {
             Integer amount = order.getAmount();
@@ -235,6 +229,9 @@ public class OrderService {
         if(response.getBody() != null) {
             user = response.getBody();
         }
+        if(user == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find user");
+        }
         return user;
     }
 
@@ -252,6 +249,9 @@ public class OrderService {
         SecurityDto security = null;
         if(response.getBody() != null) {
             security = response.getBody();
+        }
+        if (security == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find security");
         }
         return security;
     }
