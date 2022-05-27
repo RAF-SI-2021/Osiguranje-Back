@@ -1,8 +1,7 @@
 package app.services;
 
 import app.Config;
-import app.model.Option;
-import app.model.Stock;
+import app.model.StockOption;
 import app.model.api.OptionsAPIResponse;
 import app.model.dto.OptionDTO;
 import app.repositories.OptionsRepository;
@@ -13,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import yahoofinance.YahooFinance;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,32 +23,32 @@ public class OptionsService {
         this.optionsRepository = optionsRepository;
     }
 
-    public Option save(Option option){
+    public StockOption save(StockOption option){
         return optionsRepository.save(option);
     }
 
     public List<OptionDTO> getOptionsDTOData(){
-        List<Option> optionList = getOptionsData();
+        List<StockOption> optionList = getOptionsData();
         List<OptionDTO> dtoList = new ArrayList<>();
-        for (Option o: optionList){
+        for (StockOption o: optionList){
             dtoList.add(new OptionDTO(o));
         }
         return dtoList;
     }
 
-    public List<Option> getOptionsData() {
+    public List<StockOption> getOptionsData() {
         return optionsRepository.findAll();
     }
 
-    public List<Option> updateData() {
+    public List<StockOption> updateData() {
         System.out.println("Updating options");
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
 
-        List<Option> options = getOptionsData();
+        List<StockOption> options = getOptionsData();
 
-        for (Option o: options){
+        for (StockOption o: options){
             o.setLastUpdated(formatter.format(date));
 
             RestTemplate rest = new RestTemplate();
