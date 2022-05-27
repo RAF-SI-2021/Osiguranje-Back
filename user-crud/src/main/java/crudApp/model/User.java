@@ -36,7 +36,7 @@ public class User {
             @AttributeOverride(name = "stockTrading", column = @Column(name = "stock_trading")),
             @AttributeOverride(name = "stockOverview", column = @Column(name = "stock_overview")),
             @AttributeOverride(name = "contractConclusion", column = @Column(name = "contract_conclusion")),
-            @AttributeOverride(name = "supervisor", column = @Column(name = "supervisor"))
+            @AttributeOverride(name = "supervisor", column = @Column(name = "supervisor")),
             @AttributeOverride(name = "agent", column = @Column(name = "agent"))
     })
     private Permissions permissions;
