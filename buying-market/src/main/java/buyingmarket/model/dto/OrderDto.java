@@ -1,6 +1,5 @@
 package buyingmarket.model.dto;
 
-import buyingmarket.model.OrderType;
 import buyingmarket.model.SecurityType;
 import lombok.*;
 
@@ -21,7 +20,6 @@ public class OrderDto {
     private Long userId;
     @NotNull
     private Integer amount;
-    private OrderType orderType;
     @NotNull
     private SecurityType securityType;
     private Boolean allOrNone;

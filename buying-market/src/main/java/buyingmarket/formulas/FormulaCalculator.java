@@ -1,6 +1,6 @@
 package buyingmarket.formulas;
 
-import buyingmarket.model.OrderType;
+import buyingmarket.model.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -13,33 +13,28 @@ public class FormulaCalculator {
     private final BigDecimal limitPercentageFee = new BigDecimal("0.24");
     private final BigDecimal limitFlatFee = new BigDecimal("12");
 
-    public BigDecimal calculateSecurityFee(OrderType orderType, Long contractSize, BigDecimal price){
+    public BigDecimal calculateSecurityFee(Order order, BigDecimal price){
 
-        BigDecimal fee = price.multiply(BigDecimal.valueOf(contractSize));
-        switch (orderType){
-            case MARKET: {
-                BigDecimal percentageFee = fee.multiply(marketPercentageFee);
-                if(percentageFee.compareTo(marketFlatFee) < 0)
-                    fee = percentageFee;
-                else fee = marketFlatFee;
-
-            }break;
-            case LIMIT: {
-                BigDecimal percentageFee = fee.multiply(limitPercentageFee);
-                if(percentageFee.compareTo(limitFlatFee) < 0)
-                    fee = percentageFee;
-                else fee = limitFlatFee;
-            }break;
-            default:
+        BigDecimal fee = price.multiply(BigDecimal.valueOf(order.getAmount()));
+        if(order.getLimitPrice() == null) {
+            BigDecimal percentageFee = fee.multiply(marketPercentageFee);
+            if(percentageFee.compareTo(marketFlatFee) < 0)
+                fee = percentageFee;
+            else fee = marketFlatFee;
+        } else {
+            BigDecimal percentageFee = fee.multiply(limitPercentageFee);
+            if(percentageFee.compareTo(limitFlatFee) < 0)
+                fee = percentageFee;
+            else fee = limitFlatFee;
         }
         return fee;
     }
 
-    public BigDecimal calculateSecurityFee(OrderType orderType, Long contractSize, BigDecimal price, BigDecimal limitPrice){
+    public BigDecimal calculateSecurityFee(Order order, BigDecimal price, BigDecimal limitPrice){
         if(price.compareTo(limitPrice) < 0)
-            return calculateSecurityFee(orderType, contractSize, price);
+            return calculateSecurityFee(order, price);
         else
-            return calculateSecurityFee(orderType, contractSize, limitPrice);
+            return calculateSecurityFee(order, limitPrice);
     }
 
 }

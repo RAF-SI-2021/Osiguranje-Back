@@ -33,15 +33,13 @@ public class Order {
     @Column
     private Integer amount;
     @Column
-    private OrderType orderType;
-    @Column
     private SecurityType securityType;
     @Column
     private Boolean allOrNone;
     @Column
     private BigDecimal margin;
     @Column
-    private BigDecimal price;
+    private BigDecimal limitPrice;
     @Column
     private BigDecimal stopPrice;
     @Column

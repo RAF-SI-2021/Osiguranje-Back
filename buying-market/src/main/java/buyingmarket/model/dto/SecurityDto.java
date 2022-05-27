@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Collection;
 
@@ -20,6 +21,7 @@ public class SecurityDto {
     protected BigDecimal ask;
     protected BigDecimal bid;
     protected BigDecimal change;
+    @NotNull
     protected Long volume;
     protected int contractSize;
     protected Collection<SecurityHistoryDTO> securityHistory;
