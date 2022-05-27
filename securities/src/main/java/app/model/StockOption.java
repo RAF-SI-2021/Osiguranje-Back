@@ -14,9 +14,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class StockOption extends Security {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
-    protected long id;
     @ManyToOne
     Stock stockListing;
     @Column
