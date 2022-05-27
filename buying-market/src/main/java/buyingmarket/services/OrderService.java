@@ -42,7 +42,6 @@ public class OrderService {
     private final TransactionService transactionService;
     private final FormulaCalculator formulaCalculator;
     private final TaskScheduler taskScheduler;
-    private static final String USER_RETRIEVE_ERROR = "Something went wrong retrieving user info";
     private static final String ORDER_NOT_FOUND_ERROR = "No order with given id could be found for user";
     private static final String ORDER_FULLY_FILLED_ERROR = "Order has been fully filled already";
     private static final String ORDER_SIDE_ERROR = "Orders can't switch sides";
