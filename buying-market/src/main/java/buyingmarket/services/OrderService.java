@@ -66,10 +66,16 @@ public class OrderService {
     public void createOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
+        if(user == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find user");
+        }
         Order order = orderMapper.orderDtoToOrder(orderDto);
         SecurityType securityType = order.getSecurityType();
         Long securityId = order.getSecurityId();
         SecurityDto security = getSecurityByTypeAndId(securityType, securityId);
+        if (security == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find security");
+        }
         Long volume = security.getVolume();
         if(order.getLimitPrice() != null && order.getStopPrice() == null) {
             Integer amount = order.getAmount();
