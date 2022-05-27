@@ -12,6 +12,7 @@ import buyingmarket.model.dto.SecurityDto;
 import buyingmarket.model.dto.UserDto;
 import buyingmarket.repositories.OrderRepository;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -19,10 +20,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
+
+import javax.crypto.spec.SecretKeySpec;
 import java.math.BigDecimal;
+import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
@@ -279,9 +284,9 @@ public class OrderService {
     }
 
     private String extractUsername(String jws) {
-        return Jwts.parserBuilder()
-                .setSigningKey(jwtSecret).build()
-                .parseClaimsJws(jws).getBody().getSubject();
+        byte[] encodedSecret = Base64Utils.encode(jwtSecret.getBytes());
+        Key key = new SecretKeySpec(encodedSecret, SignatureAlgorithm.HS256.getJcaName());
+        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();
     }
 
     private UserDto getUserByUsernameFromUserService(String username) {
