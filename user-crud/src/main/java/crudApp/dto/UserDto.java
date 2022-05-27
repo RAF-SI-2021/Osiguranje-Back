@@ -19,7 +19,7 @@ public class UserDto {
     private String phoneNumber;
     private Boolean active;
     private Permissions permissions;
-    private long limit;
+    private long spendingLimit;
     private long limitUsed;
     private boolean hardApproval;
 
