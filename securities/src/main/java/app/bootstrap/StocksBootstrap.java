@@ -2,10 +2,12 @@ package app.bootstrap;
 
 import app.Config;
 import app.model.Exchange;
+import app.model.SecurityHistory;
 import app.model.Stock;
+import app.repositories.SecurityHistoryRepository;
 import app.repositories.StocksRepository;
+import app.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import app.repositories.ExchangeRepository;
 import yahoofinance.YahooFinance;
@@ -16,48 +18,32 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Component
 public class StocksBootstrap {
-
-//    @Value("${ny.stocks.symbols}")
-//    private String nyStocksPath;
-//
-//    @Value("${na.stocks.symbols}")
-//    private String naStocksPath;
-
     private final StocksRepository stocksRepository;
     private final ExchangeRepository exchangeRepository;
+    private final SecurityHistoryRepository securityHistoryRepository;
+    private final StockService stockService;
 
     @Autowired
-    public StocksBootstrap(StocksRepository stocksRepository, ExchangeRepository exchangeRepository) {
+    public StocksBootstrap(StocksRepository stocksRepository, ExchangeRepository exchangeRepository, SecurityHistoryRepository securityHistoryRepository, StockService stockService) {
         this.stocksRepository = stocksRepository;
         this.exchangeRepository = exchangeRepository;
+        this.securityHistoryRepository = securityHistoryRepository;
+        this.stockService = stockService;
     }
 
     public void loadStocksData()  {
         try {
 
             ClassLoader classLoader = Config.class.getClassLoader();
-            File xnysFile = new File(classLoader.getResource(Config.getProperty("xnys_file")).getFile());
-            String[] stocksArrNy = readStockSymbols(xnysFile);
-            File xnasFile = new File(classLoader.getResource(Config.getProperty("xnas_file")).getFile());
+            File xnasFile = new File(classLoader.getResource(Config.getProperty("stocks_file")).getFile());
             String[] stocksArrNa = readStockSymbols(xnasFile);
 
-            Exchange xnys = null, xnas = null;
-            try{
-                xnys = exchangeRepository.findByMIC("XNYS");
-                xnas = exchangeRepository.findByMIC("XNAS");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            fetchStocks(stocksArrNy, xnys);
-            fetchStocks(stocksArrNa, xnas);
-        } catch (IOException e) {
+            fetchStocks(stocksArrNa);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 //        Map <String, yahoofinance.Stock> resNy = YahooFinance.get(stocksArrNy, Interval.DAILY);
@@ -81,50 +67,60 @@ public class StocksBootstrap {
         return stocks.toArray(stocksArr);
     }
 
-    private void fetchStocks(String[] stocksArr, Exchange stockExchange) {
+    private void fetchStocks(String[] stocksArr) {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+
         for (String symbol : stocksArr) {
             List<Stock> stockExists = stocksRepository.findStockByTicker(symbol);
             if (!stockExists.isEmpty()) {
                 continue;
             }
             try {
+//                RestTemplate rest = new RestTemplate();
+//                HttpHeaders headers = new HttpHeaders();
+//                HttpEntity<AlphaVantageQuoteAPIResponse> entity = new HttpEntity <>(headers);
+//                ResponseEntity<AlphaVantageQuoteAPIResponse> response = rest.exchange(Config.getProperty("alphavantage_quote_url") + symbol + "&apikey=" + Config.getProperty("alphavantage_api_key"), HttpMethod.GET, entity, AlphaVantageQuoteAPIResponse.class);
+//                System.out.println(Config.getProperty("alphavantage_quote_url") + symbol + "&apikey=" + Config.getProperty("alphavantage_api_key"));
+//                AlphaVantageQuoteAPIResponse data = Objects.requireNonNull(response.getBody());
+//                System.out.println(data);
+
                 yahoofinance.Stock stock = YahooFinance.get(symbol);
-                if (stock == null || stock.getHistory() == null || !stock.isValid()) {
+                if (stock == null || !stock.isValid()) {
                     continue;
                 }
 
                 String lastUpdated = formatter.format(date);
-                String description = stock.getName();
+                String name = stock.getName();
                 BigDecimal price = stock.getQuote().getPrice();
                 BigDecimal ask = stock.getQuote().getAsk();
                 BigDecimal bid = stock.getQuote().getBid();
                 BigDecimal priceChange = stock.getQuote().getChange();
                 Long volume = stock.getQuote().getVolume();
                 Long outstandingShares = stock.getStats().getSharesOutstanding();
+                BigDecimal dividendYield = stock.getDividend().getAnnualYield();
 
-                Stock newStock = new Stock(symbol, description, stockExchange, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares, null);
+                Exchange stockExchange = exchangeRepository.findByAcronym(stock.getStockExchange());
+                if(stockExchange == null)
+                    stockExchange = exchangeRepository.findByAcronym("NASDAQ");
 
-//                Collection <SecurityHistory> history = new ArrayList <>();
+                Stock newStock = new Stock(symbol, name, stockExchange, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares, dividendYield);
+
+                Collection <SecurityHistory> history = new ArrayList<>();
 //                for (HistoricalQuote hq : stock.getHistory()) {
-//                    SecurityHistory stockHistory = new SecurityHistory(hq.getOpen().toPlainString(), hq.getClose().toPlainString(),
-//                            hq.getHigh().toPlainString(), hq.getLow().toPlainString());
+//                    SecurityHistory stockHistory = new SecurityHistory(hq.getDate().toString(), hq.getClose(),
+//                            hq.getHigh(), hq.getLow(), hq.getClose().subtract(hq.getOpen()), hq.getVolume());
 //
 //                    history.add(stockHistory);
 //
-//                    /* Predugo bi trajalo, dovoljno je za demonstraciju. */
+//                    /* dovoljno za demonstraciju */
 //                    if (history.size() > 3) break;
 //                }
 
-//                securityHistoryRepository.saveAll(history);
-
-                newStock.setSecurityHistory(null);
+                newStock.setSecurityHistory(history);
                 stocksRepository.save(newStock);
-            } catch (Exception e) {
-            }
-
+            } catch (Exception e) {}
         }
     }
 }

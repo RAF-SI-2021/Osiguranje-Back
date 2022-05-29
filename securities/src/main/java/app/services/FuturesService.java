@@ -1,21 +1,35 @@
 package app.services;
 
 import app.model.Future;
+import app.model.Stock;
 import app.model.dto.FutureDTO;
 import app.repositories.FuturesRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Setter
 public class FuturesService {
-    private final FuturesRepository futuresRepository;
+    private Date lastupdated;
 
-    @Autowired
+    private final FuturesRepository futuresRepository;
     public FuturesService(FuturesRepository futuresContractRepository) {
         this.futuresRepository = futuresContractRepository;
+    }
+
+    public FutureDTO findById(long id) {
+        Optional<Future> opFuture = futuresRepository.findById(id);
+        if(!opFuture.isPresent())
+            return null;
+        Future future = opFuture.get();
+        FutureDTO dto = new FutureDTO(future);
+        return dto;
     }
 
     public List<Future> getFuturesData() {
@@ -34,4 +48,9 @@ public class FuturesService {
     public Future save(Future future) {
         return this.futuresRepository.save(future);
     }
+
+    public void updateData() throws IOException {
+        System.out.println("Updating futures");
+    }
+
 }

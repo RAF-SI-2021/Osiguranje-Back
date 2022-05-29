@@ -107,9 +107,21 @@ services:
   frontend:
     image: osiguranjeraf2022/frontend
     ports:
-      - '80:80'
+      - $FRONTEND_EXTERNAL_PORT:$FRONTEND_INTERNAL_PORT
     networks:
       - nginx
+
+  pythonflask:
+    image: osiguranjeraf2022/python-flask
+    env_file: ./.env
+    ports:
+      - $PYTHONFLASK_EXTERNAL_PORT:$PYTHONFLASK_INTERNAL_PORT
+    volumes:
+      - pythonflask:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
 
 volumes:
   db:
@@ -118,6 +130,7 @@ volumes:
   usercrud:
   securities:
   buyingmarket:
+  pythonflask:
 
 networks:
   nginx:

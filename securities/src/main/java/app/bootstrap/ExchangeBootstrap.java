@@ -1,9 +1,12 @@
 package app.bootstrap;
 
 import app.Config;
+import app.model.Currency;
 import app.model.Exchange;
+import app.model.Region;
+import app.repositories.CurrencyRepository;
+import app.repositories.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import app.repositories.ExchangeRepository;
 
@@ -19,28 +22,37 @@ public class ExchangeBootstrap {
 //    private String stockExchangeCSVPath;
 
     private final ExchangeRepository exchangeRepository;
+    private final CurrencyRepository currencyRepository;
+    private final RegionRepository regionRepository;
 
     @Autowired
-    public ExchangeBootstrap(ExchangeRepository exchangeRepository) {
+    public ExchangeBootstrap(ExchangeRepository exchangeRepository, CurrencyRepository currencyRepository, RegionRepository regionRepository) {
         this.exchangeRepository = exchangeRepository;
+        this.currencyRepository = currencyRepository;
+        this.regionRepository = regionRepository;
     }
 
     public void loadStockExchangeData()
     {
-        try {
-            ClassLoader classLoader = ExchangeBootstrap.class.getClassLoader();
-            File f = new File(classLoader.getResource(Config.getProperty("exchange_file")).getFile());
-            BufferedReader br = new BufferedReader(new FileReader(f));
+        ClassLoader classLoader = ExchangeBootstrap.class.getClassLoader();
+        File f = new File(classLoader.getResource(Config.getProperty("exchange_file")).getFile());
 
+        try(BufferedReader br = new BufferedReader(new FileReader(f))) {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );
-                Exchange stockExchange = new Exchange( columns[2], null, columns[4], columns[1], columns[5], columns[3], columns[0] );
+                Exchange stockExchange = new Exchange(columns[2], columns[6], columns[4], columns[5], columns[3], columns[0] );
 
-//                Optional<Currency> countryCurrency = currencyRepository.findByRegion( columns[1] );
-//                if( countryCurrency.isPresent() && !currencies.contains( countryCurrency.get() ) ) currencies.add( countryCurrency.get() );
-//
-//                stockExchange.setCurrencies( currencies );
+                Region region = regionRepository.findByName(columns[1]);
+                if (region == null)
+                    region = regionRepository.findByCode("EUR");
+                Currency cur = currencyRepository.findByRegion(region);
+                if (cur == null)
+                    cur = currencyRepository.findByIsoCode("EUR");
+
+                stockExchange.setCurrency(cur);
+                stockExchange.setRegion(region);
+
                 exchangeRepository.save(stockExchange);
             }
 

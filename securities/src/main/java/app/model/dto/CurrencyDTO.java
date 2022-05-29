@@ -20,14 +20,25 @@ public class CurrencyDTO {
         this.name = currency.getName();
         this.isoCode = currency.getIsoCode();
         this.symbol = currency.getSymbol();
-        this.country = currency.getCountry();
+        this.country = currency.getRegion().getName();
 
-        if(currency.getInflationRates() == null)
+        if(currency.getInflationRates() == null || currency.getInflationRates().isEmpty())
             return;
 
         inflationRates = new ArrayList<>();
         for (InflationRate inflationRate: currency.getInflationRates()){
             inflationRates.add(new InflationRateDTO(inflationRate));
         }
+    }
+
+    @Override
+    public String toString() {
+        return "CurrencyDTO{" +
+                "name='" + name + '\'' +
+                ", isoCode='" + isoCode + '\'' +
+                ", symbol='" + symbol + '\'' +
+                ", country='" + country + '\'' +
+                ", inflationRates=" + inflationRates +
+                '}';
     }
 }

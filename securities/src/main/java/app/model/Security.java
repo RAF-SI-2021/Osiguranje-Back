@@ -23,24 +23,24 @@ public class Security {
     protected Exchange exchange;
     @Column
     protected String lastUpdated;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal price;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal ask;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal bid;
-    @Column
+    @Column(precision = 10, scale = 4)
     protected BigDecimal priceChange;
     @Column
     protected Long volume;
     @Column
     protected int contractSize;
-    @OneToMany
+    @OneToMany(fetch = FetchType.LAZY, cascade=CascadeType.ALL)
     protected Collection<SecurityHistory> securityHistory;
 
     public Security() {  }
 
-    public Security(String ticker, String name, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume, int contractSize) {
+    public Security(String ticker, String name, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal change, Long volume, int contractSize) {
         this.ticker = ticker;
         this.name = name;
         this.exchange = exchange;
@@ -48,7 +48,7 @@ public class Security {
         this.price = price;
         this.ask = ask;
         this.bid = bid;
-        this.priceChange = priceChange;
+        this.priceChange = change;
         this.volume = volume;
         this.contractSize = contractSize;
     }

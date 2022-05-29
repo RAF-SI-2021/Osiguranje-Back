@@ -29,4 +29,12 @@ public class SecurityHistory {
     @Column
     private Long volume;
 
+    public SecurityHistory(String date, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal priceChange, Long volume) {
+        this.date = date;
+        this.price = price;
+        this.ask = ask;
+        this.bid = bid;
+        this.priceChange = priceChange;
+        this.volume = volume;
+    }
 }

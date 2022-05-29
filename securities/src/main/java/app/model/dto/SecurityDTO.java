@@ -5,10 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import app.model.Security;
-import app.model.SecurityHistory;
-
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.RoundingMode;
 import java.util.Collection;
 
 @NoArgsConstructor
@@ -46,16 +44,42 @@ public class SecurityDTO {
         this.change = stock.getPriceChange();
         this.volume = stock.getVolume();
         this.contractSize = stock.getContractSize();
+        this.changePercent = BigDecimal.valueOf(0L);
 
-        if (stock.getSecurityHistory() != null){
-            this.securityHistory = new ArrayList<>();
-            for (SecurityHistory history: stock.getSecurityHistory()){
-                this.securityHistory.add(new SecurityHistoryDTO(history));
-            }
-        }
+        try{
+            this.dollarVolume = price.multiply(BigDecimal.valueOf(volume));
+            this.nominalValue = price.multiply(BigDecimal.valueOf(contractSize));
+            this.changePercent = BigDecimal.valueOf(100L).multiply(change.subtract(price)).divide(price, 4, RoundingMode.HALF_EVEN);
+        } catch (Exception e){}
 
-        this.changePercent = price.multiply(BigDecimal.valueOf(100)).divide(price.subtract(change));
-        this.dollarVolume = price.multiply(BigDecimal.valueOf(volume));
-        this.nominalValue = price.multiply(BigDecimal.valueOf(contractSize));
+//        if (stock.getSecurityHistory() == null || stock.getSecurityHistory().isEmpty())
+//            return;
+//
+//        this.securityHistory = new ArrayList<>();
+//        for (SecurityHistory history: stock.getSecurityHistory()){
+//            this.securityHistory.add(new SecurityHistoryDTO(history));
+//        }
+    }
+
+    @Override
+    public String toString() {
+        return "SecurityDTO{" +
+                "ticker='" + ticker + '\'' +
+                ", name='" + name + '\'' +
+                ", exchange=" + exchange +
+                ", lastUpdated='" + lastUpdated + '\'' +
+                ", price=" + price +
+                ", ask=" + ask +
+                ", bid=" + bid +
+                ", change=" + change +
+                ", volume=" + volume +
+                ", contractSize=" + contractSize +
+                ", securityHistory=" + securityHistory +
+                ", changePercent=" + changePercent +
+                ", dollarVolume=" + dollarVolume +
+                ", nominalValue=" + nominalValue +
+                ", initialMarginCost=" + initialMarginCost +
+                ", maintenanceMargin=" + maintenanceMargin +
+                '}';
     }
 }

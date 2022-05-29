@@ -10,5 +10,5 @@ import java.util.List;
 public interface ForexRepository extends JpaRepository<Forex, Long> {
 //    Forex findByBaseCurrencyAndQuoteCurrency(Currency baseCurrency, Currency quoteCurrency);
 
-    List<Forex> findForexByTicker(String ticker);
+    Forex findForexByTicker(String ticker);
 }

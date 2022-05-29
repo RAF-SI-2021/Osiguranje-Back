@@ -2,11 +2,11 @@ package app.bootstrap;
 
 import app.Config;
 import app.model.Forex;
-import app.model.forex.ContractSize;
+import app.model.ContractSize;
 import app.model.Currency;
-import app.model.forex.ExchangeRateAPIResponse;
+import app.model.api.ExchangeRateAPIResponse;
+import app.services.ForexService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,48 +16,37 @@ import org.springframework.web.client.RestTemplate;
 import app.repositories.CurrencyRepository;
 import app.repositories.ForexRepository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Component
 public class ForexBootstrap {
 
-    @Value("${exchangerate.api.url}")
-    private String exchangeRateUrl;
-
-//    @Value("${currencies}")
-//    private String currenciesPath;
-
     private final ForexRepository forexRepository;
     private final CurrencyRepository currencyRepository;
+    private final ForexService forexService;
 
     @Autowired
-    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository) {
+    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository, ForexService forexService) {
         this.forexRepository = forexRepository;
         this.currencyRepository = currencyRepository;
+        this.forexService = forexService;
     }
 
     public void loadForexData() {
-        readCurrencies();
         List<Currency> currencies = currencyRepository.findAll();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
+        forexService.setLastupdated(date);
 
         for (Currency currency : currencies) {
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<ExchangeRateAPIResponse> entity = new HttpEntity <>(headers);
-            ResponseEntity<ExchangeRateAPIResponse> response = rest.exchange(exchangeRateUrl + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
+            ResponseEntity<ExchangeRateAPIResponse> response = rest.exchange(Config.getProperty("exchangerate_url") + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
             HashMap<String, BigDecimal> rates;
             try {
                 rates = Objects.requireNonNull(response.getBody()).getConversionRates();
@@ -68,10 +57,9 @@ public class ForexBootstrap {
                 if (currency2.equals(currency))
                     continue;
 
-
                 String symbol = currency.getIsoCode() + currency2.getIsoCode();
-                List <Forex> forexExists = forexRepository.findForexByTicker(symbol);
-                if (!forexExists.isEmpty()) {
+                Forex forexExists = forexRepository.findForexByTicker(symbol);
+                if (forexExists != null) {
                     continue;
                 }
                 try {
@@ -79,10 +67,10 @@ public class ForexBootstrap {
                     String lastUpdated = formatter.format(date);
                     BigDecimal ask = price;
                     BigDecimal bid = price;
-                    BigDecimal priceChange = price;
-                    Long volume = price.longValue();
+                    BigDecimal priceChange = bid.subtract(ask);
+                    Long volume = null;
 
-                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.STANDARD.getSize());
+                    Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.MICRO.getSize());
                     newForex.setBaseCurrency(currency);
                     newForex.setQuoteCurrency(currency2);
                     newForex.setSecurityHistory(null);
@@ -90,21 +78,6 @@ public class ForexBootstrap {
                 } catch (Exception e) {
                 }
             }
-        }
-    }
-
-    private void readCurrencies() {
-        ClassLoader classLoader = ForexBootstrap.class.getClassLoader();
-        File file = new File(classLoader.getResource(Config.getProperty("currencies_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] columns = line.split(",");
-                Currency currency = new Currency(columns[2], columns[1], columns[3], columns[0]);
-                currencyRepository.save(currency);
-            }
-
-        } catch (IOException e) {
         }
     }
 }

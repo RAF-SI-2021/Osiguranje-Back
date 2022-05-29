@@ -1,6 +1,7 @@
 package app.model.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import app.model.SecurityHistory;
 
@@ -8,6 +9,7 @@ import java.math.BigDecimal;
 
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
 public class SecurityHistoryDTO {
 
     private String date;
