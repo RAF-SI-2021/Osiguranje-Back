@@ -1,6 +1,7 @@
 package app.model.dto;
 
 import app.model.OptionType;
+import app.model.StockOption;
 import lombok.Getter;
 import org.apache.commons.math3.distribution.NormalDistribution;
 

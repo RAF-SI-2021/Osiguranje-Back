@@ -1,7 +1,9 @@
 package security.test;
 
-import app.model.*;
-import app.model.dto.ForexDTO;
+import app.model.Currency;
+import app.model.Exchange;
+import app.model.Region;
+import app.model.StockOption;
 import app.model.dto.OptionDTO;
 import app.repositories.OptionsRepository;
 import app.services.OptionsService;
@@ -45,21 +47,21 @@ public class OptionsServiceTest {
 
     @Test
     public void save_CallsOptionsRepositorySave_Once() {
-        Option option = new Option(ticker, name, exchange,
+        StockOption option = new StockOption(ticker, name, exchange,
                                     lastUpdated, price, ask,
                                     bid, priceChange, volume, contractSize);
         when(optionsRepository.save(any())).thenReturn(option);
-        Option actual = underTest.save(option);
+        StockOption actual = underTest.save(option);
         assertEquals(option, actual);
         verify(optionsRepository, times(1)).save(option);
     }
 
     @Test
     public void getOptionsDTOData_ReturnsOptionsDTOList() {
-        Option option = new Option(ticker, name, exchange,
+        StockOption option = new StockOption(ticker, name, exchange,
                 lastUpdated, price, ask,
                 bid, priceChange, volume, contractSize);
-        List<Option> optionList = new ArrayList<>();
+        List<StockOption> optionList = new ArrayList<>();
         optionList.add(option);
         List<OptionDTO> optionDTOList = new ArrayList<>();
         optionDTOList.add(new OptionDTO(option));
@@ -71,14 +73,14 @@ public class OptionsServiceTest {
 
     @Test
     public void getOptionsData_ReturnsOptionList() {
-        Option option = new Option(ticker, name, exchange,
+        StockOption option = new StockOption(ticker, name, exchange,
                 lastUpdated, price, ask,
                 bid, priceChange, volume, contractSize);
-        List<Option> optionList = new ArrayList<>();
+        List<StockOption> optionList = new ArrayList<>();
         optionList.add(option);
 
         when(optionsRepository.findAll()).thenReturn(optionList);
-        List<Option> actual = underTest.getOptionsData();
+        List<StockOption> actual = underTest.getOptionsData();
         assertEquals(optionList, actual);
         verify(optionsRepository, times(1)).findAll();
     }
