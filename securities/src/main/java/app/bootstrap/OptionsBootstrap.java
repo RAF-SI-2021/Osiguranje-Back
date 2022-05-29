@@ -1,7 +1,7 @@
 package app.bootstrap;
 
 import app.Config;
-import app.model.Option;
+import app.model.StockOption;
 import app.model.OptionType;
 import app.model.Stock;
 import app.model.api.OptionsAPIResponse;
@@ -63,9 +63,9 @@ public class OptionsBootstrap {
                         break;
 
                     HashMap<String, String> optionMap = responseContent.get(i);
-                    Option option;
+                    StockOption option;
                     try{
-                        option = new Option(optionMap.get("Contract Name"), optionMap.get("Contract Name"), stock.getExchange(), lastUpdated,
+                        option = new StockOption(optionMap.get("Contract Name"), optionMap.get("Contract Name"), stock.getExchange(), lastUpdated,
                                 (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Last Price").replace("-", "0")))),
                                 (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Ask").replace("-", "0")))),
                                 (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Bid").replace("-", "0")))),

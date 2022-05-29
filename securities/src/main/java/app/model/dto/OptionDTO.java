@@ -1,6 +1,5 @@
 package app.model.dto;
 
-import app.model.Option;
 import app.model.OptionType;
 import lombok.Getter;
 import org.apache.commons.math3.distribution.NormalDistribution;
@@ -26,7 +25,7 @@ public class OptionDTO extends SecurityDTO {
     BigDecimal theta;
     int contractSize;
 
-    public OptionDTO(Option option) {
+    public OptionDTO(StockOption option) {
         super(option);
 
         this.stockListing = new StockDTO(option.getStockListing());

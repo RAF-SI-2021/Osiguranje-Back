@@ -12,11 +12,8 @@ import java.util.Date;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Option extends Security {
+public class StockOption extends Security {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
-    protected long id;
     @ManyToOne
     Stock stockListing;
     @Column
@@ -30,7 +27,7 @@ public class Option extends Security {
     @Column
     Date settlementDate;
 
-    public Option(String ticker, String name, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal change, Long volume, int contractSize) {
+    public StockOption(String ticker, String name, Exchange exchange, String lastUpdated, BigDecimal price, BigDecimal ask, BigDecimal bid, BigDecimal change, Long volume, int contractSize) {
         super(ticker, name, exchange, lastUpdated, price, ask, bid, change, volume, contractSize);
     }
 }
