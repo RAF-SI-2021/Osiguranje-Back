@@ -10,12 +10,15 @@ import app.services.StockService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 public class StockServiceTest {
     private StocksRepository stocksRepository = mock(StocksRepository.class);
@@ -66,5 +69,84 @@ public class StockServiceTest {
         when(stocksRepository.findById(INVALID_ID)).thenReturn(optional);
         StockDTO actual = underTest.findById(INVALID_ID);
         assertNull(actual);
+    }
+
+    @Test
+    public void save_ReturnsStock_and_CallsStocksRepositorySave_Once() {
+        Stock stock = new Stock(symbol, description, exchange, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                outstandingShares, dividendYield);
+        when(stocksRepository.save(any())).thenReturn(stock);
+        Stock actual = underTest.save(stock);
+        assertEquals(stock, actual);
+        verify(stocksRepository, times(1)).save(stock);
+    }
+
+    @Test
+    public void getStocksDTOData_ReturnsStockDTOList() {
+        Stock stock = new Stock(symbol, description, exchange, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                outstandingShares, dividendYield);
+        List<Stock> stockList = new ArrayList<>();
+        stockList.add(stock);
+        List<StockDTO> stockDTOList = new ArrayList<>();
+        stockDTOList.add(new StockDTO(stock));
+
+        when(stocksRepository.findAll()).thenReturn(stockList);
+        List<StockDTO> actual = underTest.getStocksDTOData();
+        assertEquals(stockDTOList, actual);
+        verify(stocksRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void getStocksData_ReturnsStockList() {
+        Stock stock = new Stock(symbol, description, exchange, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                outstandingShares, dividendYield);
+        List<Stock> stockList = new ArrayList<>();
+        stockList.add(stock);
+
+        when(stocksRepository.findAll()).thenReturn(stockList);
+        List<Stock> actual = underTest.getStocksData();
+        assertEquals(stockList, actual);
+        verify(stocksRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void updateData_DoesNothing_ForInvalidStockList() {
+        Stock stock = new Stock(symbol, description, exchange, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                outstandingShares, dividendYield);
+        List<Stock> stockList = new ArrayList<>();
+        stockList.add(stock);
+
+        when(stocksRepository.findAll()).thenReturn(stockList);
+        try {
+            underTest.updateData();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+        verify(stocksRepository, times(0)).save(any());
+    }
+
+    @Test
+    public void updateData_CallsStocksRepositorySave() {
+        Stock stock1 = new Stock("MSFT", description, exchange, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                outstandingShares, dividendYield);
+        List<Stock> stockList = new ArrayList<>();
+        stockList.add(stock1);
+
+        when(stocksRepository.findAll()).thenReturn(stockList);
+        try {
+            underTest.updateData();
+        }
+        catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        int n = stockList.size();
+        verify(stocksRepository, times(n)).save(any());
     }
 }
