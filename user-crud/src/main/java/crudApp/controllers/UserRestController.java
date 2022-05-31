@@ -25,6 +25,11 @@ public class UserRestController {
         return ResponseEntity.ok(userService.findAll());
     }
 
+    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findUserById(@PathVariable Long id) {
+        return ResponseEntity.ok(userService.findUserById(id));
+    }
+
     @GetMapping(value = "/search/email", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findUserByEmail(@RequestParam(required = true) String email) {
         return ResponseEntity.ok(userService.findUserByEmail(email));
