@@ -66,7 +66,7 @@ public class FuturesServiceTest {
     }
 
     @Test
-    public void getFuturesDTOData() {
+    public void getFuturesDTOData_ReturnsFuturesDTOList() {
         Future future = new Future(symbol, description, lastUpdated,
                                     price, ask, bid, priceChange, volume, contractSize,
                                     contractUnit, maintenanceMargin, settlementDate);
@@ -78,5 +78,16 @@ public class FuturesServiceTest {
         List<FutureDTO> actual = underTest.getFutureDTOData();
         assertEquals(futureDTOList, actual);
         verify(futuresRepository, times(1)).findAll();
+    }
+
+    @Test
+    public void save_ReturnsFuture_and_CallsFuturesRepositorySave_Once() {
+        Future future = new Future(symbol, description, lastUpdated,
+                                    price, ask, bid, priceChange, volume, contractSize,
+                                    contractUnit, maintenanceMargin, settlementDate);
+        when(futuresRepository.save(any())).thenReturn(future);
+        Future actual = underTest.save(future);
+        assertEquals(future, actual);
+        verify(futuresRepository, times(1)).save(future);
     }
 }

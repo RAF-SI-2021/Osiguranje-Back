@@ -71,6 +71,7 @@
         <module>eureka</module>
         <module>gateway-app</module>
         <module>securities</module>
+        <module>buying-market</module>
     </modules>
 
     <properties>

@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.Objects;
 
 @Getter
 public class OptionDTO extends SecurityDTO {
@@ -67,5 +68,33 @@ public class OptionDTO extends SecurityDTO {
         }
 
         return BigDecimal.valueOf(theta);
+    }
+
+    @Override
+    public String toString() {
+        return "OptionDTO{" +
+                "stockListing=" + stockListing +
+                ", optionType=" + optionType +
+                ", strikePrice=" + strikePrice +
+                ", impliedVolatility=" + impliedVolatility +
+                ", openInterest=" + openInterest +
+                ", settlementDate=" + settlementDate +
+                ", maintenanceMargin=" + maintenanceMargin +
+                ", theta=" + theta +
+                ", contractSize=" + contractSize +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OptionDTO optionDTO = (OptionDTO) o;
+        return contractSize == optionDTO.contractSize && Objects.equals(stockListing, optionDTO.stockListing) && optionType == optionDTO.optionType && Objects.equals(strikePrice, optionDTO.strikePrice) && Objects.equals(impliedVolatility, optionDTO.impliedVolatility) && Objects.equals(openInterest, optionDTO.openInterest) && Objects.equals(settlementDate, optionDTO.settlementDate) && Objects.equals(maintenanceMargin, optionDTO.maintenanceMargin) && Objects.equals(theta, optionDTO.theta);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(stockListing, optionType, strikePrice, impliedVolatility, openInterest, settlementDate, maintenanceMargin, theta, contractSize);
     }
 }

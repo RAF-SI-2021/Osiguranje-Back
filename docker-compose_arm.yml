@@ -45,6 +45,25 @@ services:
     networks:
       - backend
 
+  buyingmarket:
+    depends_on:
+      - mysqldb
+      - eureka
+    image: osiguranjeraf2022/buying-market
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $MARKET_EXTERNAL_PORT:$MARKET_INTERNAL_PORT
+    volumes:
+      - buyingmarket:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
+
   gateway:
     depends_on:
       - usercrud
@@ -111,6 +130,7 @@ volumes:
   gateway:
   usercrud:
   securities:
+  buyingmarket:
   pythonflask:
 
 networks:
