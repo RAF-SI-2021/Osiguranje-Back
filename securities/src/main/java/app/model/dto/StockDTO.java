@@ -17,6 +17,16 @@ public class StockDTO extends SecurityDTO {
     public StockDTO(Stock stock) {
         super(stock);
 
+        this.outstandingShares = 1L;
+        this.dividendYield = BigDecimal.ONE;
+        try {
+            this.marketCap = BigDecimal.ONE;
+            this.maintenanceMargin = BigDecimal.ONE;
+            this.initialMarginCost = BigDecimal.ONE;
+        } catch (Exception e){}
+
+        if (stock == null) return;
+
         this.outstandingShares = stock.getOutstandingShares();
         this.dividendYield = stock.getDividendYield();
         try {

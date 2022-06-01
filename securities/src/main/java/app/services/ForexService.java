@@ -69,14 +69,12 @@ public class ForexService  {
         return forexList;
     }
 
-    public List<Forex> updateData() {
+    public void updateData() {
         System.out.println("Updating forex");
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         setLastupdated(date);
-
-        List<Forex> forexList = forexRepository.findAll();
 
         List<Currency> currencies = currencyRepository.findAll();
         for (Currency currency : currencies) {
@@ -108,7 +106,6 @@ public class ForexService  {
                 forexRepository.save(f);
             }
         }
-        return forexList;
     }
 
 //    public Forex getPair(String baseCurrencyIso, String quoteCurrencyIso) {
