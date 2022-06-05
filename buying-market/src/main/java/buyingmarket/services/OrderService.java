@@ -291,5 +291,17 @@ public class OrderService {
                 }
             }
         }
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public Order getOrder() {
+            return order;
+        }
+
+        public Long getVolume() {
+            return volume;
+        }
     }
 }
