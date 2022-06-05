@@ -7,13 +7,11 @@ import app.model.Region;
 import app.repositories.CurrencyRepository;
 import app.repositories.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import app.repositories.ExchangeRepository;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 
 @Component
 public class ExchangeBootstrap {
@@ -32,12 +30,11 @@ public class ExchangeBootstrap {
         this.regionRepository = regionRepository;
     }
 
-    public void loadStockExchangeData()
-    {
+    public void loadStockExchangeData() throws IOException {
         ClassLoader classLoader = ExchangeBootstrap.class.getClassLoader();
-        File f = new File(classLoader.getResource(Config.getProperty("exchange_file")).getFile());
+        InputStream f = new ClassPathResource(Config.getProperty("exchange_file")).getInputStream();
 
-        try(BufferedReader br = new BufferedReader(new FileReader(f))) {
+        try(BufferedReader br = new BufferedReader(new InputStreamReader(f))) {
             String line;
             while( ( line = br.readLine() ) != null ) {
                 String[] columns = line.split( "," );

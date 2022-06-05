@@ -8,6 +8,7 @@ import app.model.api.InflationRateAPIResponse;
 import app.services.FuturesService;
 import org.hibernate.type.BigDecimalType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -16,10 +17,7 @@ import org.springframework.stereotype.Component;
 import app.repositories.FuturesRepository;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.security.SecureRandom;
@@ -55,8 +53,8 @@ public class FuturesBootstrap {
         List<List <String>> categoryData = new ArrayList <>();
 
         ClassLoader classLoader = FuturesBootstrap.class.getClassLoader();
-        File file = new File(classLoader.getResource(Config.getProperty("eurex_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        InputStream file = new ClassPathResource(Config.getProperty("eurex_file")).getInputStream();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] values = line.split(COMMA_DELIMETER);
@@ -65,9 +63,9 @@ public class FuturesBootstrap {
                     eurexData.add(list);
                 }
             }
-            file = new File(classLoader.getResource(Config.getProperty("categories_file")).getFile());
+            file = new ClassPathResource(Config.getProperty("categories_file")).getInputStream();
 
-            try (BufferedReader brr = new BufferedReader(new FileReader(file))) {
+            try (BufferedReader brr = new BufferedReader(new InputStreamReader(file))) {
                 while ((line = brr.readLine()) != null) {
                     String[] values = line.split(COMMA_DELIMETER);
                     List <String> list = Arrays.asList(values);
