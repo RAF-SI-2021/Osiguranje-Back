@@ -66,17 +66,17 @@ public class OrderRepositoryTest {
     }
 
     @Test
-    public void findAllByUserIdTest() {
+    void findAllByUserIdTest() {
         List<Order> firstUserOrders = orderRepository.findAllByUserId(Long.valueOf(1));
         List<Order> secondUserOrders = orderRepository.findAllByUserId(Long.valueOf(2));
         assertThat(firstUserOrders).isNotEmpty();
         assertThat(secondUserOrders).isNotEmpty();
-        assertThat(firstUserOrders.size()).isEqualTo(2);
-        assertThat(secondUserOrders.size()).isEqualTo(1);
+        assertThat(firstUserOrders).hasSize(2);
+        assertThat(secondUserOrders).hasSize(1);
     }
 
     @Test
-    public void findAllByUserIdAndActiveTest() {
+    void findAllByUserIdAndActiveTest() {
         List<Order> firstUserAndActiveOrders = orderRepository.findAllByUserIdAndActive(Long.valueOf(1), Boolean.TRUE);
         List<Order> firstUserAndInactiveOrders = orderRepository.findAllByUserIdAndActive(Long.valueOf(1), Boolean.FALSE);
         List<Order> secondUserAndActiveOrders = orderRepository.findAllByUserIdAndActive(Long.valueOf(2), Boolean.TRUE);
@@ -85,13 +85,13 @@ public class OrderRepositoryTest {
         assertThat(firstUserAndInactiveOrders).isNotEmpty();
         assertThat(secondUserAndActiveOrders).isNotEmpty();
         assertThat(secondUserAndInactiveOrders).isEmpty();
-        assertThat(firstUserAndActiveOrders.size()).isEqualTo(1);
-        assertThat(firstUserAndInactiveOrders.size()).isEqualTo(1);
-        assertThat(secondUserAndActiveOrders.size()).isEqualTo(1);
+        assertThat(firstUserAndActiveOrders).hasSize(1);
+        assertThat(firstUserAndInactiveOrders).hasSize(1);
+        assertThat(secondUserAndActiveOrders).hasSize(1);
     }
 
     @Test
-    public void findByOrderIdAndUserIdTest(){
+    void findByOrderIdAndUserIdTest(){
         List<Order> allOrders = orderRepository.findAll();
         allOrders.stream().map(order -> order.getOrderId()).forEach(orderId -> {
             Optional<Order> orderForFirstOptional = orderRepository.findByOrderIdAndUserId(orderId, Long.valueOf(1));

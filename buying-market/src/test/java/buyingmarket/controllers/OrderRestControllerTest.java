@@ -31,7 +31,7 @@ public class OrderRestControllerTest {
     private OrderService orderService;
 
     @Test
-    public void createOrderTest() throws Exception {
+    void createOrderTest() throws Exception {
         OrderDto orderDto = OrderDto.builder()
                 .active(Boolean.TRUE)
                 .orderId(Long.valueOf(1))
@@ -49,14 +49,14 @@ public class OrderRestControllerTest {
     }
 
     @Test
-    public void findAllTest() throws Exception {
+    void findAllTest() throws Exception {
         when(orderService.findAllOrdersForUser("")).thenReturn(new ArrayList<>());
         mockMvc.perform(get("/api/orders").header("Authorization", ""))
                 .andDo(print()).andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON));
     }
 
     @Test
-    public void findOrderTest() throws Exception {
+    void findOrderTest() throws Exception {
         OrderDto orderDto = OrderDto.builder()
                 .active(Boolean.TRUE)
                 .orderId(Long.valueOf(1))
@@ -67,7 +67,7 @@ public class OrderRestControllerTest {
     }
 
     @Test
-    public void updateOrderTest() throws Exception {
+    void updateOrderTest() throws Exception {
         OrderDto orderDto = OrderDto.builder()
                 .active(Boolean.TRUE)
                 .orderId(Long.valueOf(1))
@@ -85,13 +85,13 @@ public class OrderRestControllerTest {
     }
 
     @Test
-    public void deleteOrderTest() throws Exception {
+    void deleteOrderTest() throws Exception {
         mockMvc.perform(delete("/api/orders/1").header("Authorization",""))
                 .andDo(print()).andExpect(status().isOk());
     }
 
     @Test
-    public void deleteAllTest() throws Exception {
+    void deleteAllTest() throws Exception {
         mockMvc.perform(delete("/api/orders").header("Authorization",""))
                 .andDo(print()).andExpect(status().isOk());
     }
