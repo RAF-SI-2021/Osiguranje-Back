@@ -121,53 +121,11 @@ public class OrderService {
     public void updateOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByOrderIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
-        if(order.getLimitPrice() != null && order.getStopPrice() == null) {
-            Set<Transaction> transactions = order.getTransactions();
-            long totalFilledAmount = 0;
-            for(Transaction transaction: transactions) {
-                totalFilledAmount += transaction.getVolume();
-            }
-            if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
-            }
-            if(transactions.isEmpty()) {
-                order.setAllOrNone(orderDto.getAllOrNone());
-            }
-            if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
-            } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
-            }
-            order.setAmount(orderDto.getAmount());
-            order.setLimitPrice(orderDto.getLimitPrice());
-            order.setMargin(orderDto.getMargin());
-            orderRepository.save(order);
-        } else if(order.getLimitPrice() != null && order.getStopPrice() != null) {
-            Set<Transaction> transactions = order.getTransactions();
-            long totalFilledAmount = 0;
-            for(Transaction transaction: transactions) {
-                totalFilledAmount += transaction.getVolume();
-            }
-            if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
-            }
-            if(transactions.isEmpty()) {
-                order.setAllOrNone(orderDto.getAllOrNone());
-            }
-            if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
-            } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
-            }
-            order.setAmount(orderDto.getAmount());
-            order.setLimitPrice(orderDto.getLimitPrice());
-            order.setStopPrice(orderDto.getStopPrice());
-            order.setMargin(orderDto.getMargin());
-            orderRepository.save(order);
-        } else if(order.getLimitPrice() == null && order.getStopPrice() == null) {
+        Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        if(order.getLimitPrice() == null && order.getStopPrice() == null) {
             throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
-        } else {
+        }
+        else{
             Set<Transaction> transactions = order.getTransactions();
             long totalFilledAmount = 0;
             for(Transaction transaction: transactions) {
@@ -185,8 +143,11 @@ public class OrderService {
                 throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
             }
             order.setAmount(orderDto.getAmount());
-            order.setStopPrice(orderDto.getStopPrice());
             order.setMargin(orderDto.getMargin());
+            if(order.getLimitPrice() != null)
+                order.setLimitPrice(orderDto.getLimitPrice());
+            if(order.getStopPrice() != null)
+                order.setStopPrice(orderDto.getStopPrice());
             orderRepository.save(order);
         }
     }
