@@ -19,8 +19,8 @@ public class OrderRepositoryTest {
     @Autowired
     private OrderRepository orderRepository;
 
-    @Autowired
-    private TransactionRepository transactionRepository;
+    //@Autowired
+    //private TransactionRepository transactionRepository;
 
     @BeforeEach
     public void init() {
@@ -47,5 +47,20 @@ public class OrderRepositoryTest {
     public void findAllTest() {
         List<Order> orders = orderRepository.findAll();
         assertThat(orders).isNotEmpty();
+    }
+
+    @Test
+    public void findAllByUserIdTest() {
+
+    }
+
+    @Test
+    public void findAllByUserIdAndActiveTest() {
+
+    }
+
+    @Test
+    public void findByOrderIdAndUserIdTest(){
+
     }
 }
