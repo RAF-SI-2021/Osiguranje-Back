@@ -22,7 +22,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {OrderRestController.class})
 @WebMvcTest(OrderRestController.class)
-public class OrderRestControllerTest {
+class OrderRestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
