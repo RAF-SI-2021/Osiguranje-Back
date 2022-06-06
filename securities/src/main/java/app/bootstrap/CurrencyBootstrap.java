@@ -8,6 +8,7 @@ import app.model.api.InflationRateAPIResponse;
 import app.repositories.CurrencyRepository;
 import app.repositories.RegionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -15,10 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -35,12 +33,12 @@ public class CurrencyBootstrap {
         this.regionRepository = regionRepository;
     }
 
-    public void loadCurrenciesData() {
+    public void loadCurrenciesData() throws IOException {
         loadRegions();
 
         ClassLoader classLoader = CurrencyBootstrap.class.getClassLoader();
-        File file = new File(classLoader.getResource(Config.getProperty("currencies_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        InputStream file = new ClassPathResource(Config.getProperty("currencies_file")).getInputStream();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] columns = line.split(",");
@@ -77,10 +75,10 @@ public class CurrencyBootstrap {
         } catch (IOException e) {}
     }
 
-    private void loadRegions(){
+    private void loadRegions() throws IOException {
         ClassLoader classLoader = CurrencyBootstrap.class.getClassLoader();
-        File file = new File(classLoader.getResource(Config.getProperty("regions_file")).getFile());
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        InputStream file = new ClassPathResource(Config.getProperty("regions_file")).getInputStream();
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(file))) {
             String line;
             while ((line = br.readLine()) != null) {
                 String[] columns = line.split(",");
