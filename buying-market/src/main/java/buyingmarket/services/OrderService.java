@@ -271,7 +271,7 @@ public class OrderService {
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
             if (orderFromRepo.getActive().booleanValue()) {
                 Boolean allOrNone = order.getAllOrNone();
-                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled) {
+                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled && amountNotFilled > 0) {
                     long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
 
                     taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
