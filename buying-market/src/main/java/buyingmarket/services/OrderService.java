@@ -114,14 +114,14 @@ public class OrderService {
     public OrderDto findOrderForUser(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         return orderMapper.orderToOrderDto(order);
     }
 
     public void updateOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         if(order.getLimitPrice() == null && order.getStopPrice() == null) {
             throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
         }
@@ -155,7 +155,7 @@ public class OrderService {
     public void deleteOrder(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         order.setActive(Boolean.FALSE);
         orderRepository.save(order);
     }
