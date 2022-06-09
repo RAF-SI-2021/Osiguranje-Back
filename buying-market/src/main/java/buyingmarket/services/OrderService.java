@@ -114,14 +114,14 @@ public class OrderService {
     public OrderDto findOrderForUser(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         return orderMapper.orderToOrderDto(order);
     }
 
     public void updateOrder(OrderDto orderDto, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         if(order.getLimitPrice() == null && order.getStopPrice() == null) {
             throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
         }
@@ -155,7 +155,7 @@ public class OrderService {
     public void deleteOrder(Long id, String jws) {
         String username = extractUsername(jws);
         UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         order.setActive(Boolean.FALSE);
         orderRepository.save(order);
     }
@@ -271,7 +271,7 @@ public class OrderService {
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
             if (orderFromRepo.getActive().booleanValue()) {
                 Boolean allOrNone = order.getAllOrNone();
-                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled) {
+                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled && amountNotFilled > 0) {
                     long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
 
                     taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
@@ -290,6 +290,18 @@ public class OrderService {
                     }
                 }
             }
+        }
+
+        public int getAmount() {
+            return amount;
+        }
+
+        public Order getOrder() {
+            return order;
+        }
+
+        public Long getVolume() {
+            return volume;
         }
     }
 }
