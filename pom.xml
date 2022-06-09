@@ -51,6 +51,18 @@
         <maven.compiler.target>17</maven.compiler.target>
         <sonar.organization>raf-si-2021-1</sonar.organization>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
-    </properties>
 
+        <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
+        <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
+        <sonar.jacoco.xmlReportPaths>${project.basedir}/../target/jacoco.exec</sonar.jacoco.xmlReportPaths>
+        <sonar.language>java</sonar.language>
+        <sonar.java.binaries> target </sonar.java.binaries>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.8</version>
+        </dependency>
+    </dependencies>
 </project>

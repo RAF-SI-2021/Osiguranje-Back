@@ -1,15 +1,14 @@
 package app.model.dto;
 
+import app.model.Security;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import app.model.Security;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
@@ -34,6 +33,9 @@ public class SecurityDTO {
     protected BigDecimal maintenanceMargin;
 
     public SecurityDTO(Security stock) {
+        this();
+        if (stock == null) return;
+
         this.ticker = stock.getTicker();
         this.name = stock.getName();
         this.exchange = new ExchangeDTO(stock.getExchange());
@@ -59,6 +61,20 @@ public class SecurityDTO {
 //        for (SecurityHistory history: stock.getSecurityHistory()){
 //            this.securityHistory.add(new SecurityHistoryDTO(history));
 //        }
+    }
+
+    public SecurityDTO() {
+        this.ticker = "TICKER";
+        this.name = "NAME";
+        this.exchange = new ExchangeDTO();
+        this.lastUpdated = "LAST_UPDATED";
+        this.price = BigDecimal.ONE;
+        this.ask = BigDecimal.ONE;
+        this.bid = BigDecimal.ONE;
+        this.change = BigDecimal.ZERO;
+        this.volume = 1L;
+        this.contractSize = 1;
+        this.changePercent = BigDecimal.ZERO;
     }
 
     @Override
