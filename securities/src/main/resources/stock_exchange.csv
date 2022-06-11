@@ -20,3 +20,5 @@
 13:30,Taiwan,Taiwan Stock Exchange,09:00,XTAI,+8,TWSE
 16:00,Australia,Australian Securities Exchange,10:00,XASX,+10,ASX
 17:00,South Africa,Johannesburg Stock Exchange,09:00,XJSE,+2,JSE
+17:00,Europe,European Derivatives Exchange,08:00,XEUR,+0,EUREX
+23:59,Europe,Forex Capital Markets,00:00,FXCM,+0,FXCM

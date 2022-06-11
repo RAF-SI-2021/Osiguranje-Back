@@ -1,10 +1,12 @@
 package app.bootstrap;
 
 import app.Config;
+import app.model.Exchange;
 import app.model.Forex;
 import app.model.ContractSize;
 import app.model.Currency;
 import app.model.api.ExchangeRateAPIResponse;
+import app.repositories.ExchangeRepository;
 import app.services.ForexService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
@@ -26,12 +28,14 @@ public class ForexBootstrap {
     private final ForexRepository forexRepository;
     private final CurrencyRepository currencyRepository;
     private final ForexService forexService;
+    private final ExchangeRepository exchangeRepository;
 
     @Autowired
-    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository, ForexService forexService) {
+    public ForexBootstrap(ForexRepository forexRepository, CurrencyRepository currencyRepository, ForexService forexService, ExchangeRepository exchangeRepository) {
         this.forexRepository = forexRepository;
         this.currencyRepository = currencyRepository;
         this.forexService = forexService;
+        this.exchangeRepository = exchangeRepository;
     }
 
     public void loadForexData() {
@@ -73,7 +77,11 @@ public class ForexBootstrap {
                     Forex newForex = new Forex(symbol, symbol, lastUpdated, price, ask, bid, priceChange, volume, ContractSize.MICRO.getSize());
                     newForex.setBaseCurrency(currency);
                     newForex.setQuoteCurrency(currency2);
+
+                    Exchange stockExchange = exchangeRepository.findByAcronym("FXCM");
+                    newForex.setExchange(stockExchange);
                     newForex.setSecurityHistory(null);
+
                     forexRepository.save(newForex);
                 } catch (Exception e) {
                 }
