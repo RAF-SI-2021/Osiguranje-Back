@@ -8,14 +8,12 @@ import app.repositories.SecurityHistoryRepository;
 import app.repositories.StocksRepository;
 import app.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
 import app.repositories.ExchangeRepository;
 import yahoofinance.YahooFinance;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -39,7 +37,7 @@ public class StocksBootstrap {
         try {
 
             ClassLoader classLoader = Config.class.getClassLoader();
-            File xnasFile = new File(classLoader.getResource(Config.getProperty("stocks_file")).getFile());
+            InputStream xnasFile = new ClassPathResource(Config.getProperty("stocks_file")).getInputStream();
             String[] stocksArrNa = readStockSymbols(xnasFile);
 
             fetchStocks(stocksArrNa);
@@ -50,9 +48,9 @@ public class StocksBootstrap {
 //        Map <String, yahoofinance.Stock> resNa = YahooFinance.get(stocksArrNa, Interval.DAILY);
     }
 
-    private String[] readStockSymbols(File file) throws IOException {
+    private String[] readStockSymbols(InputStream file) throws IOException {
         ArrayList<String> stocks = new ArrayList <>();
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(file))) {
 
             String stockCode;
             while (true) {
