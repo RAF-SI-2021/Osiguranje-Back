@@ -84,6 +84,7 @@ public class ForexBootstrap {
 
                     forexRepository.save(newForex);
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
         }

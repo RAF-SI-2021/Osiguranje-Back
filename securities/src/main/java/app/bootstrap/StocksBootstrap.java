@@ -69,7 +69,6 @@ public class StocksBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        Random rand = new Random();
 
         for (String symbol : stocksArr) {
             List<Stock> stockExists = stocksRepository.findStockByTicker(symbol);
@@ -107,10 +106,7 @@ public class StocksBootstrap {
                 Exchange stockExchange = exchangeRepository.findByAcronym(exchangeAcronym);
 
                 if(stockExchange == null){
-                    if(rand.nextBoolean())
-                        stockExchange = exchangeRepository.findByAcronym("NASDAQ");
-                    else
-                        stockExchange = exchangeRepository.findByAcronym("NYSE");
+                    stockExchange = exchangeRepository.findByAcronym("NYSE");
                 }
 
                 Stock newStock = new Stock(symbol, name, stockExchange, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares, dividendYield);

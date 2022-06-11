@@ -190,7 +190,7 @@ public class FuturesBootstrap {
         return month;
     }
 
-    private int calculateYear(char monthChar, int year) throws ParseException{
+    private int calculateYear(char monthChar, int year) {
         Date currDate = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM");
         String currMonthStr = formatter.format(currDate);
