@@ -14,7 +14,7 @@ services:
       - backend
 
   eureka:
-    image: osiguranjeraf2022/eureka
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/eureka
     env_file: ./.env
     ports:
       - $EUREKA_EXTERNAL_PORT:$EUREKA_INTERNAL_PORT
@@ -29,7 +29,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    image: osiguranjeraf2022/user-crud
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/user-crud
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -48,7 +48,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    image: osiguranjeraf2022/buying-market
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/buying-market
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -66,7 +66,7 @@ services:
   gateway:
     depends_on:
       - usercrud
-    image: osiguranjeraf2022/gateway
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/gateway
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -89,7 +89,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    image: osiguranjeraf2022/securities
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/securities
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -105,14 +105,14 @@ services:
       - backend
 
   frontend:
-    image: osiguranjeraf2022/frontend
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/frontend
     ports:
       - $FRONTEND_EXTERNAL_PORT:$FRONTEND_INTERNAL_PORT
     networks:
       - nginx
 
   pythonflask:
-    image: osiguranjeraf2022/python-flask
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/python-flask
     env_file: ./.env
     ports:
       - $PYTHONFLASK_EXTERNAL_PORT:$PYTHONFLASK_INTERNAL_PORT
