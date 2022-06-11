@@ -1,10 +1,12 @@
 package app.bootstrap;
 
 import app.Config;
+import app.model.Exchange;
 import app.model.Future;
 import app.model.InflationRate;
 import app.model.api.FutureAPIResponse;
 import app.model.api.InflationRateAPIResponse;
+import app.repositories.ExchangeRepository;
 import app.services.FuturesService;
 import org.hibernate.type.BigDecimalType;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,11 +43,13 @@ public class FuturesBootstrap {
 
     private final FuturesRepository futuresRepository;
     private final FuturesService futuresService;
+    private final ExchangeRepository exchangeRepository;
 
     @Autowired
-    public FuturesBootstrap(FuturesRepository futuresRepository, FuturesService futuresService) {
+    public FuturesBootstrap(FuturesRepository futuresRepository, FuturesService futuresService, ExchangeRepository exchangeRepository) {
         this.futuresRepository = futuresRepository;
         this.futuresService = futuresService;
+        this.exchangeRepository = exchangeRepository;
     }
 
     public void loadFuturesData() throws Exception {
@@ -72,9 +76,7 @@ public class FuturesBootstrap {
                     categoryData.add(list);
                 }
             }
-        } catch (IOException e) {
-            System.err.println(e);
-        }
+        } catch (IOException e) {}
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -113,6 +115,7 @@ public class FuturesBootstrap {
                             ArrayList<String> data = dataWrapper.get(0);
                             if(data.isEmpty())
                                 continue;
+
                             BigDecimal price = new BigDecimal(data.get(4));
                             BigDecimal ask = new BigDecimal(data.get(2));
                             if(ask.compareTo(BigDecimal.valueOf(0)) == 0)
@@ -126,7 +129,11 @@ public class FuturesBootstrap {
                                 volume = 5000 + (long)(random.nextDouble()*20000);
 
                             Future newFuture = new Future(currSymbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
+
+                            Exchange stockExchange = exchangeRepository.findByAcronym("EUREX");
+                            newFuture.setExchange(stockExchange);
                             newFuture.setSecurityHistory(null);
+
                             futuresRepository.save(newFuture);
                         } catch(Exception e) {
                             e.printStackTrace();
@@ -138,7 +145,7 @@ public class FuturesBootstrap {
         }
     }
 
-    private int getMonth(char monthChar) throws ParseException {
+    private int getMonth(char monthChar) {
         int month;
         switch (monthChar) {
             case 'F':
@@ -183,7 +190,7 @@ public class FuturesBootstrap {
         return month;
     }
 
-    private int calculateYear(char monthChar, int year) throws ParseException{
+    private int calculateYear(char monthChar, int year) {
         Date currDate = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM");
         String currMonthStr = formatter.format(currDate);
@@ -196,9 +203,7 @@ public class FuturesBootstrap {
 
     private Date getDateForMonth(char monthChar, int year) throws ParseException {
         int month = getMonth(monthChar);
-
-        Date settlementDate  = new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder(month, year));
-        return settlementDate;
+        return new SimpleDateFormat("dd/MM/yyyy").parse(dateFormatBuilder(month, year));
     }
 
     private String dateFormatBuilder(int month, int year) {
