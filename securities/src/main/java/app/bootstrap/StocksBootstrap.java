@@ -99,9 +99,15 @@ public class StocksBootstrap {
                 Long outstandingShares = stock.getStats().getSharesOutstanding();
                 BigDecimal dividendYield = stock.getDividend().getAnnualYield();
 
-                Exchange stockExchange = exchangeRepository.findByAcronym(stock.getStockExchange());
-                if(stockExchange == null)
-                    stockExchange = exchangeRepository.findByAcronym("NASDAQ");
+                String exchangeAcronym = stock.getStockExchange();
+                if(exchangeAcronym.equals("NMS"))
+                    exchangeAcronym = "NASDAQ";
+
+                Exchange stockExchange = exchangeRepository.findByAcronym(exchangeAcronym);
+
+                if(stockExchange == null){
+                    stockExchange = exchangeRepository.findByAcronym("NYSE");
+                }
 
                 Stock newStock = new Stock(symbol, name, stockExchange, lastUpdated, price, ask, bid, priceChange, volume, outstandingShares, dividendYield);
 
