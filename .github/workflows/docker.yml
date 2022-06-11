@@ -71,4 +71,11 @@ jobs:
           push: true
           tags: ghcr.io/raf-si-2021/osiguranjeraf2022/python-flask
 
+      - name: Build and push buying-market
+        uses: docker/build-push-action@v2
+        with:
+          context: ./buying-market
+          push: true
+          tags: ghcr.io/raf-si-2021/osiguranjeraf2022/buying-market
+
 
