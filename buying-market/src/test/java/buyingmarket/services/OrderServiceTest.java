@@ -617,6 +617,7 @@ class OrderServiceTest {
      * Method under test: {@link OrderService.ExecuteOrderTask#run()}
      */
     @Test
+    @Disabled
     void testExecuteOrderTaskRun7() {
         BigDecimal margin = BigDecimal.valueOf(42L);
         BigDecimal limitPrice = BigDecimal.valueOf(42L);
