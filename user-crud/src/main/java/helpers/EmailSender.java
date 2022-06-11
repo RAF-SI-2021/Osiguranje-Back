@@ -8,7 +8,7 @@ import java.util.Properties;
 public class EmailSender {
     private static EmailSender instance;
 
-    private final Session session;
+    private Session session;
     private final String email;
     private String password;
 
@@ -21,7 +21,7 @@ public class EmailSender {
 
         email = "bosanskilonacRN@gmail.com";
 
-        session = Session.getDefaultInstance(properties, new Authenticator() {
+        session = Session.getInstance(properties, new Authenticator() {
             @Override
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(email, password);
@@ -29,8 +29,24 @@ public class EmailSender {
         });
     }
 
+    public Session getSession() {
+        return session;
+    }
+
+    public void setSession(Session session) {
+        this.session = session;
+    }
+
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     public void sendEmail(String sendTo, String subject, String body) {
@@ -45,6 +61,8 @@ public class EmailSender {
             e.printStackTrace();
         }
     }
+
+
 
     public static EmailSender getInstance() {
         if (instance == null) {

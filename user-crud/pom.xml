@@ -111,6 +111,22 @@
             <scope>test</scope>
             <version>2.6.6</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.icegreen/greenmail -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail</artifactId>
+            <version>1.6.1</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.icegreen/greenmail-junit4 -->
+        <dependency>
+            <groupId>com.icegreen</groupId>
+            <artifactId>greenmail-junit4</artifactId>
+            <version>1.6.9</version>
+        </dependency>
+
     </dependencies>
 
 </project>
