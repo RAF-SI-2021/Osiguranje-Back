@@ -13,6 +13,6 @@ RUN dos2unix ./mvnw && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt
 RUN ./mvnw clean package
 
 FROM openjdk:11-jre-slim as run
-COPY --from=build /app/target/buying-market-0.0.1-SNAPSHOT.jar buying-market-0.0.1-SNAPSHOT.jar
+COPY --from=build /app/target/buying-market-2.4.1.jar buying-market-2.4.1.jar
 
-CMD ["java", "-jar", "buying-market-0.0.1-SNAPSHOT.jar"]
+CMD ["java", "-jar", "buying-market-2.4.1.jar"]
