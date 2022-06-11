@@ -670,7 +670,7 @@ class OrderServiceTest {
         OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
                 new FormulaCalculator());
 
-        assertThrows(ArithmeticException.class, () -> (orderService.new ExecuteOrderTask(10, new Order(), 1L)).run());
+        (orderService.new ExecuteOrderTask(10, new Order(), 1000L)).run();
         verify(orderRepository).findById((Long) any());
         verify(transactionRepository).save((Transaction) any());
     }
