@@ -33,7 +33,7 @@ public class UpdaterThread implements Runnable {
     @Override
     public void run() {
         while(running){
-            TimeUnit.MINUTES.sleep(1);
+            TimeUnit.MINUTES.sleep(15);
 
             try {
                 stockService.updateData();
