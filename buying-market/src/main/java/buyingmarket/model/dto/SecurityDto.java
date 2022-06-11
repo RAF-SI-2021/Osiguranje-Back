@@ -14,6 +14,7 @@ import java.util.Collection;
 @Getter
 @Setter
 public class SecurityDto {
+    protected int id;
     protected String ticker;
     protected String name;
     protected String lastUpdated;
