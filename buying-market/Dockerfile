@@ -2,8 +2,6 @@ FROM openjdk:11-jdk-slim as build
 LABEL org.opencontainers.image.source https://github.com/RAF-SI-2021/Osiguranje-Back
 
 WORKDIR /app
-COPY .mvn/ .mvn
-COPY mvnw ./mvnw
 COPY pom.xml ./pom.xml
 COPY src ./src
 
