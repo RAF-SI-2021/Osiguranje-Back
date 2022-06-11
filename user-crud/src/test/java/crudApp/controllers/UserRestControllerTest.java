@@ -1,15 +1,9 @@
 package crudApp.controllers;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crudApp.dto.PasswordDto;
 import crudApp.dto.UserCreateDto;
@@ -200,6 +194,43 @@ class UserRestControllerTest {
         assertEquals("Milos", ((UserDto) actualFindUserByEmailResult.getBody()).getFirstName());
         verify(userRepository).findUserByEmail(any());
     }
+
+    @Test
+    void testFindUserById() {
+        Permissions permissions = new Permissions();
+        permissions.setAdmin(true);
+        User user = new User("Milos",
+                "Radenkovic",
+                "mradenkovic@raf.rs",
+                "1231231231234",
+                "RAF",
+                "0641231234",
+                true,
+                permissions);
+        user.setId(2L);
+        user.setPassword("radenko");
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.findById(any())).thenReturn(Optional.of(user));
+        UserMapper userMapper = new UserMapper();
+        PermissionMapper permissionMapper = new PermissionMapper();
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        ResponseEntity<?> actualFindUserByIdResult = (new UserRestController(
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                .findUserById(2L);
+        assertTrue(actualFindUserByIdResult.hasBody());
+        assertTrue(actualFindUserByIdResult.getHeaders().isEmpty());
+        assertEquals(HttpStatus.OK, actualFindUserByIdResult.getStatusCode());
+        assertSame(permissions, ((UserDto) actualFindUserByIdResult.getBody()).getPermissions());
+        assertEquals("Radenkovic", ((UserDto) actualFindUserByIdResult.getBody()).getLastName());
+        assertEquals("RAF", ((UserDto) actualFindUserByIdResult.getBody()).getPosition());
+        assertTrue(((UserDto) actualFindUserByIdResult.getBody()).getActive());
+        assertEquals("mradenkovic@raf.rs", ((UserDto) actualFindUserByIdResult.getBody()).getEmail());
+        assertEquals("0641231234", ((UserDto) actualFindUserByIdResult.getBody()).getPhoneNumber());
+        assertEquals(2L, ((UserDto) actualFindUserByIdResult.getBody()).getId().longValue());
+        assertEquals("Milos", ((UserDto) actualFindUserByIdResult.getBody()).getFirstName());
+        verify(userRepository).findById(any());
+    }
+
 
     @Test
     void testFindUserByEmail2() {
@@ -442,7 +473,7 @@ class UserRestControllerTest {
         UserService userService = mock(UserService.class);
         doNothing().when(userService).setPassword(any());
         UserRestController userRestController = new UserRestController(userService);
-        ResponseEntity<?> actualSetPasswordResult = userRestController.setPassword(new PasswordDto());
+        ResponseEntity<?> actualSetPasswordResult = userRestController.setPassword(new PasswordDto(10L,"","Test"));
         assertNull(actualSetPasswordResult.getBody());
         assertEquals(HttpStatus.NO_CONTENT, actualSetPasswordResult.getStatusCode());
         assertTrue(actualSetPasswordResult.getHeaders().isEmpty());
@@ -490,24 +521,94 @@ class UserRestControllerTest {
     }
 
     @Test
+    void testUserCreate() throws Exception {
+        User user = new User();
+        user.setActive(true);
+        user.setEmail("mradenkovic@raf.rs");
+        user.setFirstName("Milos");
+        user.setId(1L);
+        user.setLastName("Radenkovic");
+        user.setPermissions(new Permissions());
+        user.setPhoneNumber("4105551212");
+        user.setPosition("RAF");
+
+        UserCreateDto userDtoCre = new UserCreateDto();
+        userDtoCre.setActive(true);
+        userDtoCre.setEmail("mradenkovic@raf.rs");
+        userDtoCre.setFirstName("Milos");
+        userDtoCre.setLastName("Radenkovic");
+        userDtoCre.setPermissions(new Permissions());
+        userDtoCre.setPhoneNumber("4105551212");
+        userDtoCre.setPosition("RAF");
+
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.save(any())).thenReturn(user);
+
+        UserMapper userMapper = new UserMapper();
+        PermissionMapper permissionMapper = new PermissionMapper();
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        UserRestController userRestController = new UserRestController(
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder()));
+        ResponseEntity<?> actualResult = userRestController.createUser(userDtoCre);
+
+        assertNotNull(actualResult.getBody());
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+        assertTrue(actualResult.getHeaders().isEmpty());
+        assertTrue(actualResult.getBody() instanceof UserDto);
+        verify(userRepository).save(any());
+
+    }
+
+    @Test
     void testUpdateUser() throws Exception {
-        UserDto userDto = new UserDto();
+
+        User user = new User();
+        user.setActive(true);
+        user.setEmail("mradenkovic@raf.rs");
+        user.setFirstName("Milos");
+        user.setId(1L);
+        user.setLastName("Radenkovic");
+        user.setPermissions(new Permissions());
+        user.setPhoneNumber("4105551212");
+        user.setPosition("FON");
+
+        UserCreateDto userDto = new UserCreateDto();
         userDto.setActive(true);
         userDto.setEmail("mradenkovic@raf.rs");
         userDto.setFirstName("Milos");
-        userDto.setId(1L);
         userDto.setLastName("Radenkovic");
         userDto.setPermissions(new Permissions());
         userDto.setPhoneNumber("4105551212");
         userDto.setPosition("RAF");
-        String content = (new ObjectMapper()).writeValueAsString(userDto);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/api/users")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(content);
-        ResultActions actualPerformResult = MockMvcBuilders.standaloneSetup(this.userRestController)
-                .build()
-                .perform(requestBuilder);
-        actualPerformResult.andExpect(MockMvcResultMatchers.status().is(405));
+
+        UserCreateDto userDto1 = new UserCreateDto();
+        userDto1.setActive(true);
+        userDto1.setEmail("mradenkovic@raf.rs");
+        userDto1.setFirstName("Milos");
+        userDto1.setLastName("Radenkovic");
+        userDto1.setPermissions(new Permissions());
+        userDto1.setPhoneNumber("4105551212");
+        userDto1.setPosition("FON");
+
+        UserRepository userRepository = mock(UserRepository.class);
+        when(userRepository.save(any())).thenReturn(user);
+
+        UserMapper userMapper = new UserMapper();
+        PermissionMapper permissionMapper = new PermissionMapper();
+        ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        UserRestController userRestController = new UserRestController(
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder()));
+        ResponseEntity<?> actualResult = userRestController.createUser(userDto1);
+
+        assertNotNull(actualResult.getBody());
+        assertEquals(HttpStatus.OK, actualResult.getStatusCode());
+        assertTrue(actualResult.getHeaders().isEmpty());
+        assertTrue(actualResult.getBody() instanceof UserDto);
+        UserDto userResult = (UserDto) actualResult.getBody();
+
+        assertEquals(userResult.getPosition(),userDto1.getPosition());
+        assertNotEquals(userResult.getPosition(),userDto.getPosition());
+        verify(userRepository).save(any());
     }
 }
 
