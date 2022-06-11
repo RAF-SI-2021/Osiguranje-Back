@@ -13,6 +13,7 @@ import java.util.Collection;
 @Getter
 @Setter
 public class SecurityDTO {
+    protected long id;
     protected String ticker;
     protected String name;
     protected ExchangeDTO exchange;
@@ -32,20 +33,21 @@ public class SecurityDTO {
     protected BigDecimal initialMarginCost;
     protected BigDecimal maintenanceMargin;
 
-    public SecurityDTO(Security stock) {
+    public SecurityDTO(Security security) {
         this();
-        if (stock == null) return;
+        if (security == null) return;
 
-        this.ticker = stock.getTicker();
-        this.name = stock.getName();
-        this.exchange = new ExchangeDTO(stock.getExchange());
-        this.lastUpdated = stock.getLastUpdated();
-        this.price = stock.getPrice();
-        this.ask = stock.getAsk();
-        this.bid = stock.getBid();
-        this.change = stock.getPriceChange();
-        this.volume = stock.getVolume();
-        this.contractSize = stock.getContractSize();
+        this.id = security.getId();
+        this.ticker = security.getTicker();
+        this.name = security.getName();
+        this.exchange = new ExchangeDTO(security.getExchange());
+        this.lastUpdated = security.getLastUpdated();
+        this.price = security.getPrice();
+        this.ask = security.getAsk();
+        this.bid = security.getBid();
+        this.change = security.getPriceChange();
+        this.volume = security.getVolume();
+        this.contractSize = security.getContractSize();
         this.changePercent = BigDecimal.valueOf(0L);
 
         try{
@@ -64,6 +66,7 @@ public class SecurityDTO {
     }
 
     public SecurityDTO() {
+        this.id = 0L;
         this.ticker = "TICKER";
         this.name = "NAME";
         this.exchange = new ExchangeDTO();
