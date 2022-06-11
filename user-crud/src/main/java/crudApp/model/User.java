@@ -73,16 +73,4 @@ public class User {
         this.permissions = permissions;
     }
 
-    public User(Long id, String firstName, String lastName, String email, String password, String JMBG, String position, String phoneNumber, Boolean active, Permissions permissions) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.email = email;
-        this.password = password;
-        this.JMBG = JMBG;
-        this.position = position;
-        this.phoneNumber = phoneNumber;
-        this.active = active;
-        this.permissions = permissions;
-    }
 }

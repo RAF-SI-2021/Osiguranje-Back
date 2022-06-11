@@ -1,18 +1,14 @@
-package crudApp.helpers;
+package helpers;
 
-import com.icegreen.greenmail.junit4.GreenMailRule;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.GreenMailUtil;
 import com.icegreen.greenmail.util.ServerSetup;
 import helpers.EmailSender;
-import org.junit.Rule;
 import org.junit.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.mail.Message;
-
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -22,7 +18,7 @@ public class EmailTest {
 
 
     @Test
-    public void testSetAndGetPwd() {
+    void testSetAndGetPwd() {
         EmailSender emailSender = EmailSender.getInstance();
         String pwd = "Password";
         emailSender.setPassword(pwd);
@@ -32,7 +28,7 @@ public class EmailTest {
     }
 
     @Test
-    public void testSendMail() {
+    void testSendMail() {
         EmailSender emailSender = EmailSender.getInstance();
         GreenMail greenMail = new GreenMail(new ServerSetup[]{new ServerSetup(3026,"127.0.0.1",ServerSetup.PROTOCOL_SMTP)});
 
@@ -49,7 +45,7 @@ public class EmailTest {
             assertThat(greenMail.waitForIncomingEmail(5000,1)).isTrue();
 
             Message[] messages = greenMail.getReceivedMessages();
-            assertThat(messages.length).isEqualTo(1);
+            assertThat(messages).hasSize(1);
 
             assertThat(messages[0].getSubject()).isEqualTo(subject);
             assertThat(GreenMailUtil.getBody(messages[0]).trim()).isEqualTo(body);
