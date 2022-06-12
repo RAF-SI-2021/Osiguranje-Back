@@ -13,6 +13,7 @@ import buyingmarket.model.dto.UserDto;
 import buyingmarket.repositories.OrderRepository;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -35,13 +36,15 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
+@NoArgsConstructor
 @Service
 public class OrderService {
-    private final OrderRepository orderRepository;
-    private final OrderMapper orderMapper;
-    private final TransactionService transactionService;
-    private final FormulaCalculator formulaCalculator;
-    private final TaskScheduler taskScheduler;
+    private OrderRepository orderRepository;
+    private OrderMapper orderMapper;
+    private TransactionService transactionService;
+    private FormulaCalculator formulaCalculator;
+    private TaskScheduler taskScheduler;
+    private RestTemplate rest;
     private static final String ORDER_NOT_FOUND_ERROR = "No order with given id could be found for user";
     private static final String ORDER_FULLY_FILLED_ERROR = "Order has been fully filled already";
     private static final String ORDER_SIDE_ERROR = "Orders can't switch sides";
@@ -60,6 +63,7 @@ public class OrderService {
         this.transactionService = transactionService;
         this.formulaCalculator = formulaCalculator;
         this.taskScheduler = new ConcurrentTaskScheduler(Executors.newScheduledThreadPool(10));
+        this.rest = new RestTemplate();
     }
 
     public void createOrder(OrderDto orderDto, String jws) {
@@ -168,17 +172,17 @@ public class OrderService {
         orderRepository.saveAll(orders);
     }
 
-    private String extractUsername(String jws) {
+    public String extractUsername(String jws) {
+        jws = jws.replace("Bearer ", "");
         byte[] encodedSecret = Base64Utils.encode(jwtSecret.getBytes());
         Key key = new SecretKeySpec(encodedSecret, SignatureAlgorithm.HS256.getJcaName());
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();
     }
 
-    private UserDto getUserByUsernameFromUserService(String username) {
+    public UserDto getUserByUsernameFromUserService(String username) {
         String urlString = "http://localhost:8091/api/users/search/email";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
         String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
-        RestTemplate rest = new RestTemplate();
         ResponseEntity<UserDto> response = null;
         try {
             response = rest.exchange(urlTemplate, HttpMethod.GET, null, UserDto.class);
@@ -199,7 +203,6 @@ public class OrderService {
         StringBuilder sb = new StringBuilder("http://localhost:2000/api/data/");
         sb.append(securityType.toString().toLowerCase()).append(securityId);
         String urlString = sb.toString();
-        RestTemplate rest = new RestTemplate();
         ResponseEntity<SecurityDto> response = null;
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
