@@ -11,7 +11,7 @@ app = Flask(__name__)
 api = Api(app)
 
 
-@app.route("/stock", methods=["GET"])
+@app.route("/stock", methods=["POST"])
 def stock_price_data():
     data = request.get_json()
     result = None
@@ -26,23 +26,23 @@ def stock_price_data():
     return result.to_json(orient="index", date_format='iso')
 
 
-@app.route("/stock/quote", methods=["GET"])
+@app.route("/stock/quote", methods=["POST"])
 def stock_live_quote_data():
     data = request.get_json()
     return jsonify(si.get_quote_table(data["name"]))
 
 
-@app.route("/stock/dow", methods=["GET"])
+@app.route("/stock/dow", methods=["POST"])
 def stock_dow():
     return jsonify(si.tickers_dow())
 
 
-@app.route("/stock/nasdaq", methods=["GET"])
+@app.route("/stock/nasdaq", methods=["POST"])
 def stock_nasdaq():
     return jsonify(si.tickers_nasdaq())
 
 
-@app.route("/calendar/live", methods=["GET"])
+@app.route("/calendar/live", methods=["POST"])
 def is_calendar_live():
     data = request.get_json()
     print(type(data), data)
@@ -53,7 +53,7 @@ def is_calendar_live():
     return jsonify(calendar.is_trading_minute(data["time"]))
 
 
-@app.route("/calendar/next", methods=["GET"])
+@app.route("/calendar/next", methods=["POST"])
 def next_session():
     data = request.get_json()
     try:
@@ -63,19 +63,19 @@ def next_session():
     return jsonify(calendar.date_to_session(data["date"], direction="next"))
 
 
-@app.route("/future/all", methods=["GET"])
+@app.route("/future/all", methods=["POST"])
 def get_all_futures():
     dic = si.get_futures().fillna('').T.to_dict()
     return jsonify(list(dic.values()))
 
 
-@app.route("/future", methods=["GET"])
+@app.route("/future", methods=["POST"])
 def get_sym_futures():
     data = request.get_json()
     return jsonify(si.get_quote_data(data["symbol"]))
 
 
-@app.route("/options/calls", methods=["GET"])
+@app.route("/options/calls", methods=["POST"])
 def get_calls_options():
     symbol = request.args.get('symbol')
     try:
@@ -86,7 +86,7 @@ def get_calls_options():
         return f'Unknown symbol {symbol} for options calls', 500
 
 
-@app.route("/options/puts", methods=["GET"])
+@app.route("/options/puts", methods=["POST"])
 def get_puts_options():
     symbol = request.args.get('symbol')
     try:
@@ -97,7 +97,7 @@ def get_puts_options():
         return f'Unknown symbol {symbol} for options puts', 500
 
 
-@app.route("/options/quote", methods=["GET"])
+@app.route("/options/quote", methods=["POST"])
 def get_quote_options():
     symbol = request.args.get('symbol')
     try:
