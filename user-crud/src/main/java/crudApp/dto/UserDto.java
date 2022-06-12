@@ -19,9 +19,6 @@ public class UserDto {
     private String phoneNumber;
     private Boolean active;
     private Permissions permissions;
-    private long spendingLimit;
-    private long limitUsed;
-    private boolean hardApproval;
 
     public UserDto(Long id, String firstName, String lastName, String email, String position, String phoneNumber, Boolean active, Permissions permissions){
         this.id = id;

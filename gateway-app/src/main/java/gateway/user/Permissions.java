@@ -7,7 +7,7 @@ import javax.persistence.Embeddable;
 @Data
 @Embeddable
 public class Permissions {
-    private boolean admin;
+    private boolean isAdmin;
     private boolean stockTrading;
     private boolean stockOverview;
     private boolean contractConclusion;

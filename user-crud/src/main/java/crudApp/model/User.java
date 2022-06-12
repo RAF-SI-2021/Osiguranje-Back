@@ -20,7 +20,7 @@ public class User {
     private String lastName;
     @Column(unique = true, nullable = false)
     private String email;
-    @Column(nullable = true)
+    @Column(nullable)
     private String password;
     @Column(unique = true, nullable = false, length = 13)
     private String JMBG;
@@ -35,17 +35,9 @@ public class User {
             @AttributeOverride(name = "admin", column = @Column(name = "admin")),
             @AttributeOverride(name = "stockTrading", column = @Column(name = "stock_trading")),
             @AttributeOverride(name = "stockOverview", column = @Column(name = "stock_overview")),
-            @AttributeOverride(name = "contractConclusion", column = @Column(name = "contract_conclusion")),
-            @AttributeOverride(name = "supervisor", column = @Column(name = "supervisor")),
-            @AttributeOverride(name = "agent", column = @Column(name = "agent"))
+            @AttributeOverride(name = "contractConclusion", column = @Column(name = "contract_conclusion"))
     })
     private Permissions permissions;
-    @Column
-    private long spendingLimit;
-    @Column
-    private long limitUsed;
-    @Column
-    private boolean hardApproval;
 
     public User(String firstName, String lastName, String email, String JMBG, String position, String phoneNumber, Boolean active, Permissions permissions) {
         this.firstName = firstName;
