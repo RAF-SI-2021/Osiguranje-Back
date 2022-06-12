@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -174,8 +173,8 @@ public class OrderService {
 
     public String extractUsername(String jws) {
         jws = jws.replace("Bearer ", "");
-        byte[] encodedSecret = Base64Utils.encode(jwtSecret.getBytes());
-        Key key = new SecretKeySpec(encodedSecret, SignatureAlgorithm.HS256.getJcaName());
+        byte[] secret = jwtSecret.getBytes();
+        Key key = new SecretKeySpec(secret, SignatureAlgorithm.HS256.getJcaName());
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();
     }
 
