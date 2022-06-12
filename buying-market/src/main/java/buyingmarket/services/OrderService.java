@@ -208,7 +208,7 @@ public class OrderService {
 
     private SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
         StringBuilder sb = new StringBuilder(securitiesApiUrl + "/api/data/");
-        sb.append(securityType.toString().toLowerCase()).append(securityId);
+        sb.append(securityType.toString().toLowerCase() + "/").append(securityId);
         String urlString = sb.toString();
         ResponseEntity<SecurityDto> response = null;
         try {
