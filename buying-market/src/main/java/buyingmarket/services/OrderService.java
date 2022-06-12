@@ -179,8 +179,6 @@ public class OrderService {
 
     public String extractUsername(String jws) {
         jws = jws.replace("Bearer ", "");
-        byte[] encodedSecret = Base64Utils.encode(jwtSecret.getBytes());
-        Key key = new SecretKeySpec(encodedSecret, SignatureAlgorithm.HS256.getJcaName());
         return Jwts.parser()
                 .setSigningKey(jwtSecret.getBytes())
                 .parseClaimsJws(jws)
