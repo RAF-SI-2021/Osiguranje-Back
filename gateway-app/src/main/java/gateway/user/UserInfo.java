@@ -12,9 +12,6 @@ public class UserInfo {
     private final String phoneNumber;
     private final Boolean active;
     private final Permissions permissions;
-    private long spendingLimit;
-    private long limitUsed;
-    private boolean hardApproval;
 
     public UserInfo(User user){
         this.id = user.getId();
