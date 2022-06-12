@@ -21,7 +21,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Base64Utils;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -52,6 +51,12 @@ public class OrderService {
 
     @Value("${jwt.secret}")
     private String jwtSecret;
+
+    @Value("${api.securities}")
+    private String securitiesApiUrl;
+
+    @Value("${api.usercrud}")
+    private String usercrudApiUrl;
 
     @Autowired
     public OrderService(OrderRepository orderRepository,
@@ -174,13 +179,15 @@ public class OrderService {
 
     public String extractUsername(String jws) {
         jws = jws.replace("Bearer ", "");
-        byte[] encodedSecret = Base64Utils.encode(jwtSecret.getBytes());
-        Key key = new SecretKeySpec(encodedSecret, SignatureAlgorithm.HS256.getJcaName());
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();
+        return Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())
+                .parseClaimsJws(jws)
+                .getBody()
+                .getSubject();
     }
 
     public UserDto getUserByUsernameFromUserService(String username) {
-        String urlString = "http://localhost:8091/api/users/search/email";
+        String urlString = usercrudApiUrl + "/api/users/search/email";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
         String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
         ResponseEntity<UserDto> response = null;
@@ -200,8 +207,8 @@ public class OrderService {
     }
 
     private SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
-        StringBuilder sb = new StringBuilder("http://localhost:2000/api/data/");
-        sb.append(securityType.toString().toLowerCase() + "/").append(securityId);
+        StringBuilder sb = new StringBuilder(securitiesApiUrl + "/api/data/");
+        sb.append(securityType.toString().toLowerCase()).append(securityId);
         String urlString = sb.toString();
         ResponseEntity<SecurityDto> response = null;
         try {
