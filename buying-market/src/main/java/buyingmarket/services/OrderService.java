@@ -201,13 +201,13 @@ public class OrderService {
 
     private SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
         StringBuilder sb = new StringBuilder("http://localhost:2000/api/data/");
-        sb.append(securityType.toString().toLowerCase()).append(securityId);
+        sb.append(securityType.toString().toLowerCase() + "/").append(securityId);
         String urlString = sb.toString();
         ResponseEntity<SecurityDto> response = null;
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
         } catch(RestClientException e) {
-            throw new SecurityNotFoundException("Something went wrong while trying to retrieve user info");
+            throw new SecurityNotFoundException("Something went wrong while trying to retrieve security info");
         }
         SecurityDto security = null;
         if(response.getBody() != null) {
