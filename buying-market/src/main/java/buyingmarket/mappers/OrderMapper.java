@@ -3,16 +3,18 @@ package buyingmarket.mappers;
 import buyingmarket.model.Order;
 import buyingmarket.model.dto.OrderDto;
 
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
 @Component
 public class OrderMapper {
 
-    private final TransactionMapper transactionMapper;
+    private TransactionMapper transactionMapper;
 
     @Autowired
     public OrderMapper(TransactionMapper transactionMapper) {
