@@ -110,11 +110,55 @@ public class ForexServiceTest {
     }
 
     @Test
+    public void updateData_skipsForexRepositorySave_IfForexNotFoundByTicker() {
+        Forex forex = new Forex(symbol, description, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                baseCurrency, quoteCurrency, contractSize);
+        Currency currency1 = new Currency("name", "EUR", "symbol", new Region("name", "code"));
+        Currency currency2 = new Currency("name", "USD", "symbol", new Region("name", "code"));
+        List<Currency> currencies = new ArrayList<>();
+        currencies.add(currency1);
+        currencies.add(currency2);
+
+        when(currencyRepository.findAll()).thenReturn(currencies);
+        when(forexRepository.findForexByTicker(any())).thenReturn(null);
+        underTest.updateData();
+
+        int n = currencies.size();
+        verify(forexRepository, times(n * (n - 1))).findForexByTicker(any());
+        verify(forexRepository, times(0)).save(any());
+    }
+
+    @Test
     public void save_CallsForexRepositorySave_Once() {
         Forex forex = new Forex(symbol, description, lastUpdated,
                 price, ask, bid, priceChange, volume,
                 baseCurrency, quoteCurrency, contractSize);
         underTest.save(forex);
         verify(forexRepository).save(forex);
+    }
+
+    @Test
+    public void saveAll_CallsForexRepositorySaveAll_Once() {
+        Forex forex = new Forex(symbol, description, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                baseCurrency, quoteCurrency, contractSize);
+        List<Forex> forexList = new ArrayList<>();
+        forexList.add(forex);
+        underTest.saveAll(forexList);
+        verify(forexRepository).saveAll(forexList);
+    }
+
+    @Test
+    public void findByTicker_ReturnsForex() {
+        Forex forex = new Forex(symbol, description, lastUpdated,
+                price, ask, bid, priceChange, volume,
+                baseCurrency, quoteCurrency, contractSize);
+
+        when(forexRepository.findForexByTicker(symbol)).thenReturn(forex);
+        Forex actual = underTest.findByTicker(symbol);
+
+        assertEquals(forex, actual);
+        verify(forexRepository).findForexByTicker(symbol);
     }
 }

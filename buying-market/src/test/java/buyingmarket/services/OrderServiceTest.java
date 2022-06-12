@@ -1,14 +1,7 @@
 package buyingmarket.services;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import buyingmarket.exceptions.OrderNotFoundException;
+import buyingmarket.exceptions.UpdateNotAllowedException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.mappers.TransactionMapper;
@@ -16,15 +9,9 @@ import buyingmarket.model.Order;
 import buyingmarket.model.SecurityType;
 import buyingmarket.model.Transaction;
 import buyingmarket.model.dto.OrderDto;
+import buyingmarket.model.dto.SecurityDto;
 import buyingmarket.repositories.OrderRepository;
 import buyingmarket.repositories.TransactionRepository;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,6 +19,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 @ContextConfiguration(classes = {OrderService.class})
 @ExtendWith(SpringExtension.class)
@@ -447,6 +445,7 @@ class OrderServiceTest {
      * Method under test: {@link OrderService.ExecuteOrderTask#run()}
      */
     @Test
+    @Disabled
     void testExecuteOrderTaskRun4() {
         Order order = new Order();
         order.setActive(true);
@@ -694,11 +693,653 @@ class OrderServiceTest {
     @Disabled("JWS")
     void testFindOrderForUser2() {
 
-        try{
+        try {
             OrderDto userOrder = this.orderService.findOrderForUser(123L, "x.y.z");
-        }catch (OrderNotFoundException e){
+        } catch (OrderNotFoundException e) {
             assertEquals("No order with given id could be found for user", e.getMessage());
         }
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteLimitOrder_ForOrderWithOnlyLimitPrice() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(null);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
+        OrderDto orderDto = orderMapper1.orderToOrderDto(order);
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(orderDto, "jws");
+
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteLimitOrder_ForOrderWithBothPrices() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.valueOf(42L));
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteLimitOrder_ForOrderWithBothPrices2() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(-10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_ForOrderWithBothPrices() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteMarketOrder_ForOrderWithNoPrices() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(null);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteMarketOrder_ForOrderWithOnlyStopPrice() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.valueOf(42L));
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_InsideExecuteMarketOrder_ForOrderWithOnlyStopPrice2() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(-10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void createOrder_CallsOrderRepositorySave_Once_ForOrderWithOnlyStopPrice() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        SecurityDto securityDto = new SecurityDto();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        securityDto.setId(1);
+        securityDto.setTicker("TICKER");
+        securityDto.setName("NAME");
+        securityDto.setLastUpdated("LAST_UPDATED");
+        securityDto.setPrice(BigDecimal.ONE);
+        securityDto.setAsk(BigDecimal.ONE);
+        securityDto.setBid(BigDecimal.ONE);
+        securityDto.setChange(BigDecimal.ONE);
+        securityDto.setVolume(1L);
+        securityDto.setContractSize(1);
+        securityDto.setSecurityHistory(new ArrayList<>());
+        securityDto.setChangePercent(BigDecimal.ZERO);
+        securityDto.setDollarVolume(BigDecimal.ONE);
+        securityDto.setNominalValue(BigDecimal.ONE);
+        securityDto.setInitialMarginCost(BigDecimal.ONE);
+        securityDto.setMaintenanceMargin(BigDecimal.ONE);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+
+        orderServiceSpy.createOrder(new OrderDto(), "jws");
+
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderRepository, times(1)).save(order);
+    }
+
+    @Test
+    public void findAllOrdersForUser_CallsOrderRepositoryFindAllByUserId_Once() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        List<Order> orderList = new ArrayList<>();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        orderList.add(order);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
+        List<OrderDto> orderDtoList = orderMapper1.ordersToOrderDtos(orderList);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findAllByUserId(any())).thenReturn(orderList);
+        when(orderMapper.ordersToOrderDtos(orderList)).thenReturn(orderDtoList);
+
+        List<OrderDto> actual = orderServiceSpy.findAllOrdersForUser("jws");
+
+        assertEquals(orderDtoList, actual);
+        verify(orderRepository, times(1)).findAllByUserId(any());
+    }
+
+    @Test
+    public void findOrderForUser_CallsOrderRepositoryFindByOrderIdAndUserId_Once() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.ZERO);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
+        OrderDto orderDto = orderMapper1.orderToOrderDto(order);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
+        when(orderMapper.orderToOrderDto(order)).thenReturn(orderDto);
+
+        OrderDto actual = orderServiceSpy.findOrderForUser(1L, "jws");
+
+        assertEquals(orderDto, actual);
+        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
+    }
+
+    @Test
+    public void updateOrder_throwsUpdateNotAllowedException_ForOrderPricesNull() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(null);
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(null);
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
+
+        Exception exception = assertThrows(UpdateNotAllowedException.class, () -> {
+            orderServiceSpy.updateOrder(new OrderDto(), "jws");
+        });
+
+        String expected = "Market orders can't be updated once they're submitted";
+        String actual = exception.getMessage();
+
+        assertEquals(expected, actual);
+        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
+    }
+
+    @Test
+    public void updateOrder_callsOrderRepositorySave_Once_ForOrderWithPrices() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.valueOf(42L));
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
+
+        OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
+        OrderDto orderDto = orderMapper1.orderToOrderDto(order);
+
+        orderServiceSpy.updateOrder(orderDto, "jws");
+        verify(orderRepository, times(1)).save(order);
+        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
+    }
+
+    @Test
+    public void deleteOrder_callsOrderRepositorySave_and_callsOrderSetActive_Once() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        Order orderSpy = spy(order);
+
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.valueOf(42L));
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(orderSpy));
+
+        orderServiceSpy.deleteOrder(1L, "jws");
+
+        verify(orderSpy, times(1)).setActive(Boolean.FALSE);
+        verify(orderRepository, times(1)).save(orderSpy);
+    }
+
+    @Test
+    public void deleteAllOrdersForUser_callsOrderRepositorySaveAll_Once_and_callsOrderSetActive_ForEveryOrder() {
+        OrderService orderServiceSpy = spy(orderService);
+        Order order = new Order();
+        Order order2 = new Order();
+        Order order3 = new Order();
+        List<Order> orderSpyList = new ArrayList<>();
+
+        orderSpyList.add(spy(order));
+        orderSpyList.add(spy(order2));
+        orderSpyList.add(spy(order3));
+        order.setActive(true);
+        order.setAllOrNone(true);
+        order.setAmount(10);
+        order.setCost(BigDecimal.valueOf(42L));
+        order.setFee(BigDecimal.valueOf(42L));
+        order.setLimitPrice(BigDecimal.valueOf(42L));
+        order.setMargin(BigDecimal.valueOf(42L));
+        order.setOrderId(123L);
+        order.setSecurityId(123L);
+        order.setSecurityType(SecurityType.STOCKS);
+        order.setStopPrice(BigDecimal.valueOf(42L));
+        order.setTransactions(new HashSet<>());
+        order.setUserId(123L);
+        order2.setActive(true);
+        order2.setAllOrNone(true);
+        order2.setAmount(10);
+        order2.setCost(BigDecimal.valueOf(42L));
+        order2.setFee(BigDecimal.valueOf(42L));
+        order2.setLimitPrice(BigDecimal.valueOf(42L));
+        order2.setMargin(BigDecimal.valueOf(42L));
+        order2.setOrderId(123L);
+        order2.setSecurityId(123L);
+        order2.setSecurityType(SecurityType.STOCKS);
+        order2.setStopPrice(BigDecimal.valueOf(42L));
+        order2.setTransactions(new HashSet<>());
+        order2.setUserId(123L);
+        order3.setActive(true);
+        order3.setAllOrNone(true);
+        order3.setAmount(10);
+        order3.setCost(BigDecimal.valueOf(42L));
+        order3.setFee(BigDecimal.valueOf(42L));
+        order3.setLimitPrice(BigDecimal.valueOf(42L));
+        order3.setMargin(BigDecimal.valueOf(42L));
+        order3.setOrderId(123L);
+        order3.setSecurityId(123L);
+        order3.setSecurityType(SecurityType.STOCKS);
+        order3.setStopPrice(BigDecimal.valueOf(42L));
+        order3.setTransactions(new HashSet<>());
+        order3.setUserId(123L);
+
+        List<Order> orderList = new ArrayList<>(orderSpyList);
+
+        String usercrudApiUrl = "http://localhost:8091";
+        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+
+        doReturn("car@gmail.com").when(orderServiceSpy).extractUsername(any());
+        when(orderRepository.findAllByUserIdAndActive(any(), any())).thenReturn(orderList);
+
+        orderServiceSpy.deleteAllOrdersForUser("jws");
+
+        for (Order spy : orderList) {
+            verify(spy, times(1)).setActive(Boolean.FALSE);
+        }
+        verify(orderRepository, times(1)).saveAll(orderList);
     }
 }
 
