@@ -11,4 +11,6 @@ public class Permissions {
     private boolean stockTrading;
     private boolean stockOverview;
     private boolean contractConclusion;
+    private boolean supervisor;
+    private boolean agent;
 }

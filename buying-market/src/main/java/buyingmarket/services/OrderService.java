@@ -52,6 +52,12 @@ public class OrderService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
+    @Value("${api.securities}")
+    private String securitiesApiUrl;
+
+    @Value("${api.usercrud}")
+    private String usercrudApiUrl;
+
     @Autowired
     public OrderService(OrderRepository orderRepository,
                         OrderMapper orderMapper,
@@ -173,13 +179,15 @@ public class OrderService {
 
     public String extractUsername(String jws) {
         jws = jws.replace("Bearer ", "");
-        byte[] secret = jwtSecret.getBytes();
-        Key key = new SecretKeySpec(secret, SignatureAlgorithm.HS256.getJcaName());
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(jws).getBody().getSubject();
+        return Jwts.parser()
+                .setSigningKey(jwtSecret.getBytes())
+                .parseClaimsJws(jws)
+                .getBody()
+                .getSubject();
     }
 
-    public UserDto getUserByUsernameFromUserService(String username) {
-        String urlString = "http://localhost:8091/api/users/search/email";
+    protected UserDto getUserByUsernameFromUserService(String username) {
+        String urlString = usercrudApiUrl + "/api/users/search/email";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
         String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
         ResponseEntity<UserDto> response = null;
@@ -198,15 +206,15 @@ public class OrderService {
         return user;
     }
 
-    private SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
-        StringBuilder sb = new StringBuilder("http://localhost:2000/api/data/");
-        sb.append(securityType.toString().toLowerCase()).append(securityId);
+    protected SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
+        StringBuilder sb = new StringBuilder(securitiesApiUrl + "/api/data/");
+        sb.append(securityType.toString().toLowerCase() + "/").append(securityId);
         String urlString = sb.toString();
         ResponseEntity<SecurityDto> response = null;
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
         } catch(RestClientException e) {
-            throw new SecurityNotFoundException("Something went wrong while trying to retrieve user info");
+            throw new SecurityNotFoundException("Something went wrong while trying to retrieve security info");
         }
         SecurityDto security = null;
         if(response.getBody() != null) {
@@ -218,7 +226,7 @@ public class OrderService {
         return security;
     }
 
-    private void executeLimitOrder(Order order, Integer amount, BigDecimal price, SecurityDto security, UserDto user, Long volume){
+    protected void executeLimitOrder(Order order, Integer amount, BigDecimal price, SecurityDto security, UserDto user, Long volume){
         BigDecimal cost;
         if(amount > 0 ) {
             order.setFee(formulaCalculator.calculateSecurityFee(order, security.getAsk(), price));
@@ -234,11 +242,15 @@ public class OrderService {
         order.setCost(cost);
         order.setUserId(user.getId());
         orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
+        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
+        if (volume > Math.abs(amount)) {
+            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
+        }
         taskScheduler.schedule(new ExecuteOrderTask(amount, order, volume), new Date(System.currentTimeMillis() + waitTime));
     }
 
-    private void executeMarketOrder(Order order,Integer amount, SecurityDto security,UserDto user) {
+    protected void executeMarketOrder(Order order, Integer amount, SecurityDto security, UserDto user) {
+        System.out.println("OVDE");
         BigDecimal cost;
         if(amount > 0 ) {
             order.setFee(formulaCalculator.calculateSecurityFee(order, security.getAsk()));
@@ -250,7 +262,10 @@ public class OrderService {
         order.setCost(cost);
         order.setUserId(user.getId());
         order = orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (security.getVolume() / Math.abs(amount))) * 1000L;
+        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
+        if (security.getVolume() > Math.abs(amount)) {
+            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (security.getVolume() / Math.abs(amount))) * 1000L;
+        }
         taskScheduler.schedule(new ExecuteOrderTask(amount, order, security.getVolume()), new Date(System.currentTimeMillis() + waitTime));
     }
 
@@ -274,7 +289,10 @@ public class OrderService {
             if (orderFromRepo.getActive().booleanValue()) {
                 Boolean allOrNone = order.getAllOrNone();
                 if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled && amountNotFilled > 0) {
-                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
+                    if (volume > Math.abs(amountNotFilled)) {
+                        waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                    }
 
                     taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
                 } else {

@@ -22,7 +22,6 @@ Proces startovanja mozete pratiti u Docker app-u. Ovo pokrece sve servise trenut
 Ukoliko neko radi na ARM procesoru, image za mysql se mora pokrenuti u compatability mode-u. Koristite ovu komandu:
 ```
 docker-compose -f docker-compose_arm.yml up -d
-
 ```
 ## Zaustavljanje
 Komanda je:
@@ -35,3 +34,16 @@ Docker zna da koristi dosta resursa, i moja preporuka je da ukoliko vidite da va
 Baza radi na portu 3307 na localhostu, ime baze je osiguranje, konektujete se na root korisnika, a password mozete naci u .env file-u.
 # Eureka
 Eureka radi na portu 8761.
+
+#K8S
+
+Potrebno instalirati minikube. Takodje potreban docker (minikube je docker container).
+Pokrenuti:
+```
+minikube start
+kubectl apply -f ./k8s
+```
+Za monitoring
+```
+minikube dashboard
+```
