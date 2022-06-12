@@ -1,5 +1,6 @@
 package buyingmarket.controllers;
 
+import buyingmarket.exceptions.handlers.ControllerExceptionHandler;
 import buyingmarket.model.SecurityType;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.services.OrderService;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -22,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 @ContextConfiguration(classes = {OrderRestController.class})
 @WebMvcTest(OrderRestController.class)
+@ImportAutoConfiguration(ControllerExceptionHandler.class)
 class OrderRestControllerTest {
 
     @Autowired
