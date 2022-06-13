@@ -305,7 +305,10 @@ public class OrderService {
                             .build();
                     transactionService.save(transaction);
                     if (amountNotFilled > 0) {
-                        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
+                        if (volume > Math.abs(amountNotFilled)) {
+                            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
+                        }
                         taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
                     }
                 }
