@@ -1,9 +1,6 @@
 package security.test;
 
-import app.model.Currency;
-import app.model.Exchange;
-import app.model.Region;
-import app.model.StockOption;
+import app.model.*;
 import app.model.dto.OptionDTO;
 import app.repositories.OptionsRepository;
 import app.services.OptionsService;
@@ -85,13 +82,13 @@ public class OptionsServiceTest {
         verify(optionsRepository, times(1)).findAll();
     }
 
-    @Test
-    public void updateData_CallsOptionsRepositorySave_ForEveryOption() {
-//        Option option = new Option("MSFT", name, exchange,
+//    @Test
+//    public void updateData_CallsOptionsRepositorySave_ForEveryOption() {
+//        StockOption option = new StockOption("FB", name, exchange,
 //                lastUpdated, price, ask,
 //                bid, priceChange, volume, contractSize);
 //        option.setOptionType(OptionType.PUT);
-//        List<Option> optionList = new ArrayList<>();
+//        List<StockOption> optionList = new ArrayList<>();
 //        optionList.add(option);
 //
 //        when(optionsRepository.findAll()).thenReturn(optionList);
@@ -100,5 +97,5 @@ public class OptionsServiceTest {
 //        int n = optionList.size();
 //        verify(optionsRepository, times(1)).findAll();
 //        verify(optionsRepository, times(n)).save(any());
-    }
+//    }
 }
