@@ -186,7 +186,7 @@ public class OrderService {
                 .getSubject();
     }
 
-    protected UserDto getUserByUsernameFromUserService(String username) {
+    public UserDto getUserByUsernameFromUserService(String username) {
         String urlString = usercrudApiUrl + "/api/users/search/email";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
         String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
