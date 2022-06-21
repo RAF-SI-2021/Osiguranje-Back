@@ -63,6 +63,6 @@ public class UserRestController {
     @PutMapping(value = "/password", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> setPassword(@RequestBody PasswordDto dto) {
         userService.setPassword(dto);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
