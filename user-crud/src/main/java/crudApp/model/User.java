@@ -10,7 +10,6 @@ import javax.persistence.*;
 @Setter
 @ToString
 @Entity
-@Table(name = "Sistem_User")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) //consider changing to GenerationType.AUTO
