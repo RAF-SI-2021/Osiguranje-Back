@@ -1,10 +1,8 @@
 package raf.osiguranje.accounttransaction.model;
 
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import raf.osiguranje.accounttransaction.model.helpers.AccountType;
 
 import javax.persistence.*;
 

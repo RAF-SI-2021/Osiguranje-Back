@@ -1,10 +1,8 @@
-package raf.osiguranje.accounttransaction.model.helpers;
+package raf.osiguranje.accounttransaction.model;
 
 import lombok.*;
-import raf.osiguranje.accounttransaction.model.Account;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @Getter
 @Setter
