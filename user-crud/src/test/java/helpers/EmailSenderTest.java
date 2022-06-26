@@ -19,7 +19,7 @@ public class EmailSenderTest {
 
 
     @Test
-    void testSetAndGetPwd() {
+    public void testSetAndGetPwd() {
         EmailSender emailSender = EmailSender.getInstance();
         String pwd = "Password";
         emailSender.setPassword(pwd);
@@ -29,7 +29,7 @@ public class EmailSenderTest {
     }
 
     @Test
-    void testSendMail() {
+    public void testSendMail() {
         EmailSender emailSender = EmailSender.getInstance();
         GreenMail greenMail = new GreenMail(new ServerSetup[]{new ServerSetup(3026,"127.0.0.1",ServerSetup.PROTOCOL_SMTP)});
 
