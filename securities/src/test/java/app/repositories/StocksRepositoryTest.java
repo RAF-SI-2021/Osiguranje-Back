@@ -35,7 +35,7 @@ class StocksRepositoryTest {
         // exchangeRepository.save( new Exchange( "Nasdaq", "NASDAQ", "XNAS", "−5", "09:30", "16:00" ) );
     }
 
-    private Stock generateNextStock(String suffix ) {
+    private Stock generateNextStock( String suffix ) {
         Random random = new Random();
         Stock stock =
                 new Stock( "symbol" + suffix,

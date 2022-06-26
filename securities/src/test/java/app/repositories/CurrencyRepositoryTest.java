@@ -31,7 +31,7 @@ class CurrencyRepositoryTest {
         Currency testCurrency = underTest.findByIsoCode( ISO_CODE );
 
         /* Then. */
-        assertTrue( testCurrency.getIsoCode().equals( ISO_CODE ) );
+        assertEquals( testCurrency.getIsoCode(), ISO_CODE );
     }
 
     @Test
@@ -49,6 +49,6 @@ class CurrencyRepositoryTest {
         Currency testCurrency = underTest.findByRegion( region );
 
         /* Then. */
-        assertTrue( testCurrency.getRegion().equals( region ) );
+        assertEquals( testCurrency.getRegion(), region );
     }
 }
