@@ -11,11 +11,17 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
+import raf.osiguranje.accounttransaction.model.Balance;
+import raf.osiguranje.accounttransaction.model.BalanceId;
 import raf.osiguranje.accounttransaction.model.dto.SecurityDto;
 import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 import raf.osiguranje.accounttransaction.model.dto.UserDto;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @NoArgsConstructor
 @Service
@@ -42,14 +48,87 @@ public class BalanceService {
         this.rest = rest;
     }
 
-    public boolean createBalance(Long accountNumber,Long securityId,int amount,String jwtToken) {
+    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount,String jwtToken) {
         Account account = accountRepository.findAccountByAccountNumber(accountNumber);
         if(accountNumber==null){
             return false;
         }
 
 //        String email = extractUsername(jwtToken);
+        /*
+        Proveravam da li postoji securiti u nase sistemu
+         */
+        try {
+            SecurityDto securityDto = getSecurityByTypeAndId(securityType,securityId);
+        } catch (Exception e) {
+            System.err.println(e);
+            return false;
+        }
 
+        Balance balance = new Balance(account,securityId,securityType,amount);
+
+        balanceRepository.save(balance);
+
+        return true;
+    }
+
+    public List<Balance> getBalances(){
+        return balanceRepository.findAll();
+    }
+
+    public List<Balance> getBalancesByAccount(Long accountId){
+        Account account = accountRepository.findAccountByAccountNumber(accountId);
+        if(account==null){
+            return new ArrayList<>();
+        }
+        return balanceRepository.findAccountBalanceByAccount(account);
+    }
+
+    public List<Balance> getBalancesBySecurity(Long security){
+        return balanceRepository.findAccountBalanceBySecurityId(security);
+    }
+
+    public Optional<Balance> getBalancesByFullId(Long accountId, Long security){
+        Account account = accountRepository.findAccountByAccountNumber(accountId);
+        if(account==null){
+            return Optional.empty();
+        }
+        return balanceRepository.findById(new BalanceId(account,security));
+    }
+
+    public synchronized boolean updateAmount(Long accountId,Long securityId,int amount){
+
+        Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
+        if(balanceOptional.isEmpty()){
+            return false;
+        }
+
+        Balance balance = balanceOptional.get();
+
+        if(balance.getAmount() + amount < 0){
+            return false;
+        }
+        balance.setAmount(balance.getAmount()+amount);
+        balanceRepository.save(balance);
+
+        return true;
+    }
+
+    public synchronized boolean updateReserve(Long accountId,Long securityId,int reserve){
+        Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
+        if(balanceOptional.isEmpty()){
+            return false;
+        }
+
+        Balance balance = balanceOptional.get();
+
+        int newReserve = balance.getReserved() + reserve;
+
+        if(newReserve < 0  || balance.getAmount() < newReserve ){
+            return false;
+        }
+        balance.setReserved(newReserve);
+        balanceRepository.save(balance);
 
         return true;
     }
@@ -83,7 +162,7 @@ public class BalanceService {
         return user;
     }
 
-    protected SecurityDto getSecurityById(SecurityType securityType, Long securityId) throws Exception {
+    protected SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
         ResponseEntity<SecurityDto> response;
         try {
