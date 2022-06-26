@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -76,6 +77,7 @@ public class BalanceService {
         return balanceRepository.findAll();
     }
 
+    @Transactional
     public List<Balance> getBalancesByAccount(Long accountId){
         Account account = accountRepository.findAccountByAccountNumber(accountId);
         if(account==null){
@@ -84,10 +86,12 @@ public class BalanceService {
         return balanceRepository.findAccountBalanceByAccount(account);
     }
 
+    @Transactional
     public List<Balance> getBalancesBySecurity(Long security){
         return balanceRepository.findAccountBalanceBySecurityId(security);
     }
 
+    @Transactional
     public Optional<Balance> getBalancesByFullId(Long accountId, Long security){
         Account account = accountRepository.findAccountByAccountNumber(accountId);
         if(account==null){
@@ -96,7 +100,8 @@ public class BalanceService {
         return balanceRepository.findById(new BalanceId(account,security));
     }
 
-    public synchronized boolean updateAmount(Long accountId,Long securityId,int amount){
+    @Transactional
+    public boolean updateAmount(Long accountId,Long securityId,int amount){
 
         Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
         if(balanceOptional.isEmpty()){
@@ -114,7 +119,8 @@ public class BalanceService {
         return true;
     }
 
-    public synchronized boolean updateReserve(Long accountId,Long securityId,int reserve){
+    @Transactional
+    public boolean updateReserve(Long accountId,Long securityId,int reserve){
         Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
         if(balanceOptional.isEmpty()){
             return false;
