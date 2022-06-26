@@ -76,4 +76,14 @@ public class AccountRestController {
             return ResponseEntity.ok(account);
         }
     }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteAccount(@RequestParam("id") Long idInput) {
+        Account account = accountService.findAccountById(idInput);
+        if (account == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        accountService.deleteAccount(account);
+        return ResponseEntity.ok().build();
+    }
 }
