@@ -10,13 +10,12 @@ import crudApp.repositories.UserRepository;
 import helpers.EmailSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.*;
 
@@ -27,15 +26,16 @@ public class UserService implements UserDetailsService {
     private final PermissionMapper permissionMapper;
     private final ThreadPoolTaskExecutor taskExecutor;
     private final PasswordEncoder passwordEncoder;
+    private final RestTemplate restTemplate;
 
     @Autowired
-    public UserService(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor, PasswordEncoder passwordEncoder, RestTemplate restTemplate) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
         this.permissionMapper = permissionMapper;
         this.taskExecutor = taskExecutor;
         this.passwordEncoder = passwordEncoder;
-
+        this.restTemplate = restTemplate;
     }
 
     public List<UserDto> findAll() {
@@ -55,6 +55,11 @@ public class UserService implements UserDetailsService {
     public UserDto findUserByEmail(String email) {
         Optional<User> user = userRepository.findUserByEmail(email);
         return user.map(userMapper::userToUserDto).orElse(null);
+    }
+
+    public Long findUserIdByEmail(String email) {
+        Optional<User> user = userRepository.findUserByEmail(email);
+        return user.map(User::getId).orElse(null);
     }
 
     public List<UserDto> findUsersByFirstName(String firstName) {
