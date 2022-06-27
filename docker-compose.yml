@@ -127,6 +127,15 @@ services:
     networks:
       - backend
 
+  redis_db:
+    image: redis:3.2.8
+    env_file: ./.env
+    ports:
+      - $REDIS_EXTERNAL_PORT:$REDIS_INTERNAL_PORT
+    tty: true
+    networks:
+      - backend
+
 volumes:
   db:
   eureka:
