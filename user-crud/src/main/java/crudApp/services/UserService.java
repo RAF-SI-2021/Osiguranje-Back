@@ -96,14 +96,15 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDto updateUser(UserDto dto) {
-        Optional<User> user = this.userRepository.findUserByEmail(dto.getEmail());
-        if (user.isPresent()) {
-            user.get().setFirstName(dto.getFirstName());
-            user.get().setLastName(dto.getLastName());
-            user.get().setEmail(dto.getEmail());
-            user.get().setPosition(dto.getPosition());
-            user.get().setActive(dto.getActive());
-            userRepository.save(userMapper.userDtoToUser(dto));
+        Optional<User> userOptional = this.userRepository.findUserByEmail(dto.getEmail());
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setFirstName(dto.getFirstName());
+            user.setLastName(dto.getLastName());
+            user.setEmail(dto.getEmail());
+            user.setPosition(dto.getPosition());
+            user.setActive(dto.getActive());
+            userRepository.save(user);
             return dto;
         } else {
             throw new UsernameNotFoundException("No such user.");
