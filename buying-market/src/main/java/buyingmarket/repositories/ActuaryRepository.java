@@ -8,6 +8,5 @@ import java.util.Optional;
 
 @Repository
 public interface ActuaryRepository extends JpaRepository<Actuary, Long> {
-    Optional<Actuary> findById(Long id);
     Optional<Actuary> findActuaryByUserId(Long userId);
 }
