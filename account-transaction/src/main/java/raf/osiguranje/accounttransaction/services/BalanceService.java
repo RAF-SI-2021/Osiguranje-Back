@@ -71,7 +71,6 @@ public class BalanceService {
             System.out.println(balance);
             balanceRepository.save(balance);
         }catch (Exception e){
-            e.printStackTrace();
             return false;
         }
 
