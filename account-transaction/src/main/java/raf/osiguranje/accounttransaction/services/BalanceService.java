@@ -14,7 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
-import raf.osiguranje.accounttransaction.model.dto.SecurityDto;
+import raf.osiguranje.accounttransaction.model.dto.SecurityDTO;
 import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 import raf.osiguranje.accounttransaction.model.dto.UserDto;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
@@ -187,15 +187,15 @@ public class BalanceService {
         return user;
     }
 
-    protected SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) throws Exception {
+    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
-        ResponseEntity<SecurityDto> response;
+        ResponseEntity<SecurityDTO> response;
         try {
-            response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
+            response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDTO.class);
         } catch(RestClientException e) {
             throw new Exception("Something went wrong while trying to retrieve security info");
         }
-        SecurityDto security = null;
+        SecurityDTO security = null;
         if(response.getBody() != null) {
             security = response.getBody();
         }
