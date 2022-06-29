@@ -50,7 +50,14 @@ public class ForexBootstrap {
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             HttpEntity<ExchangeRateAPIResponse> entity = new HttpEntity <>(headers);
-            ResponseEntity<ExchangeRateAPIResponse> response = rest.exchange(Config.getProperty("exchangerate_url") + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
+
+            ResponseEntity<ExchangeRateAPIResponse> response;
+            try {
+                response = rest.exchange(Config.getProperty("exchangerate_url") + currency.getIsoCode(), HttpMethod.GET, entity, ExchangeRateAPIResponse.class);
+            } catch( Exception e ) { 
+                continue;
+            }
+
             HashMap<String, BigDecimal> rates;
             try {
                 rates = Objects.requireNonNull(response.getBody()).getConversionRates();

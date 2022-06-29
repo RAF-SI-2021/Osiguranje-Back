@@ -45,7 +45,8 @@ public class IntegrationTest {
     private StocksRepository stocksRepository;
     @Autowired
     private FuturesRepository futuresRepository;
-    @Autowired OptionsRepository optionsRepository;
+    @Autowired
+    private OptionsRepository optionsRepository;
 
     @Autowired
     private ObjectMapper mapper;
@@ -141,11 +142,22 @@ public class IntegrationTest {
                 .andExpect( status().isOk() )
                 .andReturn().getResponse().getContentAsString();
 
-        DataDTO dataDTO = mapper.readValue( jsonResponse, DataDTO.class );
-        final int responseReturns = dataDTO.getForex().size() + dataDTO.getFutures().size() + dataDTO.getStocks().size();
+        /* A bit hacky but it'll work. */
+        final int responseReturns = countSubstring( jsonResponse, "\"id\"" );
+
+        // DataDTO dataDTO = mapper.readValue( jsonResponse, DataDTO.class );
+        // final int responseReturns = dataDTO.getForex().size() + dataDTO.getFutures().size() + dataDTO.getStocks().size();
 
         /* Then. */
         assertThat( forexReturns + futureReturns + stockReturns == responseReturns );
+    }
+
+    public static int countSubstring( String text, String find ) {
+        int index = 0, count = 0, length = find.length();
+        while( ( index = text.indexOf( find, index ) ) != -1 ) {
+            index += length; count++;
+        }
+        return count;
     }
 
 }
