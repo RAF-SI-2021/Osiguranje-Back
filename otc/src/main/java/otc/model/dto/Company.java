@@ -11,9 +11,9 @@ import java.util.Set;
 @NoArgsConstructor
 public class Company {
     @NotNull
-    private String name;
-    @NotNull
     private Long registrationID;
+    @NotNull
+    private String name;
     @NotNull
     private Long taxID;
     @NotNull

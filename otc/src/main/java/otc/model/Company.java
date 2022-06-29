@@ -23,6 +23,6 @@ public class Company {
     private Long industrialClassificationID;
     @Column
     private String address;
-    @OneToMany(mappedBy = "employee", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "employeeID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Employee> employees;
 }
