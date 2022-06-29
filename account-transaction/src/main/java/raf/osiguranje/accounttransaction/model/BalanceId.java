@@ -2,6 +2,8 @@ package raf.osiguranje.accounttransaction.model;
 
 import lombok.*;
 
+import javax.persistence.Column;
+import javax.persistence.Embeddable;
 import java.io.Serializable;
 
 @Getter
@@ -9,9 +11,10 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode
+@Embeddable
 public class BalanceId implements Serializable {
 
-    private Account account;
-    private Long securityId;
+    protected Long accountId;
 
+    protected Long securityId;
 }

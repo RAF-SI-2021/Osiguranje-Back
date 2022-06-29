@@ -49,31 +49,50 @@ public class BalanceService {
         this.rest = rest;
     }
 
-    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount,String jwtToken) {
+    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount) {
+        Account account = accountRepository.findAccountByAccountNumber(accountNumber);
+        if(accountNumber==null){
+            return false;
+        }
+        System.out.println(accountNumber + " {} " + account);
+//        String email = extractUsername(jwtToken);
+        /*
+        Proveravam da li postoji securiti u nase sistemu
+         */
+//        try {
+//            SecurityDto securityDto = getSecurityByTypeAndId(securityType,securityId);
+//        } catch (Exception e) {
+//            System.err.println(e);
+//            return false;
+//        }
+        Balance balance;
+        try {
+            balance = new Balance(account, securityId, securityType, amount);
+            System.out.println(balance);
+            balanceRepository.save(balance);
+        }catch (Exception e){
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
+    }
+
+    public boolean deleteBalance(Long accountNumber,Long securityId){
         Account account = accountRepository.findAccountByAccountNumber(accountNumber);
         if(accountNumber==null){
             return false;
         }
 
-//        String email = extractUsername(jwtToken);
-        /*
-        Proveravam da li postoji securiti u nase sistemu
-         */
-        try {
-            SecurityDto securityDto = getSecurityByTypeAndId(securityType,securityId);
-        } catch (Exception e) {
-            System.err.println(e);
+        Optional<Balance> balance = balanceRepository.findById(new BalanceId(accountNumber,securityId));
+        if(balance.isEmpty())
             return false;
-        }
 
-        Balance balance = new Balance(account,securityId,securityType,amount);
-
-        balanceRepository.save(balance);
-
+        balanceRepository.delete(balance.get());
         return true;
     }
 
-    public List<Balance> getBalances(){
+    public List<Balance> getAllBalances(){
         return balanceRepository.findAll();
     }
 
@@ -83,12 +102,12 @@ public class BalanceService {
         if(account==null){
             return new ArrayList<>();
         }
-        return balanceRepository.findAccountBalanceByAccount(account);
+        return balanceRepository.findBalanceByAccount(account);
     }
 
     @Transactional
     public List<Balance> getBalancesBySecurity(Long security){
-        return balanceRepository.findAccountBalanceBySecurityId(security);
+        return balanceRepository.findBalanceBySecurityId(security);
     }
 
     @Transactional
@@ -97,7 +116,7 @@ public class BalanceService {
         if(account==null){
             return Optional.empty();
         }
-        return balanceRepository.findById(new BalanceId(account,security));
+        return balanceRepository.findById(new BalanceId(accountId,security));
     }
 
     @Transactional

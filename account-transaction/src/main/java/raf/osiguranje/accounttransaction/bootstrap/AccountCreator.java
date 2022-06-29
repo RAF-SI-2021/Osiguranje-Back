@@ -7,6 +7,8 @@ import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.AccountType;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 
+import java.util.List;
+
 @Component
 public class AccountCreator implements CommandLineRunner {
 
@@ -19,11 +21,17 @@ public class AccountCreator implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        Account account = new Account(AccountType.CASH);
-        this.repository.save(account);
+        List<Account> allAccounts = repository.findAll();
+        if(allAccounts.isEmpty()) {
+            Account account = new Account(AccountType.CASH);
+            System.out.println(account);
+            this.repository.save(account);
 
-        account = new Account(AccountType.MARGINS);
-        this.repository.save(account);
+            account = new Account(AccountType.MARGINS);
+            this.repository.save(account);
+        } else {
+            System.out.println(allAccounts);
+        }
         System.out.println("Created INIT Accounts");
     }
 }

@@ -12,7 +12,7 @@ import javax.persistence.*;
 @ToString
 public class Account {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     private Long accountNumber;
 
