@@ -44,6 +44,7 @@
         <module>gateway-app</module>
         <module>securities</module>
         <module>buying-market</module>
+        <module>account-transaction</module>
     </modules>
 
     <properties>
