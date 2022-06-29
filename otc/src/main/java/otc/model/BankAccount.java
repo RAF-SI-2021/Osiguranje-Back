@@ -16,7 +16,7 @@ public class BankAccount {
     private Long bankAccountID;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "bankAccount_ID", nullable = false)
-    private Company owner;
+    private Company company;
     @Column
     private String name;
     @Column

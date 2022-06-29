@@ -12,6 +12,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class Employee {
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long employeeId;
     @Column
     private String name;
@@ -27,5 +28,5 @@ public class Employee {
     private String description;
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "registration_ID", nullable = false)
-    private Company employer;
+    private Company company;
 }
