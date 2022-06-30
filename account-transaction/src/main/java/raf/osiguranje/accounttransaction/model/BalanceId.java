@@ -1,40 +1,27 @@
 package raf.osiguranje.accounttransaction.model;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import raf.osiguranje.accounttransaction.model.dto.SecurityType;
+
 import javax.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
 
-@Embeddable
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class BalanceId implements Serializable {
 
     protected Long accountId;
 
     protected Long securityId;
 
-    public BalanceId(Long accountId, Long securityId) {
-        this.accountId = accountId;
-        this.securityId = securityId;
-    }
-
-    public BalanceId() {
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
-    }
-
-    public Long getSecurityId() {
-        return securityId;
-    }
-
-    public void setSecurityId(Long securityId) {
-        this.securityId = securityId;
-    }
+    private SecurityType securityType;
 
     @Override
     public boolean equals(Object o) {

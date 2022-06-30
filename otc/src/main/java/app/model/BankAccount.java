@@ -1,11 +1,11 @@
 package app.model;
 
+import app.model.dto.BankAccountDTO;
 import lombok.*;
 
 import javax.persistence.*;
 
 @Entity
-@Table(name = "employee")
 @Getter
 @Setter
 @Builder
@@ -14,11 +14,15 @@ import javax.persistence.*;
 public class BankAccount {
     @Id
     private Long bankAccountID;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "bankAccount_ID", nullable = false)
+    @ManyToOne
     private Company company;
     @Column
-    private String name;
+    private String bankName;
     @Column
     private String accountType;
+
+    public BankAccount(BankAccountDTO bankAccountDTO) {
+        this.bankName = bankAccountDTO.getBankName();
+        this.accountType = bankAccountDTO.getAccountType();
+    }
 }
