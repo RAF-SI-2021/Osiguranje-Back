@@ -3,6 +3,7 @@ package buyingmarket.services;
 import buyingmarket.exceptions.UserNotFoundException;
 import buyingmarket.mappers.ActuaryMapper;
 import buyingmarket.model.Actuary;
+import buyingmarket.model.Agent;
 import buyingmarket.model.dto.ActuaryCreateDto;
 import buyingmarket.repositories.ActuaryRepository;
 import io.jsonwebtoken.Jwts;
@@ -10,10 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -35,7 +40,18 @@ public class ActuaryService {
         this.rest = new RestTemplate();
     }
 
-    public void createActuary(ActuaryCreateDto dto) throws Exception {
+    public List<Agent> getAllAgents() {
+        List<Actuary> actuaries = actuaryRepository.findAll();
+        List<Agent> agents = new ArrayList<>();
+        for (Actuary actuary : actuaries) {
+            if (actuary instanceof Agent) {
+                agents.add((Agent) actuary);
+            }
+        }
+        return agents;
+    }
+
+    public void createActuary(ActuaryCreateDto dto) {
         Optional<Actuary> act = actuaryRepository.findActuaryByUserId(dto.getUserId());
         if (act.isEmpty()) {
             actuaryRepository.save(actuaryMapper.actuaryCreateDtoToActuary(dto));
@@ -43,6 +59,35 @@ public class ActuaryService {
             Actuary actuary = act.get();
             actuary.setActive(true);
             actuaryRepository.save(actuary);
+        }
+    }
+
+    public void resetLimit(Long agentId) {
+        Optional<Actuary> a = actuaryRepository.findById(agentId);
+        if (a.isPresent()) {
+            Agent agent = (Agent) a.get();
+            agent.setUsedLimit(new BigDecimal(0));
+            actuaryRepository.save(agent);
+        } else {
+            throw new UserNotFoundException("No such agent found.");
+        }
+    }
+
+    public void setLimit(Long agentId, BigDecimal newLimit) {
+        Optional<Actuary> a = actuaryRepository.findById(agentId);
+        if (a.isPresent()) {
+            Agent agent = (Agent) a.get();
+            agent.setLimit(newLimit);
+            actuaryRepository.save(agent);
+        } else {
+            throw new UserNotFoundException("No such agent found.");
+        }
+    }
+
+    @Scheduled(cron = "0 0 0 * MON,TUE,WED,THU,FRI * ?")
+    public void dailyReset() {
+        for (Agent agent : getAllAgents()) {
+            resetLimit(agent.getId());
         }
     }
 
