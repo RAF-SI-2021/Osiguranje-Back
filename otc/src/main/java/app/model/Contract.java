@@ -1,4 +1,4 @@
-package otc.model;
+package app.model;
 
 import lombok.*;
 

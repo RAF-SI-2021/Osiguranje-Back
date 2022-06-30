@@ -1,28 +1,24 @@
-package otc.model;
+package app.model.dto;
 
 import lombok.*;
-import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Set;
 
-@Entity
-@Table(name = "company")
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 public class Company {
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Id
+    @NotNull
     private Long registrationID;
-    @Column
+    @NotNull
     private String name;
-    @Column
+    @NotNull
     private Long taxID;
-    @Column
+    @NotNull
     private Long industrialClassificationID;
-    @Column
+    @NotNull
     private String address;
-    @OneToMany(mappedBy = "employeeID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Employee> employees;
 }

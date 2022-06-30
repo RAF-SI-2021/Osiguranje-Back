@@ -1,4 +1,4 @@
-package otc.model.dto;
+package app.model.dto;
 
 import javax.validation.constraints.NotNull;
 

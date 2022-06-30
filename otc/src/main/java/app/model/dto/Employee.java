@@ -1,9 +1,8 @@
-package otc.model.dto;
+package app.model.dto;
 
 import lombok.*;
 
 import javax.validation.constraints.NotNull;
-import java.util.Set;
 
 @Getter
 @Setter
