@@ -8,10 +8,10 @@ import javax.validation.constraints.NotNull;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class BankAccount {
+public class BankAccountDTO {
     @NotNull
     private Long bankAccountID;
-    private Company owner;
+    private CompanyDTO company;
     @NotNull
     private String name;
     @NotNull

@@ -1,17 +1,16 @@
 package app.model.dto;
 
-import javax.validation.constraints.NotNull;
 
-public class Contract {
+import java.util.List;
 
-    @NotNull
+public class ContractDTO {
+
     private Long contractID;
-    private Company employer;
-    @NotNull
+    private CompanyDTO company;
     private String status;
-    @NotNull
     private String creationDate;
     private String lastEdit;
-    @NotNull
     private String description;
+    private List<TransactionDTO> transactions;
+
 }

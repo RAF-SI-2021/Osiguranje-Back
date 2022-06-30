@@ -1,8 +1,10 @@
 package app.model;
 
+import app.model.dto.CompanyDTO;
 import lombok.*;
 import javax.persistence.*;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "company")
@@ -12,8 +14,10 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Company {
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long ID;
+    @Column
     private Long registrationID;
     @Column
     private String name;
@@ -24,5 +28,17 @@ public class Company {
     @Column
     private String address;
     @OneToMany(mappedBy = "employeeID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Employee> employees;
+    private List<Employee> employees;
+    @OneToMany(mappedBy = "contractID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<Contract> contracts;
+
+    public Company(CompanyDTO companyDTO) {
+        this.registrationID = companyDTO.getRegistrationID();
+        this.name = companyDTO.getName();
+        this.taxID = companyDTO.getTaxID();
+        this.industrialClassificationID = companyDTO.getIndustrialClassificationID();
+        this.address = companyDTO.getAddress();
+        this.employees = new ArrayList<>();
+        this.contracts = new ArrayList<>();
+    }
 }

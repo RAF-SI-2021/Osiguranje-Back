@@ -19,7 +19,7 @@ public class Employee {
     @Column
     private String surname;
     @Column
-    private String telNumber;
+    private String phone;
     @Column
     private String email;
     @Column
