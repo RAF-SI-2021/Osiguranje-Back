@@ -45,6 +45,10 @@ public class TransactionService {
         return true;
     }
 
+    public List<Transaction> getAllTransactions(){
+        return transactionRepository.findAll();
+    }
+
     public List<Transaction> getTransactionsByAccount(Long input){
         return transactionRepository.findAllByAccountId(input);
     }

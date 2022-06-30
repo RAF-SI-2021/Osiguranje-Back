@@ -35,9 +35,6 @@ public class Balance {
     @Column
     private Integer reserved;
 
-    public Balance() {
-    }
-
     public Balance(Account account, Long securityId, SecurityType securityType, Integer amount) {
         this.accountId = account.getAccountNumber();
         this.account = account;

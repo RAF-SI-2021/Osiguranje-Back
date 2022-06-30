@@ -6,6 +6,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class BalanceDTO {
 
     private Long accountId;
@@ -22,15 +23,4 @@ public class BalanceDTO {
     private int reserved;
     private int available;
 
-    @Override
-    public String toString() {
-        return "BalanceDTO{" +
-                "accountId=" + accountId +
-                ", securityId=" + securityId +
-                ", securityType=" + securityType +
-                ", amount=" + amount +
-                ", reserved=" + reserved +
-                ", available=" + available +
-                '}';
-    }
 }

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -80,4 +81,10 @@ public class Transaction {
                 ", usedReserve=" + usedReserve +
                 '}';
     }
+
+    public TransactionDTO getDto(){
+        return new TransactionDTO(this.accountId,this.timestamp,this.orderId,this.userId,this.forexId,
+                this.text,this.payment,this.payout,this.reserve,this.usedReserve);
+    }
+
 }
