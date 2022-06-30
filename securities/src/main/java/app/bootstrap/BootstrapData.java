@@ -36,7 +36,7 @@ public class BootstrapData implements CommandLineRunner {
         futuresBootstrap.loadFuturesData();
 
         Thread updater = new Thread(updaterThread);
-        updater.start();
+        //updater.start();
     }
 
 }
