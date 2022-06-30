@@ -24,6 +24,7 @@ public class Transaction {
     private Long accountId;
 
     @Column
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime timestamp;
 
     @Column
@@ -51,9 +52,9 @@ public class Transaction {
     private int usedReserve;
 
 
-    public Transaction(Long accountId, LocalDateTime timestamp, Long orderId, Long userId, Long forexId, int payment, int payout, int reserve, int usedReserve) {
+    public Transaction(Long accountId, Long orderId, Long userId, Long forexId, int payment, int payout, int reserve, int usedReserve) {
         this.accountId = accountId;
-        this.timestamp = timestamp;
+        this.timestamp = LocalDateTime.now();
         this.orderId = orderId;
         this.userId = userId;
         this.forexId = forexId;
