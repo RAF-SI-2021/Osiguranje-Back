@@ -93,7 +93,7 @@ services:
     depends_on:
       - mysqldb
       - eureka
-    image: osiguranjeraf2022/securities
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/securities
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -112,7 +112,7 @@ services:
     depends_on:
       - mysqldb
       - securities
-    image: osiguranjeraf2022/accounttransaction
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/accounttransaction
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
