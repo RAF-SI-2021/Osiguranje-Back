@@ -1,10 +1,10 @@
 package app.model;
 
+import app.model.dto.EmployeeDTO;
 import lombok.*;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "employee")
 @Getter
 @Setter
 @Builder
@@ -26,7 +26,15 @@ public class Employee {
     private String companyPosition;
     @Column
     private String description;
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "registration_ID", nullable = false)
+    @ManyToOne
     private Company company;
+
+    public Employee(EmployeeDTO employeeDTO) {
+        this.name = employeeDTO.getName();
+        this.surname = employeeDTO.getSurname();
+        this.phone = employeeDTO.getPhone();
+        this.email = employeeDTO.getEmail();
+        this.companyPosition = employeeDTO.getCompanyPosition();
+        this.description = employeeDTO.getDescription();
+    }
 }
