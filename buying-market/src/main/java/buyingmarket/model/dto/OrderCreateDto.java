@@ -1,44 +1,25 @@
 package buyingmarket.model.dto;
 
 import buyingmarket.model.ActionType;
-import buyingmarket.model.OrderState;
 import buyingmarket.model.SecurityType;
-import lombok.Builder;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Set;
 
-@Builder
-public class OrderDto {
-    private Long orderId;
+public class OrderCreateDto {
     @NotNull
     private Long securityId;
     @NotNull
-    private Long userId;
-    @NotNull
     private Integer amount;
-    private Integer amountFilled;
     @NotNull
     private SecurityType securityType;
     private Boolean allOrNone;
     private BigDecimal margin;
     private BigDecimal limitPrice;
     private BigDecimal stopPrice;
-    private BigDecimal fee;
-    private Set<TransactionDto> transactions;
-    private OrderState orderState;
     private ActionType actionType;
 
-    public OrderDto() {}
-
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
+    public OrderCreateDto() {}
 
     public Long getSecurityId() {
         return securityId;
@@ -48,28 +29,12 @@ public class OrderDto {
         this.securityId = securityId;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
     public Integer getAmount() {
         return amount;
     }
 
     public void setAmount(Integer amount) {
         this.amount = amount;
-    }
-
-    public Integer getAmountFilled() {
-        return amountFilled;
-    }
-
-    public void setAmountFilled(Integer amountFilled) {
-        this.amountFilled = amountFilled;
     }
 
     public SecurityType getSecurityType() {
@@ -110,30 +75,6 @@ public class OrderDto {
 
     public void setStopPrice(BigDecimal stopPrice) {
         this.stopPrice = stopPrice;
-    }
-
-    public BigDecimal getFee() {
-        return fee;
-    }
-
-    public void setFee(BigDecimal fee) {
-        this.fee = fee;
-    }
-
-    public Set<TransactionDto> getTransactions() {
-        return transactions;
-    }
-
-    public void setTransactions(Set<TransactionDto> transactions) {
-        this.transactions = transactions;
-    }
-
-    public OrderState getOrderState() {
-        return orderState;
-    }
-
-    public void setOrderState(OrderState orderState) {
-        this.orderState = orderState;
     }
 
     public ActionType getActionType() {

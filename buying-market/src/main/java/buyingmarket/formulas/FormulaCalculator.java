@@ -1,9 +1,11 @@
 package buyingmarket.formulas;
 
 import buyingmarket.model.Order;
+import buyingmarket.model.dto.SecurityDto;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class FormulaCalculator {
 
@@ -12,28 +14,36 @@ public class FormulaCalculator {
     private static final BigDecimal limitPercentageFee = new BigDecimal("0.24");
     private static final BigDecimal limitFlatFee = new BigDecimal("12");
 
-    public static BigDecimal calculateSecurityFee(Order order, BigDecimal price){
-
-        BigDecimal fee = price.multiply(BigDecimal.valueOf(order.getAmount()));
+    public static BigDecimal calculateSecurityFee(Order order, SecurityDto security){
+        BigDecimal value = getEstimatedValue(order, security);
         if(order.getLimitPrice() == null) {
-            BigDecimal percentageFee = fee.multiply(marketPercentageFee);
+            BigDecimal percentageFee = value.multiply(marketPercentageFee);
             if(percentageFee.compareTo(marketFlatFee) < 0)
-                fee = percentageFee;
-            else fee = marketFlatFee;
+                return percentageFee;
+            return marketFlatFee;
         } else {
-            BigDecimal percentageFee = fee.multiply(limitPercentageFee);
+            BigDecimal percentageFee = value.multiply(limitPercentageFee);
             if(percentageFee.compareTo(limitFlatFee) < 0)
-                fee = percentageFee;
-            else fee = limitFlatFee;
+                return percentageFee;
+            return limitFlatFee;
         }
-        return fee;
     }
 
-    public static BigDecimal calculateSecurityFee(Order order, BigDecimal price, BigDecimal limitPrice){
-        if(price.compareTo(limitPrice) < 0)
-            return calculateSecurityFee(order, price);
-        else
-            return calculateSecurityFee(order, limitPrice);
+    public static long waitTime(Long volume, Integer amount) {
+        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
+        if (volume > Math.abs(amount)) {
+            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
+        }
+        return waitTime + System.currentTimeMillis();
     }
 
+    public static BigDecimal getEstimatedValue(Order order, SecurityDto security) {
+        if (order.getLimitPrice() != null) {
+            return order.getLimitPrice().multiply(BigDecimal.valueOf(order.getAmount()));
+        } else if (order.getStopPrice() != null) {
+            return order.getStopPrice().multiply(BigDecimal.valueOf(order.getAmount()));
+        } else {
+            return security.getPrice().multiply(BigDecimal.valueOf(order.getAmount()));
+        }
+    }
 }

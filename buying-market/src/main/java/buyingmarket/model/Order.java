@@ -1,5 +1,6 @@
 package buyingmarket.model;
 
+import buyingmarket.model.dto.SecurityDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,6 +22,8 @@ public class Order {
     @Column
     private Integer amount;
     @Column
+    private Integer amountFilled;
+    @Column
     private SecurityType securityType;
     @Column
     private Boolean allOrNone;
@@ -33,32 +36,17 @@ public class Order {
     @Column
     private BigDecimal fee;
     @Column
-    private BigDecimal cost;
+    private OrderState orderState;
     @Column
-    private Boolean active;
+    private ActionType actionType;
+    @ManyToOne
+    private Actuary approvingActuary;
     @ManyToOne
     private Actuary actuary;
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Transaction> transactions;
 
     public Order() {}
-
-    public Order(Long orderId, Long securityId, Long userId, Integer amount, SecurityType securityType, Boolean allOrNone, BigDecimal margin, BigDecimal limitPrice, BigDecimal stopPrice, BigDecimal fee, BigDecimal cost, Boolean active, Actuary actuary, Set<Transaction> transactions) {
-        this.orderId = orderId;
-        this.securityId = securityId;
-        this.userId = userId;
-        this.amount = amount;
-        this.securityType = securityType;
-        this.allOrNone = allOrNone;
-        this.margin = margin;
-        this.limitPrice = limitPrice;
-        this.stopPrice = stopPrice;
-        this.fee = fee;
-        this.cost = cost;
-        this.active = active;
-        this.actuary = actuary;
-        this.transactions = transactions;
-    }
 
     public Long getOrderId() {
         return orderId;
@@ -90,6 +78,14 @@ public class Order {
 
     public void setAmount(Integer amount) {
         this.amount = amount;
+    }
+
+    public Integer getAmountFilled() {
+        return amountFilled;
+    }
+
+    public void setAmountFilled(Integer amountFilled) {
+        this.amountFilled = amountFilled;
     }
 
     public SecurityType getSecurityType() {
@@ -140,22 +136,6 @@ public class Order {
         this.fee = fee;
     }
 
-    public BigDecimal getCost() {
-        return cost;
-    }
-
-    public void setCost(BigDecimal cost) {
-        this.cost = cost;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
     public Actuary getActuary() {
         return actuary;
     }
@@ -170,5 +150,29 @@ public class Order {
 
     public void setTransactions(Set<Transaction> transactions) {
         this.transactions = transactions;
+    }
+
+    public OrderState getOrderState() {
+        return orderState;
+    }
+
+    public void setOrderState(OrderState orderState) {
+        this.orderState = orderState;
+    }
+
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(ActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public Actuary getApprovingActuary() {
+        return approvingActuary;
+    }
+
+    public void setApprovingActuary(Actuary approvingActuary) {
+        this.approvingActuary = approvingActuary;
     }
 }

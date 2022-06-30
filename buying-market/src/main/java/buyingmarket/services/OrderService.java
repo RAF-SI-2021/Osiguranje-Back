@@ -1,15 +1,13 @@
 package buyingmarket.services;
 
 import buyingmarket.exceptions.OrderNotFoundException;
-import buyingmarket.exceptions.SecurityNotFoundException;
 import buyingmarket.exceptions.UpdateNotAllowedException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.model.*;
+import buyingmarket.model.dto.OrderCreateDto;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.model.dto.SecurityDto;
-import buyingmarket.model.dto.UserDto;
-import buyingmarket.repositories.ActuaryRepository;
 import buyingmarket.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,10 +18,10 @@ import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
@@ -59,36 +57,35 @@ public class OrderService {
         this.rest = new RestTemplate();
     }
 
-    public void createOrder(OrderDto orderDto, String jws) {
+    public void validateOrder(Long orderId, OrderState orderState, String jws) {
+        Optional<Order> o = orderRepository.findById(orderId);
+        if (o.isPresent()) {
+            Order order = o.get();
+            order.setOrderState(orderState);
+            order.setApprovingActuary(actuaryService.getActuary(jws));
+            orderRepository.save(order);
+            if (orderState.equals(OrderState.APPROVED)) {
+                execute(order);
+            }
+        } else {
+            throw new UpdateNotAllowedException("Order not found.");
+        }
+    }
+
+    public void createOrder(OrderCreateDto orderCreateDto, String jws) {
         Actuary actuary = actuaryService.getActuary(jws);
-        Order order = orderMapper.orderDtoToOrder(orderDto);
+        Order order = orderMapper.orderCreateDtoToOrder(orderCreateDto);
         order.setActuary(actuary);
         SecurityDto security = getSecurityFromOrder(order);
-        Long volume = security.getVolume();
-        if(order.getLimitPrice() != null && order.getStopPrice() == null) {
-            Integer amount = order.getAmount();
-            BigDecimal limitPrice = orderDto.getLimitPrice();
-            executeLimitOrder(order, amount, limitPrice, volume);
-        } else if(order.getLimitPrice() != null && order.getStopPrice() != null) {
-            BigDecimal stopPrice = order.getStopPrice();
-            Integer amount = order.getAmount();
-            BigDecimal limitPrice = order.getLimitPrice();
-            if((amount < 0 && stopPrice.compareTo(security.getBid()) < 0) || (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)) {
-                executeLimitOrder(order, amount, limitPrice, volume);
-            } else {
-                orderRepository.save(order);
+        if (actuary instanceof Agent) {
+            Agent agent = (Agent) actuary;
+            if (agent.getApprovalRequired() || agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(FormulaCalculator.getEstimatedValue(order, security))) <= 0) {
+                order.setOrderState(OrderState.WAITING);
             }
-        } else if(order.getLimitPrice() == null && order.getStopPrice() == null) {
-            Integer amount = order.getAmount();
-            executeMarketOrder(order, amount);
-        } else {
-            BigDecimal stopPrice = order.getStopPrice();
-            Integer amount = order.getAmount();
-            if((amount < 0 && stopPrice.compareTo(security.getBid()) < 0) || (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)) {
-                executeMarketOrder(order, amount);
-            } else {
-                orderRepository.save(order);
-            }
+        }
+        orderRepository.save(order);
+        if (order.getOrderState().equals(OrderState.APPROVED)) {
+            execute(order);
         }
     }
 
@@ -104,50 +101,17 @@ public class OrderService {
         return orderMapper.orderToOrderDto(order);
     }
 
-    public void updateOrder(OrderDto orderDto, String jws) {
-        Actuary actuary = actuaryService.getActuary(jws);
-        Order order = orderRepository.findByOrderIdAndActuary(orderDto.getOrderId(), actuary).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
-        if(order.getLimitPrice() == null && order.getStopPrice() == null) {
-            throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
-        }
-        else{
-            Set<Transaction> transactions = order.getTransactions();
-            long totalFilledAmount = 0;
-            for(Transaction transaction: transactions) {
-                totalFilledAmount += transaction.getVolume();
-            }
-            if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
-            }
-            if(transactions.isEmpty()) {
-                order.setAllOrNone(orderDto.getAllOrNone());
-            }
-            if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
-            } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
-            }
-            order.setAmount(orderDto.getAmount());
-            order.setMargin(orderDto.getMargin());
-            if(order.getLimitPrice() != null)
-                order.setLimitPrice(orderDto.getLimitPrice());
-            if(order.getStopPrice() != null)
-                order.setStopPrice(orderDto.getStopPrice());
-            orderRepository.save(order);
-        }
-    }
-
     public void deleteOrder(Long id, String jws) {
         Actuary actuary = actuaryService.getActuary(jws);
         Order order = orderRepository.findByOrderIdAndActuary(id, actuary).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
-        order.setActive(Boolean.FALSE);
+        order.setOrderState(OrderState.DECLINED);
         orderRepository.save(order);
     }
 
     public void deleteAllOrdersForUser(String jws) {
         Actuary actuary = actuaryService.getActuary(jws);
         List<Order> orders = orderRepository.findAllByActuaryAndActive(actuary, Boolean.TRUE);
-        orders.forEach(order -> order.setActive(Boolean.FALSE));
+        orders.forEach(order -> order.setOrderState(OrderState.DECLINED));
         orderRepository.saveAll(orders);
     }
 
@@ -164,104 +128,55 @@ public class OrderService {
         return security;
     }
 
-    protected void executeLimitOrder(Order order, Integer amount, BigDecimal price, Long volume){
+    protected void execute(Order order) {
         SecurityDto security = getSecurityFromOrder(order);
-        BigDecimal cost;
-        if(amount > 0 ) {
-            order.setFee(FormulaCalculator.calculateSecurityFee(order, security.getAsk(), price));
-            cost = price.compareTo(security.getAsk()) > 1 ?
-                    security.getAsk().multiply(BigDecimal.valueOf(amount)) :
-                    price.multiply(BigDecimal.valueOf(amount));
-        } else {
-            order.setFee(FormulaCalculator.calculateSecurityFee(order, security.getBid(), price));
-            cost = price.compareTo(security.getBid()) > 1 ?
-                    security.getBid().multiply(BigDecimal.valueOf(amount)) :
-                    price.multiply(BigDecimal.valueOf(amount));
-        }
-        order.setCost(cost);
+        order.setFee(FormulaCalculator.calculateSecurityFee(order, security));
         orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
-        if (volume > Math.abs(amount)) {
-            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
-        }
-        taskScheduler.schedule(new ExecuteOrderTask(amount, order, volume), new Date(System.currentTimeMillis() + waitTime));
-    }
-
-    protected void executeMarketOrder(Order order, Integer amount) {
-        SecurityDto security = getSecurityFromOrder(order);
-        BigDecimal cost;
-        if(amount > 0 ) {
-            order.setFee(FormulaCalculator.calculateSecurityFee(order, security.getAsk()));
-            cost = security.getAsk().multiply(BigDecimal.valueOf(amount));
-        } else {
-            order.setFee(FormulaCalculator.calculateSecurityFee(order, security.getBid()));
-            cost = security.getBid().multiply(BigDecimal.valueOf(amount));
-        }
-        order.setCost(cost);
-        order = orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
-        if (security.getVolume() > Math.abs(amount)) {
-            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (security.getVolume() / Math.abs(amount))) * 1000L;
-        }
-        taskScheduler.schedule(new ExecuteOrderTask(amount, order, security.getVolume()), new Date(System.currentTimeMillis() + waitTime));
+        taskScheduler.schedule(new ExecuteOrderTask(order), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
     }
 
     public class ExecuteOrderTask implements Runnable {
 
-        private int amount;
         private Order order;
-        private Long volume;
 
-        public ExecuteOrderTask(int amount, Order order, Long volume) {
-            this.amount = amount;
+        public ExecuteOrderTask(Order order) {
             this.order = order;
-            this.volume = volume;
         }
 
         @Override
         public void run() {
-            int amountNotFilled = Math.abs(amount);
-            int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
+            int amountLeft = order.getAmount() - order.getAmountFilled();
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
-            if (orderFromRepo.getActive()) {
-                Boolean allOrNone = order.getAllOrNone();
-                if (allOrNone != null && allOrNone && amountNotFilled != amountFilled && amountNotFilled > 0) {
-                    getWaitTime(amountNotFilled);
-                } else {
-                    amountNotFilled -= amountFilled;
+            if (!orderFromRepo.getOrderState().equals(OrderState.DECLINED) && amountLeft <= 0) {
+                SecurityDto security = getSecurityFromOrder(order);
+                if (priceCheck(order, security)) {
+                    int executeAmount = order.getAllOrNone() ? order.getAmount() : ThreadLocalRandom.current().nextInt(amountLeft);
+                    order.setAmountFilled(order.getAmountFilled() + executeAmount);
+                    orderRepository.save(order);
                     Transaction transaction = Transaction.builder()
                             .time(LocalDateTime.now())
                             .price(order.getLimitPrice())
-                            .volume((long) amountFilled)
+                            .volume((long) executeAmount)
                             .order(order)
                             .build();
                     transactionService.save(transaction);
-                    if (amountNotFilled > 0) {
-                        getWaitTime(amountNotFilled);
-                    }
                 }
+                taskScheduler.schedule(new ExecuteOrderTask(order), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
             }
-        }
-
-        private void getWaitTime(int amountNotFilled) {
-            long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
-            if (volume > Math.abs(amountNotFilled)) {
-                waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
-            }
-
-            taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
-        }
-
-        public int getAmount() {
-            return amount;
         }
 
         public Order getOrder() {
             return order;
         }
 
-        public Long getVolume() {
-            return volume;
+        private boolean priceCheck(Order order, SecurityDto security) {
+            if (order.getLimitPrice() == null) {
+                return true;
+            }
+            if (order.getActionType().equals(ActionType.BUY) && security.getPrice().compareTo(order.getLimitPrice()) <= 0) {
+                return true;
+            }
+            return order.getActionType().equals(ActionType.SELL) && security.getPrice().compareTo(order.getLimitPrice()) >= 0;
         }
     }
 }

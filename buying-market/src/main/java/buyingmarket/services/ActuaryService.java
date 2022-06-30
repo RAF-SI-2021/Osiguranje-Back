@@ -77,7 +77,7 @@ public class ActuaryService {
         Optional<Actuary> a = actuaryRepository.findById(agentId);
         if (a.isPresent()) {
             Agent agent = (Agent) a.get();
-            agent.setLimit(newLimit);
+            agent.setSpendingLimit(newLimit);
             actuaryRepository.save(agent);
         } else {
             throw new UserNotFoundException("No such agent found.");
