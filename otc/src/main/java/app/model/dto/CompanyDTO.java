@@ -15,7 +15,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CompanyDTO {
-    private Long ID;
+    private Long id;
     private Long registrationID;
     private String name;
     private Long taxID;
@@ -25,7 +25,7 @@ public class CompanyDTO {
     private List<BankAccountDTO> bankAccounts;
 
     public CompanyDTO(Company company) {
-        this.ID = company.getID();
+        this.id = company.getId();
         this.registrationID = company.getRegistrationID();
         this.name = company.getName();
         this.taxID = company.getTaxID();

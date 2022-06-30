@@ -1,7 +1,5 @@
 package app.model.dto;
 
-import javax.persistence.Column;
-
 public class TransactionDTO {
 
     private Long transactionID;
