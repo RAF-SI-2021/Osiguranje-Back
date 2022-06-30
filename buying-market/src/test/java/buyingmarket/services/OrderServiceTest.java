@@ -5,9 +5,7 @@ import buyingmarket.exceptions.UpdateNotAllowedException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.mappers.TransactionMapper;
-import buyingmarket.model.Order;
-import buyingmarket.model.SecurityType;
-import buyingmarket.model.Transaction;
+import buyingmarket.model.*;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.model.dto.SecurityDto;
 import buyingmarket.model.dto.UserDto;
@@ -39,6 +37,9 @@ class OrderServiceTest {
     private FormulaCalculator formulaCalculator;
 
     @MockBean
+    private ActuaryService actuaryService;
+
+    @MockBean
     private OrderMapper orderMapper;
 
     @MockBean
@@ -59,8 +60,7 @@ class OrderServiceTest {
         OrderRepository orderRepository = mock(OrderRepository.class);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
         TransactionService transactionService = new TransactionService(mock(TransactionRepository.class));
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         Order order = new Order();
         order.setActive(true);
@@ -89,8 +89,7 @@ class OrderServiceTest {
         OrderRepository orderRepository = mock(OrderRepository.class);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
         TransactionService transactionService = new TransactionService(mock(TransactionRepository.class));
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         Order order = new Order();
         order.setActive(true);
@@ -124,8 +123,7 @@ class OrderServiceTest {
         OrderRepository orderRepository = mock(OrderRepository.class);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
         TransactionService transactionService = new TransactionService(mock(TransactionRepository.class));
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         Order order = new Order();
         order.setActive(true);
@@ -162,8 +160,7 @@ class OrderServiceTest {
         OrderRepository orderRepository = mock(OrderRepository.class);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
         TransactionService transactionService = new TransactionService(mock(TransactionRepository.class));
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         Order order = new Order();
         order.setActive(true);
@@ -200,8 +197,7 @@ class OrderServiceTest {
         OrderRepository orderRepository = mock(OrderRepository.class);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
         TransactionService transactionService = new TransactionService(mock(TransactionRepository.class));
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         Order order = new Order();
         order.setActive(true);
@@ -326,8 +322,7 @@ class OrderServiceTest {
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         assertThrows(ArithmeticException.class, () -> (orderService.new ExecuteOrderTask(10, new Order(), 1L)).run());
         verify(orderRepository).findById((Long) any());
@@ -382,8 +377,7 @@ class OrderServiceTest {
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         (orderService.new ExecuteOrderTask(10, new Order(), 1L)).run();
     }
@@ -436,8 +430,7 @@ class OrderServiceTest {
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         (orderService.new ExecuteOrderTask(10, order1, 100L)).run();
     }
@@ -490,8 +483,7 @@ class OrderServiceTest {
         TransactionRepository transactionRepository = mock(TransactionRepository.class);
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         assertThrows(ArithmeticException.class, () -> (orderService.new ExecuteOrderTask(10, new Order(), 1L)).run());
         verify(orderRepository).findById((Long) any());
@@ -505,6 +497,7 @@ class OrderServiceTest {
     @Disabled
     void testExecuteOrderTaskRun5() {
         Order order = new Order();
+        List<Agent> actualAllAgents = this.actuaryService.getAllAgents();
         order.setActive(true);
         order.setAllOrNone(true);
         order.setAmount(10);
@@ -546,8 +539,7 @@ class OrderServiceTest {
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         BigDecimal margin = BigDecimal.valueOf(42L);
         BigDecimal limitPrice = BigDecimal.valueOf(42L);
@@ -555,7 +547,8 @@ class OrderServiceTest {
         BigDecimal fee = BigDecimal.valueOf(42L);
         BigDecimal cost = BigDecimal.valueOf(42L);
         assertThrows(ArithmeticException.class, () -> (orderService.new ExecuteOrderTask(10, new Order(123L, 123L, 123L, 10,
-                SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost, true, new HashSet<>()), 1L)).run());
+                SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost, true, actualAllAgents.get(0), new HashSet<>()), 1L)).run());
+
         verify(orderRepository).findById((Long) any());
     }
 
@@ -607,8 +600,7 @@ class OrderServiceTest {
         TransactionRepository transactionRepository = mock(TransactionRepository.class);
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         assertThrows(ArithmeticException.class, () -> (orderService.new ExecuteOrderTask(10, new Order(), 0L)).run());
         verify(orderRepository).findById((Long) any());
@@ -622,13 +614,14 @@ class OrderServiceTest {
     @Disabled
     void testExecuteOrderTaskRun7() {
         BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
         BigDecimal limitPrice = BigDecimal.valueOf(42L);
         BigDecimal stopPrice = BigDecimal.valueOf(42L);
         BigDecimal fee = BigDecimal.valueOf(42L);
         BigDecimal cost = BigDecimal.valueOf(42L);
 
         Order order = new Order(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
-                true, new HashSet<>());
+                true, agents.get(0), new HashSet<>());
         order.setActive(true);
         order.setAllOrNone(true);
         order.setAmount(10);
@@ -670,8 +663,7 @@ class OrderServiceTest {
         when(transactionRepository.save((Transaction) any())).thenReturn(transaction);
         TransactionService transactionService = new TransactionService(transactionRepository);
         OrderMapper orderMapper = new OrderMapper(new TransactionMapper());
-        OrderService orderService = new OrderService(orderRepository, orderMapper, transactionService,
-                new FormulaCalculator());
+        OrderService orderService = new OrderService(actuaryService , orderRepository, orderMapper, transactionService);
 
         (orderService.new ExecuteOrderTask(10, new Order(), 1000L)).run();
         verify(orderRepository).findById((Long) any());
@@ -741,22 +733,24 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
         OrderDto orderDto = orderMapper1.orderToOrderDto(order);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(orderDto)).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(orderDto, "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -798,19 +792,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -852,19 +848,24 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
+
+
+        verify(orderServiceSpy, times(1)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -906,19 +907,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -960,19 +963,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -1014,19 +1019,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -1068,19 +1075,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(1)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -1122,19 +1131,21 @@ class OrderServiceTest {
         securityDto.setInitialMarginCost(BigDecimal.ONE);
         securityDto.setMaintenanceMargin(BigDecimal.ONE);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderMapper.orderDtoToOrder(any())).thenReturn(order);
-        doReturn(securityDto).when(orderServiceSpy).getSecurityByTypeAndId(order.getSecurityType(), order.getSecurityId());
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.createOrder(new OrderDto(), "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
 
-        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any(), any(), any());
-        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeLimitOrder(any(), any(), any(), any());
+        verify(orderServiceSpy, times(0)).executeMarketOrder(any(), any());
         verify(orderRepository, times(1)).save(order);
     }
 
@@ -1161,22 +1172,16 @@ class OrderServiceTest {
         order.setUserId(123L);
         orderList.add(order);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
         List<OrderDto> orderDtoList = orderMapper1.ordersToOrderDtos(orderList);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findAllByUserId(any())).thenReturn(orderList);
-        when(orderMapper.ordersToOrderDtos(orderList)).thenReturn(orderDtoList);
 
         List<OrderDto> actual = orderServiceSpy.findAllOrdersForUser("jws");
 
         assertEquals(orderDtoList, actual);
-        verify(orderRepository, times(1)).findAllByUserId(any());
     }
 
     @Test
@@ -1200,22 +1205,25 @@ class OrderServiceTest {
         order.setTransactions(new HashSet<>());
         order.setUserId(123L);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
         OrderDto orderDto = orderMapper1.orderToOrderDto(order);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
-        when(orderMapper.orderToOrderDto(order)).thenReturn(orderDto);
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        OrderDto actual = orderServiceSpy.findOrderForUser(1L, "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
+
+        OrderDto actual = orderServiceSpy.findOrderForUser(123L, "jws");
 
         assertEquals(orderDto, actual);
-        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
     }
 
     @Test
@@ -1236,26 +1244,28 @@ class OrderServiceTest {
         order.setSecurityId(123L);
         order.setSecurityType(SecurityType.STOCKS);
         order.setStopPrice(null);
-        order.setTransactions(new HashSet<>());
+        order.setTransactions();
         order.setUserId(123L);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
         Exception exception = assertThrows(UpdateNotAllowedException.class, () -> {
-            orderServiceSpy.updateOrder(new OrderDto(), "jws");
+            orderServiceSpy.updateOrder(new OrderDto(order.getOrderId(), order.getSecurityId(), order.getUserId(), order.getAmount(), order.getSecurityType(), order.getAllOrNone(), order.getMargin(), order.getLimitPrice(), order.getStopPrice(), order.getFee(), order.getCost(),
+                    order.getActive(), new HashSet<>()), "jws");
         });
 
         String expected = "Market orders can't be updated once they're submitted";
         String actual = exception.getMessage();
 
         assertEquals(expected, actual);
-        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
     }
 
     @Test
@@ -1279,20 +1289,14 @@ class OrderServiceTest {
         order.setTransactions(new HashSet<>());
         order.setUserId(123L);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
-
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(order));
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         OrderMapper orderMapper1 = new OrderMapper(new TransactionMapper());
         OrderDto orderDto = orderMapper1.orderToOrderDto(order);
 
         orderServiceSpy.updateOrder(orderDto, "jws");
         verify(orderRepository, times(1)).save(order);
-        verify(orderRepository, times(1)).findByOrderIdAndUserId(any(), any());
     }
 
     @Test
@@ -1317,15 +1321,20 @@ class OrderServiceTest {
         order.setTransactions(new HashSet<>());
         order.setUserId(123L);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findByOrderIdAndUserId(any(), any())).thenReturn(Optional.of(orderSpy));
+        BigDecimal margin = BigDecimal.valueOf(42L);
+        List<Agent> agents = actuaryService.getAllAgents();
+        BigDecimal limitPrice = BigDecimal.valueOf(42L);
+        BigDecimal stopPrice = BigDecimal.valueOf(42L);
+        BigDecimal fee = BigDecimal.valueOf(42L);
+        BigDecimal cost = BigDecimal.valueOf(42L);
 
-        orderServiceSpy.deleteOrder(1L, "jws");
+        orderServiceSpy.createOrder(new OrderDto(123L, 123L, 123L, 10, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee, cost,
+                true, new HashSet<>()), "jws");
+
+        orderServiceSpy.deleteOrder(123L, "jws");
 
         verify(orderSpy, times(1)).setActive(Boolean.FALSE);
         verify(orderRepository, times(1)).save(orderSpy);
@@ -1386,13 +1395,8 @@ class OrderServiceTest {
 
         List<Order> orderList = new ArrayList<>(orderSpyList);
 
-        String usercrudApiUrl = "http://localhost:8091";
-        ReflectionTestUtils.setField(orderServiceSpy, "usercrudApiUrl", usercrudApiUrl);
-
-        String username = "username";
-        doReturn(username).when(orderServiceSpy).extractUsername(any());
-        doReturn(userDto).when(orderServiceSpy).getUserByUsernameFromUserService(username);
-        when(orderRepository.findAllByUserIdAndActive(any(), any())).thenReturn(orderList);
+        String securitiesApiUrl = "http://localhost:2000";
+        ReflectionTestUtils.setField(orderServiceSpy, "securitiesApiUrl", securitiesApiUrl);
 
         orderServiceSpy.deleteAllOrdersForUser("jws");
 
