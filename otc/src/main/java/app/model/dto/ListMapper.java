@@ -7,6 +7,8 @@ import java.util.List;
 
 public class ListMapper {
 
+    private ListMapper() {}
+
     public static List<CompanyDTO> companyToCompanyDTO(List<Company> companies){
         List<CompanyDTO> companyDTOS = new ArrayList<>();
         for (Company company : companies){

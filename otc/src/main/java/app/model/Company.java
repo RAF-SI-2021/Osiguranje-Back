@@ -15,7 +15,7 @@ import java.util.List;
 public class Company {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long ID;
+    private Long id;
     @Column
     private Long registrationID;
     @Column
