@@ -45,6 +45,7 @@
         <module>securities</module>
         <module>buying-market</module>
         <module>otc</module>
+        <module>account-transaction</module>
     </modules>
 
     <properties>
