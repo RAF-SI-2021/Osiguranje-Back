@@ -2,6 +2,7 @@ package raf.osiguranje.accounttransaction.model;
 
 import javax.persistence.*;
 
+@Entity
 public class Account {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)

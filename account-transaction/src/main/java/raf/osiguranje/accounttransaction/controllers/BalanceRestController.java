@@ -37,14 +37,14 @@ public class BalanceRestController {
     public ResponseEntity<List<BalanceDTO>> getBalance(@RequestParam("account") Optional<Long> accountId, @RequestParam("security") Optional<Long> securityId) {
 
         if (accountId.isPresent()) {
+            List<Balance> balance;
             if (securityId.isPresent()) {
-                Optional<Balance> balance = balanceService.getBalancesByFullId(accountId.get(), securityId.get());
-                return balance.map(value -> ResponseEntity.ok(Collections.singletonList(value.getDto()))).orElseGet(() -> ResponseEntity.badRequest().build());
+                balance = balanceService.getBalancesByAccountAndSecurity(accountId.get(), securityId.get());
             } else {
-                List<Balance> balance = balanceService.getBalancesByAccount(accountId.get());
+                balance = balanceService.getBalancesByAccount(accountId.get());
 
-                return ResponseEntity.ok(balance.stream().map(Balance::getDto).collect(Collectors.toList()));
             }
+            return ResponseEntity.ok(balance.stream().map(Balance::getDto).collect(Collectors.toList()));
         } else {
             if (securityId.isPresent()) {
                 List<Balance> balance = balanceService.getBalancesBySecurity(securityId.get());
@@ -58,38 +58,44 @@ public class BalanceRestController {
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> saveBalance(@RequestBody BalanceDTO input) {
         System.out.println(input.toString());
-        if (balanceService.createBalance(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount()))
-            return ResponseEntity.ok().build();
-        else
-            return ResponseEntity.badRequest().build();
+
+        try {
+            balanceService.createBalance(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount());
+            return ResponseEntity.accepted().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> deleteBalance(@RequestBody BalanceDTO input){
         System.out.println(input);
-        if(balanceService.deleteBalance(input.getAccountId(), input.getSecurityId()))
-            return ResponseEntity.ok().build();
-        else
-            return ResponseEntity.badRequest().build();
+        try {
+            balanceService.deleteBalance(input.getAccountId(), input.getSecurityId(),input.getSecurityType());
+            return ResponseEntity.accepted().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
 
     @PostMapping(path="/amount",produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input){
 
-        if(balanceService.updateAmount(input.getAccountId(), input.getSecurityId(), input.getAmount())){
+        try {
+            balanceService.updateAmount(input);
             return ResponseEntity.accepted().build();
-        } else {
-            return ResponseEntity.badRequest().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping(path="/reserve",produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> updateReserved(@RequestBody BalanceUpdateDto input){
-
-        if(balanceService.updateReserve(input.getAccountId(), input.getSecurityId(), input.getAmount())){
+        try {
+            balanceService.updateReserve(input);
             return ResponseEntity.accepted().build();
-        } else {
-            return ResponseEntity.badRequest().build();
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

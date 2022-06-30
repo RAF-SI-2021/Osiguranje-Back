@@ -26,16 +26,16 @@ public class TransactionService {
     }
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
-        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderId(),transactionDTO.getUserId(),transactionDTO.getForexId(),
+        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
                 transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
     }
 
 
-    public boolean createTransaction(TransactionDTO transactionDTO){
+    public boolean createTransaction(TransactionDTO transactionDTO) throws Exception{
 
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
         if(tmpAccount==null){
-            return false;
+            throw new Exception("Couldn't find account");
         }
 
         Transaction transaction = getTransactionFromDto(transactionDTO);
@@ -61,8 +61,8 @@ public class TransactionService {
         return transactionRepository.findAllByUserId(input);
     }
 
-    public List<Transaction> getTransactionsByForex(Long input){
-        return transactionRepository.findAllByForexId(input);
+    public List<Transaction> getTransactionsByCurrency(Long input){
+        return transactionRepository.findAllByCurrencyId(input);
     }
 
 

@@ -20,7 +20,7 @@ public class TransactionDTO {
 
     private Long userId;
 
-    private Long forexId;
+    private Long currencyId;
 
     private String text;
 

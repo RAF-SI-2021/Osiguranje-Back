@@ -25,8 +25,7 @@ public class Transaction {
     private Long accountId;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private LocalDateTime timestamp;
+    private LocalDateTime timestamp=LocalDateTime.now();
 
     @Column
     private Long orderId;
@@ -35,7 +34,7 @@ public class Transaction {
     private Long userId;
 
     @Column
-    private Long forexId;
+    private Long currencyId;
 
     @Column
     private String text;
@@ -53,12 +52,12 @@ public class Transaction {
     private int usedReserve;
 
 
-    public Transaction(Long accountId, Long orderId, Long userId, Long forexId, int payment, int payout, int reserve, int usedReserve) {
+    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve) {
         this.accountId = accountId;
         this.timestamp = LocalDateTime.now();
         this.orderId = orderId;
         this.userId = userId;
-        this.forexId = forexId;
+        this.currencyId = currencyId;
         this.payment = payment;
         this.payout = payout;
         this.reserve = reserve;
@@ -73,7 +72,7 @@ public class Transaction {
                 ", timestamp=" + timestamp +
                 ", orderId=" + orderId +
                 ", userId=" + userId +
-                ", forexId=" + forexId +
+                ", currencyId=" + currencyId +
                 ", text='" + text + '\'' +
                 ", payment=" + payment +
                 ", payout=" + payout +
@@ -83,7 +82,7 @@ public class Transaction {
     }
 
     public TransactionDTO getDto(){
-        return new TransactionDTO(this.accountId,this.timestamp,this.orderId,this.userId,this.forexId,
+        return new TransactionDTO(this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve);
     }
 

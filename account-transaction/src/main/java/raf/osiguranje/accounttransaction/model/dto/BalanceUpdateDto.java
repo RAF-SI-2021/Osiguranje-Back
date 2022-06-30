@@ -13,6 +13,7 @@ public class BalanceUpdateDto {
 
     private Long accountId;
     private Long securityId;
+    private SecurityType securityType;
     private int amount;
 
 }

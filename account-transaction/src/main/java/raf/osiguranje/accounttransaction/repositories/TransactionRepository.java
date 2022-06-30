@@ -9,7 +9,7 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> {
 
     List<Transaction> findAllByAccountId(Long input);
 
-    List<Transaction> findAllByForexId(Long input);
+    List<Transaction> findAllByCurrencyId(Long input);
 
     List<Transaction> findAllByUserId(Long input);
 

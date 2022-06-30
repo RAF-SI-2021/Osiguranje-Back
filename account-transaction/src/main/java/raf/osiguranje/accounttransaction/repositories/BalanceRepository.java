@@ -21,8 +21,7 @@ public interface BalanceRepository extends JpaRepository<Balance, BalanceId> {
     List<Balance> findBalanceByAccount(Account account);
 
     @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
-    List<Balance> findBalanceByAccountId(Account account);
-
-    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     List<Balance> findBalanceBySecurityId(Long securityId);
+
+    List<Balance> findBalanceByAccountIdAndSecurityId(Long accountId,Long securityId);
 }

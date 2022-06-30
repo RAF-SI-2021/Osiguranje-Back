@@ -12,6 +12,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @IdClass(BalanceId.class)
+@Entity
 public class Balance {
 
     @Id
@@ -26,7 +27,8 @@ public class Balance {
     @Column(name = "securityId", nullable = false)
     private Long securityId;
 
-    @Column
+    @Id
+    @Column(nullable = false)
     private SecurityType securityType;
 
     @Column
@@ -34,6 +36,9 @@ public class Balance {
 
     @Column
     private Integer reserved;
+
+    @Version
+    private int version = 0;
 
     public Balance(Account account, Long securityId, SecurityType securityType, Integer amount) {
         this.accountId = account.getAccountNumber();
@@ -49,7 +54,7 @@ public class Balance {
     }
 
     public BalanceId getBalanceId(){
-        return new BalanceId(account.getAccountNumber(),securityId);
+        return new BalanceId(account.getAccountNumber(),securityId,securityType);
     }
 
     public BalanceDTO getDto(){

@@ -14,6 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
+import raf.osiguranje.accounttransaction.model.dto.BalanceUpdateDto;
 import raf.osiguranje.accounttransaction.model.dto.SecurityDTO;
 import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 import raf.osiguranje.accounttransaction.model.dto.UserDto;
@@ -21,6 +22,7 @@ import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -49,10 +51,10 @@ public class BalanceService {
         this.rest = rest;
     }
 
-    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount) {
+    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount) throws Exception{
         Account account = accountRepository.findAccountByAccountNumber(accountNumber);
         if(accountNumber==null){
-            return false;
+            throw new Exception("Couldn't find account");
         }
         System.out.println(accountNumber + " {} " + account);
 //        String email = extractUsername(jwtToken);
@@ -71,21 +73,17 @@ public class BalanceService {
             System.out.println(balance);
             balanceRepository.save(balance);
         }catch (Exception e){
-            return false;
+            throw e;
         }
 
         return true;
     }
 
-    public boolean deleteBalance(Long accountNumber,Long securityId){
-        Account account = accountRepository.findAccountByAccountNumber(accountNumber);
-        if(accountNumber==null){
-            return false;
-        }
+    public boolean deleteBalance(Long accountNumber,Long securityId, SecurityType securityType) throws Exception{
 
-        Optional<Balance> balance = balanceRepository.findById(new BalanceId(accountNumber,securityId));
+        Optional<Balance> balance = balanceRepository.findById(new BalanceId(accountNumber,securityId,securityType));
         if(balance.isEmpty())
-            return false;
+            throw new Exception("Couldn't find balance");
 
         balanceRepository.delete(balance.get());
         return true;
@@ -109,47 +107,57 @@ public class BalanceService {
         return balanceRepository.findBalanceBySecurityId(security);
     }
 
+    public List<Balance> getBalancesByAccountAndSecurity(Long accountId, Long security){
+        Account account = accountRepository.findAccountByAccountNumber(accountId);
+        if(account==null){
+            return Collections.emptyList();
+        }
+        return balanceRepository.findBalanceByAccountIdAndSecurityId(accountId,security);
+    }
+
     @Transactional
-    public Optional<Balance> getBalancesByFullId(Long accountId, Long security){
+    public Optional<Balance> getBalancesByFullId(Long accountId, Long security,SecurityType securityType){
         Account account = accountRepository.findAccountByAccountNumber(accountId);
         if(account==null){
             return Optional.empty();
         }
-        return balanceRepository.findById(new BalanceId(accountId,security));
+        return balanceRepository.findById(new BalanceId(accountId,security,securityType));
     }
 
     @Transactional
-    public boolean updateAmount(Long accountId,Long securityId,int amount){
+    public boolean updateAmount(BalanceUpdateDto input) throws Exception{
 
-        Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
+        Optional<Balance> balanceOptional = getBalancesByFullId(input.getAccountId(), input.getSecurityId(), input.getSecurityType());
         if(balanceOptional.isEmpty()){
-            return false;
+            throw new Exception("Couldn't find balance" + input);
         }
 
         Balance balance = balanceOptional.get();
 
-        if(balance.getAmount() + amount < 0){
-            return false;
+        int newAmount = balance.getAmount() + input.getAmount();
+
+        if(input.getAmount()+ balance.getAvailable() < 0){
+            throw new Exception("Overflow amount: "+newAmount+". Not enough available");
         }
-        balance.setAmount(balance.getAmount()+amount);
+        balance.setAmount(newAmount);
         balanceRepository.save(balance);
 
         return true;
     }
 
     @Transactional
-    public boolean updateReserve(Long accountId,Long securityId,int reserve){
-        Optional<Balance> balanceOptional = getBalancesByFullId(accountId,securityId);
+    public boolean updateReserve(BalanceUpdateDto input) throws Exception{
+        Optional<Balance> balanceOptional = getBalancesByFullId(input.getAccountId(), input.getSecurityId(), input.getSecurityType());
         if(balanceOptional.isEmpty()){
-            return false;
+            throw new Exception("Couldn't find balance" + input);
         }
 
         Balance balance = balanceOptional.get();
 
-        int newReserve = balance.getReserved() + reserve;
+        int newReserve = balance.getReserved() + input.getAmount();
 
         if(newReserve < 0  || balance.getAmount() < newReserve ){
-            return false;
+            throw new Exception("Overflow amount: "+ newReserve);
         }
         balance.setReserved(newReserve);
         balanceRepository.save(balance);
