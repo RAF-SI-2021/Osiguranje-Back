@@ -1,10 +1,16 @@
 package raf.osiguranje.accounttransaction.model;
 
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import raf.osiguranje.accounttransaction.model.dto.BalanceDTO;
 import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @IdClass(BalanceId.class)
 public class Balance {
 
@@ -52,54 +58,6 @@ public class Balance {
     public BalanceDTO getDto(){
         System.out.println(account);
         return new BalanceDTO(accountId,securityId,securityType,amount,reserved,getAvailable());
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public Long getSecurityId() {
-        return securityId;
-    }
-
-    public void setSecurityId(Long securityId) {
-        this.securityId = securityId;
-    }
-
-    public SecurityType getSecurityType() {
-        return securityType;
-    }
-
-    public void setSecurityType(SecurityType securityType) {
-        this.securityType = securityType;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public Integer getReserved() {
-        return reserved;
-    }
-
-    public void setReserved(Integer reserved) {
-        this.reserved = reserved;
     }
 
     @Override
