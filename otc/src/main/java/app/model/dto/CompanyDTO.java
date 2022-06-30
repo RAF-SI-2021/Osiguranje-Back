@@ -1,5 +1,6 @@
 package app.model.dto;
 
+import app.model.BankAccount;
 import app.model.Company;
 import app.model.Employee;
 import lombok.*;
@@ -21,6 +22,7 @@ public class CompanyDTO {
     private Long industrialClassificationID;
     private String address;
     private List<EmployeeDTO> employees;
+    private List<BankAccountDTO> bankAccounts;
 
     public CompanyDTO(Company company) {
         this.ID = company.getID();
@@ -30,8 +32,14 @@ public class CompanyDTO {
         this.industrialClassificationID = company.getIndustrialClassificationID();
         this.address = company.getAddress();
         employees = new ArrayList<>();
+        bankAccounts = new ArrayList<>();
+
         for(Employee employee : company.getEmployees()){
             employees.add(new EmployeeDTO(employee));
+        }
+
+        for(BankAccount bankAccount : company.getBankAccounts()){
+            bankAccounts.add(new BankAccountDTO(bankAccount));
         }
     }
 }

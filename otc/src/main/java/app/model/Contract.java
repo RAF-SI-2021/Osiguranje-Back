@@ -6,7 +6,6 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "contract")
 @Getter
 @Setter
 @Builder
@@ -17,8 +16,7 @@ public class Contract {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
     private Long contractID;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "registration_ID", nullable = false)
+    @ManyToOne
     private Company company;
     @Column
     private Status status;
@@ -28,7 +26,7 @@ public class Contract {
     private String lastUpdated;
     @Column
     private String description;
-    @OneToMany(mappedBy = "transactionID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
     private enum Status{

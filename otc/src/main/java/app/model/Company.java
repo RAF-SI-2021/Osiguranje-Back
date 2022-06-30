@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "company")
 @Getter
 @Setter
 @Builder
@@ -27,9 +26,11 @@ public class Company {
     private Long industrialClassificationID;
     @Column
     private String address;
-    @OneToMany(mappedBy = "employeeID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Employee> employees;
-    @OneToMany(mappedBy = "contractID", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<BankAccount> bankAccounts;
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Contract> contracts;
 
     public Company(CompanyDTO companyDTO) {
@@ -40,5 +41,6 @@ public class Company {
         this.address = companyDTO.getAddress();
         this.employees = new ArrayList<>();
         this.contracts = new ArrayList<>();
+        this.bankAccounts = new ArrayList<>();
     }
 }
