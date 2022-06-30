@@ -48,7 +48,7 @@ public class CompanyService {
     }
 
     public CompanyDTO update(CompanyDTO companyDTO){
-        Optional<Company> optionalCompany = companyRepository.findById(companyDTO.getID());
+        Optional<Company> optionalCompany = companyRepository.findById(companyDTO.getId());
         if(optionalCompany.isEmpty())
             return null;
         Company company = optionalCompany.get();
