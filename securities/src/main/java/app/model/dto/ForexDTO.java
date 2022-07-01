@@ -17,6 +17,9 @@ public class ForexDTO extends SecurityDTO {
         this.quoteCurrency = forex.getQuoteCurrency().getIsoCode();
     }
 
+    public ForexDTO() {
+
+    }
     @Override
     public String toString() {
         return "ForexDTO{" + super.toString() +
