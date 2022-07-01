@@ -22,7 +22,6 @@ import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -35,9 +34,6 @@ public class OrderService {
     private TaskScheduler taskScheduler;
     private RestTemplate rest;
     private static final String ORDER_NOT_FOUND_ERROR = "No order with given id could be found for user";
-    private static final String ORDER_FULLY_FILLED_ERROR = "Order has been fully filled already";
-    private static final String ORDER_SIDE_ERROR = "Orders can't switch sides";
-    private static final String ORDER_REDUCE_ERROR = "Can't reduce size to less than what is already filled";
 
     @Value("${api.securities}")
     private String securitiesApiUrl;
