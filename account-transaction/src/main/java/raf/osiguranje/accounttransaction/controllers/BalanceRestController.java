@@ -29,12 +29,12 @@ public class BalanceRestController {
     }
 
     @GetMapping(path="/all",produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<BalanceDTO>> getAllBalance() {
+    public ResponseEntity<List<BalanceDTO>> getAllBalance(@RequestHeader("Authorization") String authorization) {
         return ResponseEntity.ok(balanceService.getAllBalances().stream().map(Balance::getDto).collect(Collectors.toList()));
     }
 
     @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<List<BalanceDTO>> getBalance(@RequestParam("account") Optional<Long> accountId, @RequestParam("security") Optional<Long> securityId) {
+    public ResponseEntity<List<BalanceDTO>> getBalance(@RequestHeader("Authorization") String authorization,@RequestParam("account") Optional<Long> accountId, @RequestParam("security") Optional<Long> securityId) {
 
         if (accountId.isPresent()) {
             List<Balance> balance;
@@ -56,11 +56,11 @@ public class BalanceRestController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveBalance(@RequestBody BalanceDTO input) {
+    public ResponseEntity<?> saveBalance(@RequestBody BalanceDTO input,@RequestHeader("Authorization") String authorization) {
         System.out.println(input.toString());
 
         try {
-            balanceService.createBalance(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount());
+            balanceService.createBalance(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount(),authorization);
             return ResponseEntity.accepted().build();
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -68,10 +68,10 @@ public class BalanceRestController {
     }
 
     @DeleteMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> deleteBalance(@RequestBody BalanceDTO input){
+    public ResponseEntity<?> deleteBalance(@RequestBody BalanceDTO input,@RequestHeader("Authorization") String authorization){
         System.out.println(input);
         try {
-            balanceService.deleteBalance(input.getAccountId(), input.getSecurityId(),input.getSecurityType());
+            balanceService.deleteBalance(input.getAccountId(), input.getSecurityId(),input.getSecurityType(),authorization);
             return ResponseEntity.accepted().build();
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -79,10 +79,10 @@ public class BalanceRestController {
     }
 
     @PostMapping(path="/amount",produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input){
+    public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
 
         try {
-            balanceService.updateAmount(input);
+            balanceService.updateAmount(input,authorization);
             return ResponseEntity.accepted().build();
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -90,9 +90,9 @@ public class BalanceRestController {
     }
 
     @PostMapping(path="/reserve",produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateReserved(@RequestBody BalanceUpdateDto input){
+    public ResponseEntity<?> updateReserved(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
         try {
-            balanceService.updateReserve(input);
+            balanceService.updateReserve(input,authorization);
             return ResponseEntity.accepted().build();
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());

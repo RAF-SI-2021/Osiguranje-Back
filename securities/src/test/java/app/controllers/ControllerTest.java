@@ -31,6 +31,9 @@ class ControllerTest {
     private StockService stockService;
     @Mock
     private OptionsService optionsService;
+    @Mock
+    private CurrencyService currencyService;
+
 
     @Mock
     private RedisCacheService redisCacheService;
@@ -38,7 +41,7 @@ class ControllerTest {
 
     @BeforeEach
     void setUp() {
-        underTest = new Controller(futuresService, forexService, stockService, optionsService, redisCacheService);
+        underTest = new Controller(futuresService, forexService, stockService, optionsService, redisCacheService,currencyService);
     }
 
 
