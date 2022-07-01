@@ -56,7 +56,7 @@ public class ContractService {
         contractRepository.save(contract);
     }
 
-    public void finalize(Contract contract) {
+    public void finalizeContract(Contract contract) {
         contract.setStatus(Status.FINALIZED);
         contract.setLastUpdated();
         contractRepository.save(contract);

@@ -75,7 +75,7 @@ public class ContractController {
 
         // todo account
 
-        contractService.finalize(contract);
+        contractService.finalizeContract(contract);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
