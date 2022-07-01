@@ -4,9 +4,8 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 
-@MappedSuperclass
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Actuary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,6 +16,8 @@ public abstract class Actuary {
     private Boolean active;
     @OneToMany
     private Collection<Order> orders;
+    @Version
+    private Integer version;
 
     public Actuary() {
         this.orders = new HashSet<>();

@@ -58,7 +58,7 @@ public class OrderService {
         if (o.isPresent()) {
             Order order = o.get();
             order.setOrderState(orderState);
-            order.setApprovingActuary(actuaryService.getActuary(jws));
+            order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
             orderRepository.save(order);
             if (orderState.equals(OrderState.APPROVED)) {
                 execute(order);

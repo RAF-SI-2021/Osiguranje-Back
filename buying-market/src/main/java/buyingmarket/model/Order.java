@@ -1,6 +1,5 @@
 package buyingmarket.model;
 
-import buyingmarket.model.dto.SecurityDto;
 import lombok.*;
 
 import javax.persistence.*;
@@ -12,6 +11,7 @@ import java.util.Set;
 @Entity
 @Table(name = "orders")
 @Builder
+@AllArgsConstructor
 public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -43,7 +43,7 @@ public class Order {
     @Column
     private Date modificationDate;
     @ManyToOne
-    private Actuary approvingActuary;
+    private Supervisor approvingActuary;
     @ManyToOne
     private Actuary actuary;
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -183,7 +183,7 @@ public class Order {
         return approvingActuary;
     }
 
-    public void setApprovingActuary(Actuary approvingActuary) {
+    public void setApprovingActuary(Supervisor approvingActuary) {
         this.approvingActuary = approvingActuary;
     }
 }

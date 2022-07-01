@@ -3,6 +3,7 @@ package buyingmarket.model.dto;
 import buyingmarket.model.ActionType;
 import buyingmarket.model.OrderState;
 import buyingmarket.model.SecurityType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import javax.validation.constraints.NotNull;
@@ -11,6 +12,7 @@ import java.util.Date;
 import java.util.Set;
 
 @Builder
+@AllArgsConstructor
 public class OrderDto {
     private Long orderId;
     @NotNull

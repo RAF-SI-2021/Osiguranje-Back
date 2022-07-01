@@ -13,8 +13,6 @@ public class Agent extends Actuary {
     private BigDecimal usedLimit;
     @Column(nullable = false)
     private Boolean approvalRequired;
-    @Version
-    private Integer version;
 
     public Agent() {
     }
