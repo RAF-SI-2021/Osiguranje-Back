@@ -17,16 +17,18 @@ public class Controller {
     private final ForexService forexService;
     private final StockService stockService;
     private final OptionsService optionsService;
+    private final CurrencyService currencyService;
 
     private final RedisCacheService redisCacheService;
 
     @Autowired
-    public Controller(FuturesService futuresService, ForexService forexService, StockService stockService, OptionsService optionsService, RedisCacheService redisCacheService) {
+    public Controller(FuturesService futuresService, ForexService forexService, StockService stockService, OptionsService optionsService, RedisCacheService redisCacheService,CurrencyService currencyService) {
         this.futuresService = futuresService;
         this.forexService = forexService;
         this.stockService = stockService;
         this.optionsService = optionsService;
         this.redisCacheService = redisCacheService;
+        this.currencyService = currencyService;
     }
 
     @CrossOrigin(origins = "*")
@@ -73,6 +75,15 @@ public class Controller {
     @GetMapping(value = "/stocks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findStockById(@PathVariable long id) {
         StockDTO dto = stockService.findById(id);
+        if(dto == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/currency/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findCurrencyById(@PathVariable long id){
+        CurrencyDTO dto = currencyService.findById(id);
         if(dto == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);

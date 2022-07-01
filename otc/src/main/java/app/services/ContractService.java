@@ -2,14 +2,12 @@ package app.services;
 
 import app.model.Contract;
 import app.model.Status;
-import app.model.Transaction;
-import app.model.dto.TransactionDTO;
+import app.model.TransactionItem;
+import app.model.dto.TransactionItemDTO;
 import app.repositories.ContractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,8 +35,8 @@ public class ContractService {
         return contractRepository.findById(id);
     }
 
-    public void createTransaction(Contract contract, Transaction transaction) {
-        contract.getTransactions().add(transaction);
+    public void createTransaction(Contract contract, TransactionItem transactionItem) {
+        contract.getTransactionItems().add(transactionItem);
         contract.setLastUpdated();
         contractRepository.save(contract);
     }
@@ -50,8 +48,8 @@ public class ContractService {
     }
 
 
-    public void updateTransaction(Contract contract, TransactionDTO transactionDTO) {
-        transactionService.update(transactionDTO);
+    public void updateTransaction(Contract contract, TransactionItemDTO transactionItemDTO) {
+        transactionService.update(transactionItemDTO);
         contract.setLastUpdated();
         contractRepository.save(contract);
     }

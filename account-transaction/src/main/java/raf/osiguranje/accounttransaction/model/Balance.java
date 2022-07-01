@@ -1,6 +1,5 @@
 package raf.osiguranje.accounttransaction.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,7 +8,11 @@ import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 
 import javax.persistence.*;
 
+@Getter
+@Setter
+@NoArgsConstructor
 @IdClass(BalanceId.class)
+@Entity
 public class Balance {
 
     @Id
@@ -24,7 +27,8 @@ public class Balance {
     @Column(name = "securityId", nullable = false)
     private Long securityId;
 
-    @Column
+    @Id
+    @Column(nullable = false)
     private SecurityType securityType;
 
     @Column
@@ -33,8 +37,8 @@ public class Balance {
     @Column
     private Integer reserved;
 
-    public Balance() {
-    }
+    @Version
+    private int version = 0;
 
     public Balance(Account account, Long securityId, SecurityType securityType, Integer amount) {
         this.accountId = account.getAccountNumber();
@@ -50,60 +54,12 @@ public class Balance {
     }
 
     public BalanceId getBalanceId(){
-        return new BalanceId(account.getAccountNumber(),securityId);
+        return new BalanceId(account.getAccountNumber(),securityId,securityType);
     }
 
     public BalanceDTO getDto(){
         System.out.println(account);
         return new BalanceDTO(accountId,securityId,securityType,amount,reserved,getAvailable());
-    }
-
-    public Long getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(Long accountId) {
-        this.accountId = accountId;
-    }
-
-    public Account getAccount() {
-        return account;
-    }
-
-    public void setAccount(Account account) {
-        this.account = account;
-    }
-
-    public Long getSecurityId() {
-        return securityId;
-    }
-
-    public void setSecurityId(Long securityId) {
-        this.securityId = securityId;
-    }
-
-    public SecurityType getSecurityType() {
-        return securityType;
-    }
-
-    public void setSecurityType(SecurityType securityType) {
-        this.securityType = securityType;
-    }
-
-    public Integer getAmount() {
-        return amount;
-    }
-
-    public void setAmount(Integer amount) {
-        this.amount = amount;
-    }
-
-    public Integer getReserved() {
-        return reserved;
-    }
-
-    public void setReserved(Integer reserved) {
-        this.reserved = reserved;
     }
 
     @Override
