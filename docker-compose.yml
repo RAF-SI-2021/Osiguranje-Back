@@ -123,7 +123,7 @@ services:
     ports:
       - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
     volumes:
-      - accounttransaction:/root/.m2
+      - account-transaction:/root/.m2
     stdin_open: true
     tty: true
     networks:
