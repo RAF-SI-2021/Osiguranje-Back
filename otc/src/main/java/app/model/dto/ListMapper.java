@@ -1,6 +1,7 @@
 package app.model.dto;
 
 import app.model.Company;
+import app.model.Contract;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,4 +17,13 @@ public class ListMapper {
         }
         return companyDTOS;
     }
+
+    public static List<ContractDTO> contractToContractDTO(List<Contract> contracts){
+        List<ContractDTO> contractDTOS = new ArrayList<>();
+        for (Contract contract : contracts){
+            contractDTOS.add(new ContractDTO(contract));
+        }
+        return contractDTOS;
+    }
+
 }

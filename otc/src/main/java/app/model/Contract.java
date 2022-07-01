@@ -1,8 +1,12 @@
 package app.model;
 
+import app.model.dto.ContractDTO;
+import app.model.dto.CreateContractDTO;
 import lombok.*;
 
 import javax.persistence.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -15,7 +19,7 @@ public class Contract {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    private Long contractID;
+    private Long id;
     @ManyToOne
     private Company company;
     @Column
@@ -25,20 +29,24 @@ public class Contract {
     @Column
     private String lastUpdated;
     @Column
+    private String refNumber;
+    @Column
     private String description;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-    private enum Status{
-        DRAFT, FINALIZED
+    public Contract(CreateContractDTO createContractDTO) {
+        this.status = Status.DRAFT;
+        this.refNumber = createContractDTO.getRefNumber();
+        this.description = createContractDTO.getDescription();
+
+        setLastUpdated();
+        this.creationDate = this.lastUpdated;
     }
 
-    public Contract(Long contractID, Company company, String creationDate, String lastUpdated, String description) {
-        this.contractID = contractID;
-        this.company = company;
-        this.status = Status.DRAFT;
-        this.creationDate = creationDate;
-        this.lastUpdated = lastUpdated;
-        this.description = description;
+    public void setLastUpdated(){
+        SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        this.lastUpdated = formatter.format(date);
     }
 }
