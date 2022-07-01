@@ -11,6 +11,7 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EmployeeDTO {
+    private Long id;
     private String name;
     private String surname;
     private String phone;
@@ -19,6 +20,7 @@ public class EmployeeDTO {
     private String description;
 
     public EmployeeDTO(Employee employee) {
+        this.id = employee.getId();
         this.name = employee.getName();
         this.surname = employee.getSurname();
         this.phone = employee.getPhone();

@@ -10,12 +10,12 @@ import javax.validation.constraints.NotNull;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BankAccountDTO {
-    private Long bankAccountID;
+    private Long id;
     private String bankName;
     private String accountType;
 
     public BankAccountDTO(BankAccount bankAccount) {
-        this.bankAccountID = bankAccount.getBankAccountID();
+        this.id = bankAccount.getId();
         this.bankName = bankAccount.getBankName();
         this.accountType = bankAccount.getAccountType();
     }
