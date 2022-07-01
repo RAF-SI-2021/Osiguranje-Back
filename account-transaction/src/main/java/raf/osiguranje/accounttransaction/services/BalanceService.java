@@ -14,10 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
-import raf.osiguranje.accounttransaction.model.dto.BalanceUpdateDto;
-import raf.osiguranje.accounttransaction.model.dto.SecurityDTO;
-import raf.osiguranje.accounttransaction.model.dto.SecurityType;
-import raf.osiguranje.accounttransaction.model.dto.UserDto;
+import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
 
@@ -61,15 +58,24 @@ public class BalanceService {
         }
         System.out.println(accountNumber + " {} " + account);
         String email = extractUsername(jwt);
+        UserDto user = getUserByUsernameFromUserService(email);
+
         /*
         Proveravam da li postoji securiti u nase sistemu
          */
         try {
-            SecurityDTO securityDto = getSecurityByTypeAndId(securityType,securityId);
+            if(securityType.equals(SecurityType.CURRENCY)){
+                CurrencyDTO currencyDTO = getCurrencyById(securityId,jwt);
+            }else {
+                SecurityDTO securityDto = getSecurityByTypeAndId(securityType, securityId, jwt);
+            }
         } catch (Exception e) {
-            System.err.println(e);
-            return false;
+            throw e;
         }
+        if (balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType)).isPresent()){
+            throw new Exception("Balance already exist");
+        }
+
         Balance balance;
         try {
             balance = new Balance(account, securityId, securityType, amount);
@@ -197,7 +203,28 @@ public class BalanceService {
         return user;
     }
 
-    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId) throws Exception {
+    protected CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
+        String urlString = securitiesApiUrl + "/api/data/currency/" + id;
+        ResponseEntity<CurrencyDTO> response;
+        try {
+            response = rest.exchange(urlString, HttpMethod.GET, null, CurrencyDTO.class);
+        } catch(RestClientException e) {
+            throw new Exception("Something went wrong while trying to retrieve security info");
+        }
+
+        CurrencyDTO currencyDTO = null;
+        if(response.getBody() != null){
+            currencyDTO = response.getBody();
+        }
+
+        if (currencyDTO == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find security");
+        }
+
+        return currencyDTO;
+    }
+
+    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
         ResponseEntity<SecurityDTO> response;
         try {
