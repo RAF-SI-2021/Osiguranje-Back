@@ -108,11 +108,11 @@ services:
     networks:
       - backend
 
-  accounttransaction:
+  account-transaction:
     depends_on:
       - mysqldb
       - securities
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/accounttransaction
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -170,7 +170,7 @@ volumes:
   securities:
   buyingmarket:
   pythonflask:
-  accounttransaction:
+  account-transaction:
 
 networks:
   nginx:

@@ -1,19 +1,14 @@
 package buyingmarket.services;
 
 import buyingmarket.exceptions.OrderNotFoundException;
-import buyingmarket.exceptions.SecurityNotFoundException;
 import buyingmarket.exceptions.UpdateNotAllowedException;
-import buyingmarket.exceptions.UserNotFoundException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.model.*;
+import buyingmarket.model.dto.OrderCreateDto;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.model.dto.SecurityDto;
-import buyingmarket.model.dto.UserDto;
 import buyingmarket.repositories.OrderRepository;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
-import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -21,201 +16,107 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import javax.crypto.spec.SecretKeySpec;
-import java.math.BigDecimal;
-import java.security.Key;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
-@NoArgsConstructor
 @Service
 public class OrderService {
+    private ActuaryService actuaryService;
     private OrderRepository orderRepository;
     private OrderMapper orderMapper;
     private TransactionService transactionService;
-    private FormulaCalculator formulaCalculator;
     private TaskScheduler taskScheduler;
     private RestTemplate rest;
     private static final String ORDER_NOT_FOUND_ERROR = "No order with given id could be found for user";
-    private static final String ORDER_FULLY_FILLED_ERROR = "Order has been fully filled already";
-    private static final String ORDER_SIDE_ERROR = "Orders can't switch sides";
-    private static final String ORDER_REDUCE_ERROR = "Can't reduce size to less than what is already filled";
-
-    @Value("${jwt.secret}")
-    private String jwtSecret;
 
     @Value("${api.securities}")
     private String securitiesApiUrl;
 
-    @Value("${api.usercrud}")
-    private String usercrudApiUrl;
+    public OrderService() {}
 
     @Autowired
-    public OrderService(OrderRepository orderRepository,
+    public OrderService(ActuaryService actuaryService,
+                        OrderRepository orderRepository,
                         OrderMapper orderMapper,
-                        TransactionService transactionService,
-                        FormulaCalculator formulaCalculator) {
+                        TransactionService transactionService) {
+        this.actuaryService = actuaryService;
         this.orderRepository = orderRepository;
         this.orderMapper = orderMapper;
         this.transactionService = transactionService;
-        this.formulaCalculator = formulaCalculator;
         this.taskScheduler = new ConcurrentTaskScheduler(Executors.newScheduledThreadPool(10));
         this.rest = new RestTemplate();
     }
 
-    public void createOrder(OrderDto orderDto, String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderMapper.orderDtoToOrder(orderDto);
-        SecurityType securityType = order.getSecurityType();
-        Long securityId = order.getSecurityId();
-        SecurityDto security = getSecurityByTypeAndId(securityType, securityId);
-        Long volume = security.getVolume();
-        if(order.getLimitPrice() != null && order.getStopPrice() == null) {
-            Integer amount = order.getAmount();
-            BigDecimal limitPrice = orderDto.getLimitPrice();
-            executeLimitOrder(order, amount, limitPrice, security, user, volume);
-        } else if(order.getLimitPrice() != null && order.getStopPrice() != null) {
-            BigDecimal stopPrice = order.getStopPrice();
-            Integer amount = order.getAmount();
-            BigDecimal limitPrice = order.getLimitPrice();
-
-            if(
-                    (amount < 0 && stopPrice.compareTo(security.getBid()) < 0) ||
-                            (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)
-            ) {
-                executeLimitOrder(order, amount, limitPrice, security, user, volume);
-            } else {
-                orderRepository.save(order);
+    public void validateOrder(Long orderId, OrderState orderState, String jws) {
+        Optional<Order> o = orderRepository.findById(orderId);
+        if (o.isPresent()) {
+            Order order = o.get();
+            order.setOrderState(orderState);
+            order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
+            orderRepository.save(order);
+            if (orderState.equals(OrderState.APPROVED)) {
+                execute(order);
             }
-        } else if(order.getLimitPrice() == null && order.getStopPrice() == null) {
-            Integer amount = order.getAmount();
-            executeMarketOrder(order, amount, security, user);
         } else {
-            BigDecimal stopPrice = order.getStopPrice();
-            Integer amount = order.getAmount();
-            if(
-                    (amount < 0 && stopPrice.compareTo(security.getBid()) < 0) ||
-                            (amount > 0 && stopPrice.compareTo(security.getAsk()) > 0)
-            ) {
-                executeMarketOrder(order, amount, security, user);
-            } else {
-                orderRepository.save(order);
+            throw new UpdateNotAllowedException("Order not found.");
+        }
+    }
+
+    public void createOrder(OrderCreateDto orderCreateDto, String jws) {
+        Actuary actuary = actuaryService.getActuary(jws);
+        Order order = orderMapper.orderCreateDtoToOrder(orderCreateDto);
+        order.setActuary(actuary);
+        SecurityDto security = getSecurityFromOrder(order);
+        if (actuary instanceof Agent) {
+            Agent agent = (Agent) actuary;
+            if (agent.getApprovalRequired() || agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(FormulaCalculator.getEstimatedValue(order, security))) <= 0) {
+                order.setOrderState(OrderState.WAITING);
             }
+        }
+        order.setModificationDate(new Date());
+        orderRepository.save(order);
+        if (order.getOrderState().equals(OrderState.APPROVED)) {
+            execute(order);
         }
     }
 
     public List<OrderDto> findAllOrdersForUser(String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        Actuary actuary = actuaryService.getActuary(jws);
+        List<Order> orders = orderRepository.findAllByActuary(actuary);
         return orderMapper.ordersToOrderDtos(orders);
     }
 
     public OrderDto findOrderForUser(Long id, String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        Actuary actuary = actuaryService.getActuary(jws);
+        Order order = orderRepository.findByOrderIdAndActuary(id, actuary).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         return orderMapper.orderToOrderDto(order);
     }
 
-    public void updateOrder(OrderDto orderDto, String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByOrderIdAndUserId(orderDto.getOrderId(), user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
-        if(order.getLimitPrice() == null && order.getStopPrice() == null) {
-            throw new UpdateNotAllowedException("Market orders can't be updated once they're submitted");
-        }
-        else{
-            Set<Transaction> transactions = order.getTransactions();
-            long totalFilledAmount = 0;
-            for(Transaction transaction: transactions) {
-                totalFilledAmount += transaction.getVolume();
-            }
-            if(Math.abs(order.getAmount()) == totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_FULLY_FILLED_ERROR);
-            }
-            if(transactions.isEmpty()) {
-                order.setAllOrNone(orderDto.getAllOrNone());
-            }
-            if(Math.signum(order.getAmount()) != Math.signum(orderDto.getAmount())) {
-                throw new UpdateNotAllowedException(ORDER_SIDE_ERROR);
-            } else if(Math.abs(orderDto.getAmount()) < totalFilledAmount) {
-                throw new UpdateNotAllowedException(ORDER_REDUCE_ERROR);
-            }
-            order.setAmount(orderDto.getAmount());
-            order.setMargin(orderDto.getMargin());
-            if(order.getLimitPrice() != null)
-                order.setLimitPrice(orderDto.getLimitPrice());
-            if(order.getStopPrice() != null)
-                order.setStopPrice(orderDto.getStopPrice());
-            orderRepository.save(order);
-        }
-    }
-
     public void deleteOrder(Long id, String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        Order order = orderRepository.findByOrderIdAndUserId(id, user.getId()).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
-        order.setActive(Boolean.FALSE);
+        Actuary actuary = actuaryService.getActuary(jws);
+        Order order = orderRepository.findByOrderIdAndActuary(id, actuary).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
+        order.setOrderState(OrderState.DECLINED);
+        order.setModificationDate(new Date());
         orderRepository.save(order);
     }
 
     public void deleteAllOrdersForUser(String jws) {
-        String username = extractUsername(jws);
-        UserDto user = getUserByUsernameFromUserService(username);
-        List<Order> orders = orderRepository.findAllByUserIdAndActive(user.getId(), Boolean.TRUE);
-        orders.stream().forEach(order -> order.setActive(Boolean.FALSE));
+        Actuary actuary = actuaryService.getActuary(jws);
+        List<Order> orders = orderRepository.findAllByActuaryAndActive(actuary, Boolean.TRUE);
+        orders.forEach(order -> order.setOrderState(OrderState.DECLINED));
+        orders.forEach(order -> order.setModificationDate(new Date()));
         orderRepository.saveAll(orders);
     }
 
-    public String extractUsername(String jws) {
-        jws = jws.replace("Bearer ", "");
-        return Jwts.parser()
-                .setSigningKey(jwtSecret.getBytes())
-                .parseClaimsJws(jws)
-                .getBody()
-                .getSubject();
-    }
-
-    public UserDto getUserByUsernameFromUserService(String username) {
-        String urlString = usercrudApiUrl + "/api/users/search/email";
-        UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
-        String urlTemplate = uriComponentsBuilder.queryParam("email", username).encode().toUriString();
-        ResponseEntity<UserDto> response = null;
-        try {
-            response = rest.exchange(urlTemplate, HttpMethod.GET, null, UserDto.class);
-        } catch(RestClientException e) {
-            throw new UserNotFoundException("Something went wrong while trying to retrieve user info");
-        }
-        UserDto user = null;
-        if(response.getBody() != null) {
-            user = response.getBody();
-        }
-        if(user == null) {
-            throw new IllegalArgumentException("Something went wrong trying to find user");
-        }
-        return user;
-    }
-
-    protected SecurityDto getSecurityByTypeAndId(SecurityType securityType, Long securityId) {
-        StringBuilder sb = new StringBuilder(securitiesApiUrl + "/api/data/");
-        sb.append(securityType.toString().toLowerCase() + "/").append(securityId);
-        String urlString = sb.toString();
-        ResponseEntity<SecurityDto> response = null;
-        try {
-            response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
-        } catch(RestClientException e) {
-            throw new SecurityNotFoundException("Something went wrong while trying to retrieve security info");
-        }
+    protected SecurityDto getSecurityFromOrder(Order order) {
+        String urlString = securitiesApiUrl + "/api/data/" + order.getSecurityType().toString().toLowerCase() + "/" + order.getSecurityId();
+        ResponseEntity<SecurityDto> response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
         SecurityDto security = null;
         if(response.getBody() != null) {
             security = response.getBody();
@@ -226,105 +127,69 @@ public class OrderService {
         return security;
     }
 
-    protected void executeLimitOrder(Order order, Integer amount, BigDecimal price, SecurityDto security, UserDto user, Long volume){
-        BigDecimal cost;
-        if(amount > 0 ) {
-            order.setFee(formulaCalculator.calculateSecurityFee(order, security.getAsk(), price));
-            cost = price.compareTo(security.getAsk()) > 1 ?
-                    security.getAsk().multiply(BigDecimal.valueOf(amount)) :
-                    price.multiply(BigDecimal.valueOf(amount));
-        } else {
-            order.setFee(formulaCalculator.calculateSecurityFee(order, security.getBid(), price));
-            cost = price.compareTo(security.getBid()) > 1 ?
-                    security.getBid().multiply(BigDecimal.valueOf(amount)) :
-                    price.multiply(BigDecimal.valueOf(amount));
-        }
-        order.setCost(cost);
-        order.setUserId(user.getId());
+    protected void execute(Order order) {
+        SecurityDto security = getSecurityFromOrder(order);
+        order.setFee(FormulaCalculator.calculateSecurityFee(order, security));
+        order.setModificationDate(new Date());
         orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
-        if (volume > Math.abs(amount)) {
-            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
-        }
-        taskScheduler.schedule(new ExecuteOrderTask(amount, order, volume), new Date(System.currentTimeMillis() + waitTime));
-    }
-
-    protected void executeMarketOrder(Order order, Integer amount, SecurityDto security, UserDto user) {
-        System.out.println("OVDE");
-        BigDecimal cost;
-        if(amount > 0 ) {
-            order.setFee(formulaCalculator.calculateSecurityFee(order, security.getAsk()));
-            cost = security.getAsk().multiply(BigDecimal.valueOf(amount));
-        } else {
-            order.setFee(formulaCalculator.calculateSecurityFee(order, security.getBid()));
-            cost = security.getBid().multiply(BigDecimal.valueOf(amount));
-        }
-        order.setCost(cost);
-        order.setUserId(user.getId());
-        order = orderRepository.save(order);
-        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;;
-        if (security.getVolume() > Math.abs(amount)) {
-            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (security.getVolume() / Math.abs(amount))) * 1000L;
-        }
-        taskScheduler.schedule(new ExecuteOrderTask(amount, order, security.getVolume()), new Date(System.currentTimeMillis() + waitTime));
+        taskScheduler.schedule(new ExecuteOrderTask(order, order.getStopPrice() == null), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
     }
 
     public class ExecuteOrderTask implements Runnable {
 
-        private int amount;
         private Order order;
-        private Long volume;
+        private Boolean stopFlag;
 
-        public ExecuteOrderTask(int amount, Order order, Long volume) {
-            this.amount = amount;
+        public ExecuteOrderTask(Order order, Boolean stopFlag) {
             this.order = order;
-            this.volume = volume;
+            this.stopFlag = stopFlag;
         }
 
         @Override
         public void run() {
-            int amountNotFilled = Math.abs(amount);
-            int amountFilled = ThreadLocalRandom.current().nextInt(amountNotFilled);
+            int amountLeft = order.getAmount() - order.getAmountFilled();
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
-            if (orderFromRepo.getActive().booleanValue()) {
-                Boolean allOrNone = order.getAllOrNone();
-                if (allOrNone != null && allOrNone.booleanValue() && amountNotFilled != amountFilled && amountNotFilled > 0) {
-                    long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
-                    if (volume > Math.abs(amountNotFilled)) {
-                        waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
-                    }
-
-                    taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
-                } else {
-                    amountNotFilled -= amountFilled;
+            if (!orderFromRepo.getOrderState().equals(OrderState.DECLINED) && amountLeft <= 0) {
+                SecurityDto security = getSecurityFromOrder(order);
+                if (stopFlag && stopCheck(order, security)) {
+                    stopFlag = false;
+                }
+                if (priceCheck(order, security) && !stopFlag) {
+                    int executeAmount = order.getAllOrNone() ? order.getAmount() : ThreadLocalRandom.current().nextInt(amountLeft);
+                    order.setAmountFilled(order.getAmountFilled() + executeAmount);
+                    order.setModificationDate(new Date());
+                    orderRepository.save(order);
                     Transaction transaction = Transaction.builder()
                             .time(LocalDateTime.now())
                             .price(order.getLimitPrice())
-                            .volume((long) amountFilled)
+                            .volume((long) executeAmount)
                             .order(order)
                             .build();
                     transactionService.save(transaction);
-                    if (amountNotFilled > 0) {
-                        long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
-                        if (volume > Math.abs(amountNotFilled)) {
-                            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amountNotFilled))) * 1000L;
-                        }
-                        taskScheduler.schedule(new ExecuteOrderTask(amountNotFilled, order, volume), new Date(System.currentTimeMillis() + waitTime));
-                    }
                 }
+                taskScheduler.schedule(new ExecuteOrderTask(order, stopFlag), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
             }
-        }
-
-        public int getAmount() {
-            return amount;
         }
 
         public Order getOrder() {
             return order;
         }
 
-        public Long getVolume() {
-            return volume;
+        private boolean priceCheck(Order order, SecurityDto security) {
+            if (order.getLimitPrice() == null) {
+                return true;
+            }
+            if (order.getActionType().equals(ActionType.BUY) && security.getAsk().compareTo(order.getLimitPrice()) <= 0) {
+                return true;
+            }
+            return order.getActionType().equals(ActionType.SELL) && security.getBid().compareTo(order.getLimitPrice()) >= 0;
+        }
+
+        private boolean stopCheck(Order order, SecurityDto security) {
+            if (order.getActionType().equals(ActionType.BUY) && security.getAsk().compareTo(order.getStopPrice()) >= 0) {
+                return true;
+            }
+            return order.getActionType().equals(ActionType.SELL) && security.getBid().compareTo(order.getStopPrice()) <= 0;
         }
     }
 }

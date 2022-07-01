@@ -28,15 +28,15 @@ public class BootstrapData implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        currencyBootstrap.loadCurrenciesData();
-        exchangeBootstrap.loadStockExchangeData();
-        stocksBootstrap.loadStocksData();
-        optionsBootstrap.loadOptionsData();
-        forexBootstrap.loadForexData();
-        futuresBootstrap.loadFuturesData();
-
-        Thread updater = new Thread(updaterThread);
-        //updater.start();
+//        currencyBootstrap.loadCurrenciesData();
+//        exchangeBootstrap.loadStockExchangeData();
+//        stocksBootstrap.loadStocksData();
+//        optionsBootstrap.loadOptionsData();
+//        forexBootstrap.loadForexData();
+//        futuresBootstrap.loadFuturesData();
+//
+//        Thread updater = new Thread(updaterThread);
+//        updater.start();
     }
 
 }
