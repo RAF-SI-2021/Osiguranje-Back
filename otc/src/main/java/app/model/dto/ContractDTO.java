@@ -2,7 +2,7 @@ package app.model.dto;
 
 import app.model.Contract;
 import app.model.Status;
-import app.model.Transaction;
+import app.model.TransactionItem;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class ContractDTO {
     private String lastUpdated;
     private String refNumber;
     private String description;
-    private List<TransactionDTO> transactions;
+    private List<TransactionItemDTO> transactions;
 
     public ContractDTO(Contract contract) {
         this.id = contract.getId();
@@ -30,8 +30,8 @@ public class ContractDTO {
         this.description = contract.getDescription();
         this.transactions = new ArrayList<>();
 
-        for(Transaction transaction : contract.getTransactions()){
-            this.transactions.add(new TransactionDTO(transaction));
+        for(TransactionItem transactionItem : contract.getTransactionItems()){
+            this.transactions.add(new TransactionItemDTO(transactionItem));
         }
     }
 }
