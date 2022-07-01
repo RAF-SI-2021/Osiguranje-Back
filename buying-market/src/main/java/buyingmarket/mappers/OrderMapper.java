@@ -1,6 +1,8 @@
 package buyingmarket.mappers;
 
 import buyingmarket.model.Order;
+import buyingmarket.model.OrderState;
+import buyingmarket.model.dto.OrderCreateDto;
 import buyingmarket.model.dto.OrderDto;
 
 import lombok.NoArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -21,20 +24,22 @@ public class OrderMapper {
         this.transactionMapper = transactionMapper;
     }
 
-    public Order orderDtoToOrder(OrderDto dto) {
+    public Order orderCreateDtoToOrder(OrderCreateDto dto) {
         return Order.builder()
-                .orderId(dto.getOrderId())
                 .securityId(dto.getSecurityId())
-                .userId(dto.getUserId())
                 .amount(dto.getAmount())
                 .securityType(dto.getSecurityType())
                 .allOrNone(dto.getAllOrNone())
                 .margin(dto.getMargin())
                 .limitPrice(dto.getLimitPrice())
                 .stopPrice(dto.getStopPrice())
-                .fee(dto.getFee())
-                .cost(dto.getCost())
-                .active(Boolean.TRUE)
+                .actionType(dto.getActionType())
+                .orderState(OrderState.APPROVED)
+                .amountFilled(0)
+                .approvingActuary(null)
+                .orderId(null)
+                .fee(null)
+                .modificationDate(new Date())
                 .build();
     }
 
@@ -50,15 +55,15 @@ public class OrderMapper {
                 .limitPrice(order.getLimitPrice())
                 .stopPrice(order.getStopPrice())
                 .fee(order.getFee())
-                .cost(order.getCost())
-                .active(order.getActive())
                 .transactions(transactionMapper.transactionsToTransactionDtos(order.getTransactions()))
+                .orderState(order.getOrderState())
+                .modificationDate(order.getModificationDate())
                 .build();
     }
 
     public List<OrderDto> ordersToOrderDtos(List<Order> orders) {
         List<OrderDto> orderDtos = new ArrayList<>();
-        orders.stream().forEach(order -> orderDtos.add(orderToOrderDto(order)));
+        orders.forEach(order -> orderDtos.add(orderToOrderDto(order)));
         return orderDtos;
     }
 }

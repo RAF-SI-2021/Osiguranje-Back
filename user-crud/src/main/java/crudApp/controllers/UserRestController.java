@@ -20,6 +20,16 @@ public class UserRestController {
         this.userService = userService;
     }
 
+    @GetMapping(value = "/id")
+    public ResponseEntity<?> getExistingUserId(@RequestParam(required = true) String email) {
+        Long id = userService.findUserIdByEmail(email);
+        if (id != null) {
+            return ResponseEntity.ok(userService.findUserIdByEmail(email));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getAllUsers() {
         return ResponseEntity.ok(userService.findAll());

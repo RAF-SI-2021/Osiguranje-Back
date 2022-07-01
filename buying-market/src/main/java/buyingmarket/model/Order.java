@@ -2,26 +2,16 @@ package buyingmarket.model;
 
 import lombok.*;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
 @Table(name = "orders")
-@Getter
-@Setter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 public class Order {
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
@@ -32,6 +22,8 @@ public class Order {
     private Long userId;
     @Column
     private Integer amount;
+    @Column
+    private Integer amountFilled;
     @Column
     private SecurityType securityType;
     @Column
@@ -45,9 +37,153 @@ public class Order {
     @Column
     private BigDecimal fee;
     @Column
-    private BigDecimal cost;
+    private OrderState orderState;
     @Column
-    private Boolean active;
+    private ActionType actionType;
+    @Column
+    private Date modificationDate;
+    @ManyToOne
+    private Supervisor approvingActuary;
+    @ManyToOne
+    private Actuary actuary;
     @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Transaction> transactions;
+
+    public Order() {}
+
+    public Long getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Long orderId) {
+        this.orderId = orderId;
+    }
+
+    public Long getSecurityId() {
+        return securityId;
+    }
+
+    public void setSecurityId(Long securityId) {
+        this.securityId = securityId;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public Integer getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Integer amount) {
+        this.amount = amount;
+    }
+
+    public Integer getAmountFilled() {
+        return amountFilled;
+    }
+
+    public void setAmountFilled(Integer amountFilled) {
+        this.amountFilled = amountFilled;
+    }
+
+    public SecurityType getSecurityType() {
+        return securityType;
+    }
+
+    public void setSecurityType(SecurityType securityType) {
+        this.securityType = securityType;
+    }
+
+    public Boolean getAllOrNone() {
+        return allOrNone;
+    }
+
+    public void setAllOrNone(Boolean allOrNone) {
+        this.allOrNone = allOrNone;
+    }
+
+    public BigDecimal getMargin() {
+        return margin;
+    }
+
+    public void setMargin(BigDecimal margin) {
+        this.margin = margin;
+    }
+
+    public BigDecimal getLimitPrice() {
+        return limitPrice;
+    }
+
+    public void setLimitPrice(BigDecimal limitPrice) {
+        this.limitPrice = limitPrice;
+    }
+
+    public BigDecimal getStopPrice() {
+        return stopPrice;
+    }
+
+    public void setStopPrice(BigDecimal stopPrice) {
+        this.stopPrice = stopPrice;
+    }
+
+    public BigDecimal getFee() {
+        return fee;
+    }
+
+    public void setFee(BigDecimal fee) {
+        this.fee = fee;
+    }
+
+    public Actuary getActuary() {
+        return actuary;
+    }
+
+    public void setActuary(Actuary actuary) {
+        this.actuary = actuary;
+    }
+
+    public Set<Transaction> getTransactions() {
+        return transactions;
+    }
+
+    public void setTransactions(Set<Transaction> transactions) {
+        this.transactions = transactions;
+    }
+
+    public OrderState getOrderState() {
+        return orderState;
+    }
+
+    public void setOrderState(OrderState orderState) {
+        this.orderState = orderState;
+    }
+
+    public ActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(ActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public Date getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
+    }
+
+    public Actuary getApprovingActuary() {
+        return approvingActuary;
+    }
+
+    public void setApprovingActuary(Supervisor approvingActuary) {
+        this.approvingActuary = approvingActuary;
+    }
 }

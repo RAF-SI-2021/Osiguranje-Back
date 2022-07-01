@@ -1,9 +1,12 @@
 package buyingmarket.controllers;
 
+import buyingmarket.model.OrderState;
+import buyingmarket.model.dto.OrderCreateDto;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.services.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,9 +25,9 @@ public class OrderRestController {
         this.orderService = orderService;
     }
 
-    @PostMapping
-    public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
-        orderService.createOrder(orderDto, authorization);
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
+        orderService.createOrder(orderCreateDto, authorization);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -40,12 +43,6 @@ public class OrderRestController {
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
-    @PutMapping
-    public ResponseEntity<HttpStatus> updateOrder(@Valid @RequestBody OrderDto orderDto, @RequestHeader("Authorization") String authorization) {
-        orderService.updateOrder(orderDto, authorization);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<HttpStatus> deleteOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
         orderService.deleteOrder(id, authorization);
@@ -56,5 +53,11 @@ public class OrderRestController {
     public ResponseEntity<HttpStatus> deleteAll(@RequestHeader("Authorization") String authorization) {
         orderService.deleteAllOrdersForUser(authorization);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @PutMapping(value = "/{orderId}", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> validateOrder(@PathVariable Long orderId, @RequestBody OrderState orderState, @RequestHeader("Authorization") String authorization) {
+        orderService.validateOrder(orderId, orderState, authorization);
+        return ResponseEntity.noContent().build();
     }
 }
