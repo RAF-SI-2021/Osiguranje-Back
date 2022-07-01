@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -38,6 +39,7 @@ public class OrderMapper {
                 .approvingActuary(null)
                 .orderId(null)
                 .fee(null)
+                .modificationDate(new Date())
                 .build();
     }
 
@@ -55,6 +57,7 @@ public class OrderMapper {
                 .fee(order.getFee())
                 .transactions(transactionMapper.transactionsToTransactionDtos(order.getTransactions()))
                 .orderState(order.getOrderState())
+                .modificationDate(order.getModificationDate())
                 .build();
     }
 

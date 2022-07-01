@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 @Entity
@@ -39,6 +40,8 @@ public class Order {
     private OrderState orderState;
     @Column
     private ActionType actionType;
+    @Column
+    private Date modificationDate;
     @ManyToOne
     private Actuary approvingActuary;
     @ManyToOne
@@ -166,6 +169,14 @@ public class Order {
 
     public void setActionType(ActionType actionType) {
         this.actionType = actionType;
+    }
+
+    public Date getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
     }
 
     public Actuary getApprovingActuary() {

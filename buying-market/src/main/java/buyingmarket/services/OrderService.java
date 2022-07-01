@@ -79,6 +79,7 @@ public class OrderService {
                 order.setOrderState(OrderState.WAITING);
             }
         }
+        order.setModificationDate(new Date());
         orderRepository.save(order);
         if (order.getOrderState().equals(OrderState.APPROVED)) {
             execute(order);
@@ -101,6 +102,7 @@ public class OrderService {
         Actuary actuary = actuaryService.getActuary(jws);
         Order order = orderRepository.findByOrderIdAndActuary(id, actuary).orElseThrow(() -> new OrderNotFoundException(ORDER_NOT_FOUND_ERROR));
         order.setOrderState(OrderState.DECLINED);
+        order.setModificationDate(new Date());
         orderRepository.save(order);
     }
 
@@ -108,6 +110,7 @@ public class OrderService {
         Actuary actuary = actuaryService.getActuary(jws);
         List<Order> orders = orderRepository.findAllByActuaryAndActive(actuary, Boolean.TRUE);
         orders.forEach(order -> order.setOrderState(OrderState.DECLINED));
+        orders.forEach(order -> order.setModificationDate(new Date()));
         orderRepository.saveAll(orders);
     }
 
@@ -127,16 +130,19 @@ public class OrderService {
     protected void execute(Order order) {
         SecurityDto security = getSecurityFromOrder(order);
         order.setFee(FormulaCalculator.calculateSecurityFee(order, security));
+        order.setModificationDate(new Date());
         orderRepository.save(order);
-        taskScheduler.schedule(new ExecuteOrderTask(order), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
+        taskScheduler.schedule(new ExecuteOrderTask(order, order.getStopPrice() == null), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
     }
 
     public class ExecuteOrderTask implements Runnable {
 
         private Order order;
+        private Boolean stopFlag;
 
-        public ExecuteOrderTask(Order order) {
+        public ExecuteOrderTask(Order order, Boolean stopFlag) {
             this.order = order;
+            this.stopFlag = stopFlag;
         }
 
         @Override
@@ -145,9 +151,13 @@ public class OrderService {
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
             if (!orderFromRepo.getOrderState().equals(OrderState.DECLINED) && amountLeft <= 0) {
                 SecurityDto security = getSecurityFromOrder(order);
-                if (priceCheck(order, security)) {
+                if (stopFlag && stopCheck(order, security)) {
+                    stopFlag = false;
+                }
+                if (priceCheck(order, security) && !stopFlag) {
                     int executeAmount = order.getAllOrNone() ? order.getAmount() : ThreadLocalRandom.current().nextInt(amountLeft);
                     order.setAmountFilled(order.getAmountFilled() + executeAmount);
+                    order.setModificationDate(new Date());
                     orderRepository.save(order);
                     Transaction transaction = Transaction.builder()
                             .time(LocalDateTime.now())
@@ -157,7 +167,7 @@ public class OrderService {
                             .build();
                     transactionService.save(transaction);
                 }
-                taskScheduler.schedule(new ExecuteOrderTask(order), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
+                taskScheduler.schedule(new ExecuteOrderTask(order, stopFlag), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
             }
         }
 
@@ -169,10 +179,17 @@ public class OrderService {
             if (order.getLimitPrice() == null) {
                 return true;
             }
-            if (order.getActionType().equals(ActionType.BUY) && security.getPrice().compareTo(order.getLimitPrice()) <= 0) {
+            if (order.getActionType().equals(ActionType.BUY) && security.getAsk().compareTo(order.getLimitPrice()) <= 0) {
                 return true;
             }
-            return order.getActionType().equals(ActionType.SELL) && security.getPrice().compareTo(order.getLimitPrice()) >= 0;
+            return order.getActionType().equals(ActionType.SELL) && security.getBid().compareTo(order.getLimitPrice()) >= 0;
+        }
+
+        private boolean stopCheck(Order order, SecurityDto security) {
+            if (order.getActionType().equals(ActionType.BUY) && security.getAsk().compareTo(order.getStopPrice()) >= 0) {
+                return true;
+            }
+            return order.getActionType().equals(ActionType.SELL) && security.getBid().compareTo(order.getStopPrice()) <= 0;
         }
     }
 }

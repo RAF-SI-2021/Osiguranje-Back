@@ -7,6 +7,7 @@ import lombok.Builder;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Set;
 
 @Builder
@@ -29,6 +30,7 @@ public class OrderDto {
     private Set<TransactionDto> transactions;
     private OrderState orderState;
     private ActionType actionType;
+    private Date modificationDate;
 
     public OrderDto() {}
 
@@ -142,5 +144,13 @@ public class OrderDto {
 
     public void setActionType(ActionType actionType) {
         this.actionType = actionType;
+    }
+
+    public Date getModificationDate() {
+        return modificationDate;
+    }
+
+    public void setModificationDate(Date modificationDate) {
+        this.modificationDate = modificationDate;
     }
 }
