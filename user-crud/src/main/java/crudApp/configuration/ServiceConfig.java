@@ -21,6 +21,11 @@ public class ServiceConfig {
     }
 
     @Bean
+    public RestTemplate serviceCommunicationRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
     public UserService service(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor, RestTemplate restTemplate) {
         return new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder(), restTemplate);
     }
