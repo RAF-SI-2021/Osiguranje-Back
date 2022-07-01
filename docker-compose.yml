@@ -148,8 +148,22 @@ services:
     networks:
       - backend
 
+  redis_db:
+    image: redis:3.2.8
+    env_file: ./.env
+    environment:
+      REDIS_HOSTNAME: redis_db
+      REDIS_PORT: $REDIS_INTERNAL_PORT
+      CACHEEXPIRYTIME: 60
+    ports:
+      - $REDIS_EXTERNAL_PORT:$REDIS_INTERNAL_PORT
+    tty: true
+    networks:
+      - backend
+
 volumes:
   db:
+  redis_db:
   eureka:
   gateway:
   usercrud:

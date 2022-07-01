@@ -10,13 +10,18 @@ import java.util.ArrayList;
 @Getter
 public class CurrencyDTO {
 
+    private Long id;
     private String name;
     private String isoCode;
     private String symbol;
     private String country;
     private ArrayList<InflationRateDTO> inflationRates;
 
+    public CurrencyDTO () {
+
+    }
     public CurrencyDTO(Currency currency) {
+        this.id=currency.getId();
         this.name = currency.getName();
         this.isoCode = currency.getIsoCode();
         this.symbol = currency.getSymbol();

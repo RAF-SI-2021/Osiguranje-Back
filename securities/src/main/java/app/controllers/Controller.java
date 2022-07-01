@@ -1,14 +1,11 @@
 package app.controllers;
 
 import app.model.dto.*;
-import app.services.OptionsService;
+import app.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import app.services.ForexService;
-import app.services.FuturesService;
-import app.services.StockService;
 
 import java.util.List;
 
@@ -20,13 +17,18 @@ public class Controller {
     private final ForexService forexService;
     private final StockService stockService;
     private final OptionsService optionsService;
+    private final CurrencyService currencyService;
+
+    private final RedisCacheService redisCacheService;
 
     @Autowired
-    public Controller(FuturesService futuresService, ForexService forexService, StockService stockService, OptionsService optionsService) {
+    public Controller(FuturesService futuresService, ForexService forexService, StockService stockService, OptionsService optionsService, RedisCacheService redisCacheService,CurrencyService currencyService) {
         this.futuresService = futuresService;
         this.forexService = forexService;
         this.stockService = stockService;
         this.optionsService = optionsService;
+        this.redisCacheService = redisCacheService;
+        this.currencyService = currencyService;
     }
 
     @CrossOrigin(origins = "*")
@@ -46,9 +48,17 @@ public class Controller {
     @CrossOrigin(origins = "*")
     @GetMapping(value = "/forex/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findForexById(@PathVariable long id) {
-        ForexDTO dto = forexService.findById(id);
+        ForexDTO dto;
+
+        // Fetch cached forex
+        dto = redisCacheService.getForex(String.valueOf(id));
+        if (dto != null)
+            return ResponseEntity.ok(dto);
+
+        dto = forexService.findById(id);
         if(dto == null)
             return ResponseEntity.notFound().build();
+        redisCacheService.saveForex(String.valueOf(id), dto);
         return ResponseEntity.ok(dto);
     }
 
@@ -65,6 +75,15 @@ public class Controller {
     @GetMapping(value = "/stocks/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> findStockById(@PathVariable long id) {
         StockDTO dto = stockService.findById(id);
+        if(dto == null)
+            return ResponseEntity.notFound().build();
+        return ResponseEntity.ok(dto);
+    }
+
+    @CrossOrigin(origins = "*")
+    @GetMapping(value = "/currency/{id}",produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> findCurrencyById(@PathVariable long id){
+        CurrencyDTO dto = currencyService.findById(id);
         if(dto == null)
             return ResponseEntity.notFound().build();
         return ResponseEntity.ok(dto);

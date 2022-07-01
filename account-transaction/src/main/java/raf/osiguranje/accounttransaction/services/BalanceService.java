@@ -14,10 +14,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
-import raf.osiguranje.accounttransaction.model.dto.BalanceUpdateDto;
-import raf.osiguranje.accounttransaction.model.dto.SecurityDTO;
-import raf.osiguranje.accounttransaction.model.dto.SecurityType;
-import raf.osiguranje.accounttransaction.model.dto.UserDto;
+import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
 
@@ -44,6 +41,9 @@ public class BalanceService {
     @Value("${api.usercrud}")
     private String usercrudApiUrl;
 
+    @Value("${api.buyingmarket}")
+    private String buyingApiUrl;
+
     @Autowired
     public BalanceService(AccountRepository accountRepository, BalanceRepository balanceRepository, RestTemplate rest) {
         this.accountRepository = accountRepository;
@@ -51,22 +51,31 @@ public class BalanceService {
         this.rest = rest;
     }
 
-    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount) throws Exception{
+    public boolean createBalance(Long accountNumber,Long securityId,SecurityType securityType,int amount,String jwt) throws Exception{
         Account account = accountRepository.findAccountByAccountNumber(accountNumber);
         if(accountNumber==null){
             throw new Exception("Couldn't find account");
         }
         System.out.println(accountNumber + " {} " + account);
-//        String email = extractUsername(jwtToken);
+        String email = extractUsername(jwt);
+        UserDto user = getUserByUsernameFromUserService(email);
+
         /*
         Proveravam da li postoji securiti u nase sistemu
          */
-//        try {
-//            SecurityDto securityDto = getSecurityByTypeAndId(securityType,securityId);
-//        } catch (Exception e) {
-//            System.err.println(e);
-//            return false;
-//        }
+        try {
+            if(securityType.equals(SecurityType.CURRENCY)){
+                CurrencyDTO currencyDTO = getCurrencyById(securityId,jwt);
+            }else {
+                SecurityDTO securityDto = getSecurityByTypeAndId(securityType, securityId, jwt);
+            }
+        } catch (Exception e) {
+            throw e;
+        }
+        if (balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType)).isPresent()){
+            throw new Exception("Balance already exist");
+        }
+
         Balance balance;
         try {
             balance = new Balance(account, securityId, securityType, amount);
@@ -79,7 +88,7 @@ public class BalanceService {
         return true;
     }
 
-    public boolean deleteBalance(Long accountNumber,Long securityId, SecurityType securityType) throws Exception{
+    public boolean deleteBalance(Long accountNumber,Long securityId, SecurityType securityType,String jwt) throws Exception{
 
         Optional<Balance> balance = balanceRepository.findById(new BalanceId(accountNumber,securityId,securityType));
         if(balance.isEmpty())
@@ -125,7 +134,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public boolean updateAmount(BalanceUpdateDto input) throws Exception{
+    public boolean updateAmount(BalanceUpdateDto input,String jwt) throws Exception{
 
         Optional<Balance> balanceOptional = getBalancesByFullId(input.getAccountId(), input.getSecurityId(), input.getSecurityType());
         if(balanceOptional.isEmpty()){
@@ -146,7 +155,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public boolean updateReserve(BalanceUpdateDto input) throws Exception{
+    public boolean updateReserve(BalanceUpdateDto input,String jwt) throws Exception{
         Optional<Balance> balanceOptional = getBalancesByFullId(input.getAccountId(), input.getSecurityId(), input.getSecurityType());
         if(balanceOptional.isEmpty()){
             throw new Exception("Couldn't find balance" + input);
@@ -194,7 +203,28 @@ public class BalanceService {
         return user;
     }
 
-    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId) throws Exception {
+    protected CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
+        String urlString = securitiesApiUrl + "/api/data/currency/" + id;
+        ResponseEntity<CurrencyDTO> response;
+        try {
+            response = rest.exchange(urlString, HttpMethod.GET, null, CurrencyDTO.class);
+        } catch(RestClientException e) {
+            throw new Exception("Something went wrong while trying to retrieve security info");
+        }
+
+        CurrencyDTO currencyDTO = null;
+        if(response.getBody() != null){
+            currencyDTO = response.getBody();
+        }
+
+        if (currencyDTO == null) {
+            throw new IllegalArgumentException("Something went wrong trying to find security");
+        }
+
+        return currencyDTO;
+    }
+
+    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
         ResponseEntity<SecurityDTO> response;
         try {
