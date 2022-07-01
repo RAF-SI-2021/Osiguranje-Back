@@ -39,6 +39,7 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.client.RestTemplate;
 
 @ContextConfiguration(classes = {UserRestController.class})
 @ExtendWith(SpringExtension.class)
@@ -57,8 +58,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualAllUsers = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .getAllUsers();
         assertEquals(userList, actualAllUsers.getBody());
         assertEquals(HttpStatus.OK, actualAllUsers.getStatusCode());
@@ -86,8 +88,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualAllUsers = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .getAllUsers();
         assertEquals(1, ((Collection<UserDto>) actualAllUsers.getBody()).size());
         assertTrue(actualAllUsers.hasBody());
@@ -128,8 +131,9 @@ class UserRestControllerTest {
         when(userMapper.userToUserDto(any())).thenReturn(new UserDto());
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualAllUsers = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .getAllUsers();
         assertEquals(1, ((Collection<UserDto>) actualAllUsers.getBody()).size());
         assertTrue(actualAllUsers.hasBody());
@@ -178,8 +182,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUserByEmailResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUserByEmail("foo");
         assertTrue(actualFindUserByEmailResult.hasBody());
         assertTrue(actualFindUserByEmailResult.getHeaders().isEmpty());
@@ -214,8 +219,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUserByIdResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUserById(2L);
         assertTrue(actualFindUserByIdResult.hasBody());
         assertTrue(actualFindUserByIdResult.getHeaders().isEmpty());
@@ -239,8 +245,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUserByEmailResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUserByEmail("foo");
         assertNull(actualFindUserByEmailResult.getBody());
         assertEquals(HttpStatus.OK, actualFindUserByEmailResult.getStatusCode());
@@ -267,8 +274,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByFirstNameResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByFirstName("foo");
         assertEquals(userList, actualFindUsersByFirstNameResult.getBody());
         assertEquals(HttpStatus.OK, actualFindUsersByFirstNameResult.getStatusCode());
@@ -296,8 +304,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByFirstNameResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByFirstName("foo");
         assertEquals(1, ((Collection<UserDto>) actualFindUsersByFirstNameResult.getBody()).size());
         assertTrue(actualFindUsersByFirstNameResult.hasBody());
@@ -326,8 +335,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByLastNameResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByLastName("foo");
         assertEquals(userList, actualFindUsersByLastNameResult.getBody());
         assertEquals(HttpStatus.OK, actualFindUsersByLastNameResult.getStatusCode());
@@ -355,8 +365,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByLastNameResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByLastName("foo");
         assertEquals(1, ((Collection<UserDto>) actualFindUsersByLastNameResult.getBody()).size());
         assertTrue(actualFindUsersByLastNameResult.hasBody());
@@ -385,8 +396,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByPositionResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByPosition("foo");
         assertEquals(userList, actualFindUsersByPositionResult.getBody());
         assertEquals(HttpStatus.OK, actualFindUsersByPositionResult.getStatusCode());
@@ -414,8 +426,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByPositionResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByPosition("foo");
         assertEquals(1, ((Collection<UserDto>) actualFindUsersByPositionResult.getBody()).size());
         assertTrue(actualFindUsersByPositionResult.hasBody());
@@ -457,8 +470,9 @@ class UserRestControllerTest {
         when(userMapper.userToUserDto(any())).thenReturn(new UserDto());
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<?> actualFindUsersByPositionResult = (new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder())))
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Argon2PasswordEncoder(), restTemplate)))
                 .findUsersByPosition("foo");
         assertEquals(1, ((Collection<UserDto>) actualFindUsersByPositionResult.getBody()).size());
         assertTrue(actualFindUsersByPositionResult.hasBody());
@@ -510,8 +524,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         UserRestController userRestController = new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder()));
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder(), restTemplate));
         ResponseEntity<?> actualSetPasswordResult = userRestController.setPassword(new PasswordDto());
         assertNull(actualSetPasswordResult.getBody());
         assertEquals(HttpStatus.NO_CONTENT, actualSetPasswordResult.getStatusCode());
@@ -547,8 +562,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         UserRestController userRestController = new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder()));
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder(), restTemplate));
         ResponseEntity<?> actualResult = userRestController.createUser(userDtoCre);
 
         assertNotNull(actualResult.getBody());
@@ -596,8 +612,9 @@ class UserRestControllerTest {
         UserMapper userMapper = new UserMapper();
         PermissionMapper permissionMapper = new PermissionMapper();
         ThreadPoolTaskExecutor taskExecutor = new ThreadPoolTaskExecutor();
+        RestTemplate restTemplate = new RestTemplate();
         UserRestController userRestController = new UserRestController(
-                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder()));
+                new UserService(userRepository, userMapper, permissionMapper, taskExecutor, new Md4PasswordEncoder(), restTemplate));
         ResponseEntity<?> actualResult = userRestController.createUser(userDto1);
 
         assertNotNull(actualResult.getBody());

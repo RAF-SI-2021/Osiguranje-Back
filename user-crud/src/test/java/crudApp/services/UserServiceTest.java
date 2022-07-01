@@ -24,6 +24,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +61,8 @@ class UserServiceTest {
     private ThreadPoolTaskExecutor taskExecutor;
     @Mock
     private PasswordEncoder passwordEncoder;
+    @Mock
+    private RestTemplate restTemplate;
     private UserService testUserService;
 
     @BeforeEach
@@ -68,7 +71,7 @@ class UserServiceTest {
         this.user2 = Mockito.mock(User.class);
         this.userDto1 = Mockito.mock(UserDto.class);
         this.userDto2 = Mockito.mock(UserDto.class);
-        testUserService = new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder);
+        testUserService = new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder, restTemplate);
     }
 
     @AfterEach
