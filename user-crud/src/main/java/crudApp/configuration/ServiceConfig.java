@@ -10,6 +10,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @EnableAsync
@@ -20,8 +21,13 @@ public class ServiceConfig {
     }
 
     @Bean
-    public UserService service(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor) {
-        return new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder());
+    public RestTemplate serviceCommunicationRestTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public UserService service(UserRepository userRepository, UserMapper userMapper, PermissionMapper permissionMapper, ThreadPoolTaskExecutor taskExecutor, RestTemplate restTemplate) {
+        return new UserService(userRepository, userMapper, permissionMapper, taskExecutor, passwordEncoder(), restTemplate);
     }
 
 }
