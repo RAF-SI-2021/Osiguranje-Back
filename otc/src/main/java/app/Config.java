@@ -15,7 +15,7 @@ public class Config {
                 config.load(is);
             }
         } catch (IOException e) {
-            System.err.println(e);
+            e.printStackTrace();
         }
     }
 
