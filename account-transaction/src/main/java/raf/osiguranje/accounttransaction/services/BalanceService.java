@@ -63,27 +63,20 @@ public class BalanceService {
         /*
         Proveravam da li postoji securiti u nase sistemu
          */
-        try {
-            if(securityType.equals(SecurityType.CURRENCY)){
-                CurrencyDTO currencyDTO = getCurrencyById(securityId,jwt);
-            }else {
-                SecurityDTO securityDto = getSecurityByTypeAndId(securityType, securityId, jwt);
-            }
-        } catch (Exception e) {
-            throw e;
+        if(securityType.equals(SecurityType.CURRENCY)){
+            CurrencyDTO currencyDTO = getCurrencyById(securityId,jwt);
+        }else {
+            SecurityDTO securityDto = getSecurityByTypeAndId(securityType, securityId, jwt);
         }
         if (balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType)).isPresent()){
             throw new Exception("Balance already exist");
         }
+        if(amount<0)
+            throw new Exception("Amount is less then zero");
 
-        Balance balance;
-        try {
-            balance = new Balance(account, securityId, securityType, amount);
-            System.out.println(balance);
-            balanceRepository.save(balance);
-        }catch (Exception e){
-            throw e;
-        }
+        Balance balance = new Balance(account, securityId, securityType, amount);
+        System.out.println(balance);
+        balanceRepository.save(balance);
 
         return true;
     }
