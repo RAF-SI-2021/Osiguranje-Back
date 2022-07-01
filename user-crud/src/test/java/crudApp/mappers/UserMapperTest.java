@@ -33,7 +33,8 @@ class UserMapperTest {
                 true,
                 new Permissions());
         //when
-        user = userRepository.save(user);
+//        user = userRepository.save(user);
+        user.setId(10L);
         UserDto userDto = testUserMapper.userToUserDto(user);
         //then
         assertThat(userDto != null).isTrue();
