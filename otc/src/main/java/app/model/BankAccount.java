@@ -13,7 +13,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 public class BankAccount {
     @Id
-    private Long bankAccountID;
+    private Long id;
     @ManyToOne
     private Company company;
     @Column
