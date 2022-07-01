@@ -1,6 +1,5 @@
 package app.model;
 
-import app.model.dto.ContractDTO;
 import app.model.dto.CreateContractDTO;
 import lombok.*;
 
@@ -33,7 +32,7 @@ public class Contract {
     @Column
     private String description;
     @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<Transaction> transactions;
+    private List<TransactionItem> transactionItems;
 
     public Contract(CreateContractDTO createContractDTO) {
         this.status = Status.DRAFT;

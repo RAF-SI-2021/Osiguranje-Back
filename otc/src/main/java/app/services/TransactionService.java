@@ -1,9 +1,7 @@
 package app.services;
 
-import app.model.Company;
-import app.model.Transaction;
-import app.model.dto.CompanyDTO;
-import app.model.dto.TransactionDTO;
+import app.model.TransactionItem;
+import app.model.dto.TransactionItemDTO;
 import app.repositories.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,7 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Optional<Transaction> findByID(Long id){
+    public Optional<TransactionItem> findByID(Long id){
         return transactionRepository.findById(id);
     }
 
@@ -28,20 +26,20 @@ public class TransactionService {
         transactionRepository.deleteById(id);
     }
 
-    public void update(TransactionDTO transactionDTO) {
-        Optional<Transaction> optionalTransaction = transactionRepository.findById(transactionDTO.getId());
+    public void update(TransactionItemDTO transactionItemDTO) {
+        Optional<TransactionItem> optionalTransaction = transactionRepository.findById(transactionItemDTO.getId());
         if(optionalTransaction.isEmpty())
             return;
 
-        Transaction transaction = optionalTransaction.get();
-        transaction.setAction(transactionDTO.getAction());
-        transaction.setSecurityId(transactionDTO.getSecurityId());
-        transaction.setSecurityType(transactionDTO.getSecurityType());
-        transaction.setAccountId(transactionDTO.getAccountId());
-        transaction.setCurrency(transactionDTO.getCurrency());
-        transaction.setAmount(transactionDTO.getAmount());
-        transaction.setPricePerShare(transactionDTO.getPricePerShare());
+        TransactionItem transactionItem = optionalTransaction.get();
+        transactionItem.setAction(transactionItemDTO.getAction());
+        transactionItem.setSecurityId(transactionItemDTO.getSecurityId());
+        transactionItem.setSecurityType(transactionItemDTO.getSecurityType());
+        transactionItem.setAccountId(transactionItemDTO.getAccountId());
+        transactionItem.setCurrency(transactionItemDTO.getCurrency());
+        transactionItem.setAmount(transactionItemDTO.getAmount());
+        transactionItem.setPricePerShare(transactionItemDTO.getPricePerShare());
 
-        transactionRepository.save(transaction);
+        transactionRepository.save(transactionItem);
     }
 }
