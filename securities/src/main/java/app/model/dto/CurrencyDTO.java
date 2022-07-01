@@ -16,6 +16,9 @@ public class CurrencyDTO {
     private String country;
     private ArrayList<InflationRateDTO> inflationRates;
 
+    public CurrencyDTO () {
+
+    }
     public CurrencyDTO(Currency currency) {
         this.name = currency.getName();
         this.isoCode = currency.getIsoCode();
