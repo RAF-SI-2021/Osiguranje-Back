@@ -2,7 +2,7 @@ package app.controller;
 
 import app.Config;
 import app.model.*;
-import app.model.api.BalanceUpdateDto;
+import app.model.api.TransactionOtcDto;
 import app.model.dto.*;
 import app.services.CompanyService;
 import app.services.ContractService;
@@ -76,19 +76,33 @@ public class ContractController {
         Contract contract = optionalContract.get();
 
         for (TransactionItem transactionItem : contract.getTransactionItems()){
-            BalanceUpdateDto balanceUpdateDto = new BalanceUpdateDto(transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), -1 * transactionItem.getAmount());
+            double usedReserve;
+            double payment;
+            double payout;
+            if(transactionItem.getAction().equals(Action.BUY)){
+                usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
+                payment = usedReserve;
+                payout = transactionItem.getAmount();
+            }
+            else {
+                usedReserve = transactionItem.getAmount();
+                payment = usedReserve;
+                payout = transactionItem.getAmount() * transactionItem.getPricePerShare();
+            }
+
+            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), payment, payout, 0, usedReserve);
 
             RestTemplate rest = new RestTemplate();
-            HttpEntity<BalanceUpdateDto> requestEntity = new HttpEntity<>(balanceUpdateDto, new HttpHeaders());
-            ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/balance/reserve", HttpMethod.POST, requestEntity, String.class);
+            HttpHeaders headers = new HttpHeaders();
+            HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+            ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
+            String responseStr;
             try {
-                String responseStr = Objects.requireNonNull(response.getBody());
+                responseStr = Objects.requireNonNull(response.getBody());
                 System.out.println(responseStr);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
-
         }
 
         contractService.finalizeContract(contract);
@@ -107,13 +121,21 @@ public class ContractController {
         if (contract.getStatus().equals(Status.FINALIZED))
             return ResponseEntity.badRequest().build();
 
-        // todo sta ako je prodaja
-        BalanceUpdateDto balanceUpdateDto = new BalanceUpdateDto(transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), transactionItemDTO.getAmount());
+        double payment = 0;
+        double payout = 0;
+        double reserve;
+        double usedReserve = 0;
+        if(transactionItemDTO.getAction().equals(Action.BUY))
+            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        else
+            reserve = transactionItemDTO.getAmount();
+
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getAction(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), payment, payout, reserve, usedReserve);
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<BalanceUpdateDto> requestEntity = new HttpEntity<>(balanceUpdateDto, headers);
-        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/balance/reserve", HttpMethod.POST, requestEntity, String.class);
+        HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {
             responseStr = Objects.requireNonNull(response.getBody());
@@ -147,13 +169,21 @@ public class ContractController {
 
         TransactionItem transactionItem = optionalTransaction.get();
 
-        BalanceUpdateDto balanceUpdateDto = new BalanceUpdateDto(transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), -1 * transactionItem.getAmount());
+        double usedReserve;
+        if(transactionItem.getAction().equals(Action.BUY))
+            usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
+        else
+            usedReserve = transactionItem.getAmount();
+
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, 0, usedReserve);
 
         RestTemplate rest = new RestTemplate();
-        HttpEntity<BalanceUpdateDto> requestEntity = new HttpEntity<>(balanceUpdateDto, new HttpHeaders());
-        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/balance/reserve", HttpMethod.POST, requestEntity, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
+        String responseStr;
         try {
-            String responseStr = Objects.requireNonNull(response.getBody());
+            responseStr = Objects.requireNonNull(response.getBody());
             System.out.println(responseStr);
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,24 +209,27 @@ public class ContractController {
 
         TransactionItem transactionItem = optionalTransaction.get();
 
-        BalanceUpdateDto balanceUpdateDto = new BalanceUpdateDto(transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), -1 * transactionItem.getAmount());
+        double usedReserve;
+        if(transactionItem.getAction().equals(Action.BUY))
+            usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
+        else
+            usedReserve = transactionItem.getAmount();
+
+        double reserve;
+        if(transactionItemDTO.getAction().equals(Action.BUY))
+            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        else
+            reserve = transactionItemDTO.getAmount();
+
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, reserve, usedReserve);
 
         RestTemplate rest = new RestTemplate();
-        HttpEntity<BalanceUpdateDto> requestEntity = new HttpEntity<>(balanceUpdateDto, new HttpHeaders());
-        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/balance/reserve", HttpMethod.POST, requestEntity, String.class);
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
+        String responseStr;
         try {
-            String responseStr = Objects.requireNonNull(response.getBody());
-            System.out.println(responseStr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        balanceUpdateDto = new BalanceUpdateDto(transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(),  transactionItemDTO.getAmount());
-        rest = new RestTemplate();
-        requestEntity = new HttpEntity<>(balanceUpdateDto, new HttpHeaders());
-        response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/balance/reserve", HttpMethod.POST, requestEntity, String.class);
-        try {
-            String responseStr = Objects.requireNonNull(response.getBody());
+            responseStr = Objects.requireNonNull(response.getBody());
             System.out.println(responseStr);
         } catch (Exception e) {
             e.printStackTrace();

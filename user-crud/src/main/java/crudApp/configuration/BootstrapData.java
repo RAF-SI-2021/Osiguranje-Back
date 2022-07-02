@@ -23,7 +23,7 @@ public class BootstrapData implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        User user = new User("Radenko","Milosevic","car@gmail.com","1111121111111","Admin","+381657779045",true,new Permissions(true,true,true,true));
+        User user = new User("Radenko","Milosevic","car@gmail.com","1111121111111","Admin","+381657779045", true, new Permissions(true,true,true,true));
         //user.setId(1l);
         user.setPassword(encoder.encode("raf"));
 
