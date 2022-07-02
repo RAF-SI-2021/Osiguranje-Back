@@ -13,7 +13,7 @@ public class TransactionItemDTO {
     private Long securityId;
     private SecurityType securityType;
     private Long accountId;
-    private String currency;
+    private Long currencyId;
     private int amount;
     private double pricePerShare;
 
@@ -23,7 +23,7 @@ public class TransactionItemDTO {
         this.securityId = transactionItem.getSecurityId();
         this.securityType = transactionItem.getSecurityType();
         this.accountId = transactionItem.getAccountId();
-        this.currency = transactionItem.getCurrency();
+        this.currencyId = transactionItem.getCurrencyId();
         this.amount = transactionItem.getAmount();
         this.pricePerShare = transactionItem.getPricePerShare();
     }
