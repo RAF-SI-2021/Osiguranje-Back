@@ -45,11 +45,11 @@ public class TransactionService {
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
     }
     public Transaction getTransactionFromOtcDto(TransactionOtcDto transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
     }
 
     public boolean createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
@@ -88,6 +88,9 @@ public class TransactionService {
 
         Optional<Balance> balanceOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY);
 
+        if(transactionDTO.getTransactionType().equals(TransactionType.BUY)){
+
+        }
 
         if(transaction.getPayment() > 0){
             abstractPaymentChange(jwt, transaction, balanceOptional, transactionDTO.getCurrencyId());
