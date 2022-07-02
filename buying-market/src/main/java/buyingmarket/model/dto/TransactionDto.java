@@ -33,4 +33,6 @@ public class TransactionDto {
     private int reserve;
 
     private int usedReserve;
+
+    private TransactionType transactionType;
 }

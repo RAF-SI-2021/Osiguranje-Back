@@ -78,7 +78,7 @@ public class TransactionService {
 
 
     public Transaction createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
-
+        System.out.println(transactionDTO);
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
         if(tmpAccount==null){
             throw new Exception("Couldn't find account");
