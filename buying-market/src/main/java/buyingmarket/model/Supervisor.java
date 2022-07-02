@@ -8,6 +8,6 @@ public class Supervisor extends Actuary {
     }
 
     public Supervisor(Long userId) {
-        super(userId);
+        super(userId,ActuaryType.SUPERVISOR);
     }
 }

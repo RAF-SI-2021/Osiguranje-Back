@@ -5,10 +5,7 @@ import buyingmarket.exceptions.UpdateNotAllowedException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.model.*;
-import buyingmarket.model.dto.OrderCreateDto;
-import buyingmarket.model.dto.OrderDto;
-import buyingmarket.model.dto.SecurityDto;
-import buyingmarket.model.dto.TransactionDto;
+import buyingmarket.model.dto.*;
 import buyingmarket.repositories.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -80,11 +77,10 @@ public class OrderService {
             }
         }
         order.setModificationDate(new Date());
-
+        order = orderRepository.save(order);
         TransactionDto transactionDto = createTransaction(jws,order,"Creating init transaction for "+ order,0,0, FormulaCalculator.getEstimatedValue(order, security).intValue(),0);
         System.out.println(transactionDto);
         order.getTransactions().add(transactionDto.getId());
-        orderRepository.save(order);
         if (order.getOrderState().equals(OrderState.APPROVED)) {
             execute(order,jws);
         }
@@ -134,6 +130,7 @@ public class OrderService {
     protected TransactionDto createTransaction(String jwt,Order order,String text, int payment,int payout,int reserve, int usedReserve){
         String urlString = transactionApiUrl + "/api/transaction";
 
+
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization","Bearer "+jwt);
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -143,15 +140,20 @@ public class OrderService {
         transactionDto.setCurrencyId(14L);
         transactionDto.setPayment(payment);
         transactionDto.setPayout(payout);
-        transactionDto.setPayout(reserve);
+        transactionDto.setReserve(reserve);
         transactionDto.setUsedReserve(usedReserve);
         transactionDto.setText(text);
         transactionDto.setAccountId(1L);
         transactionDto.setUserId(actuaryService.getUserId(jwt));
+        transactionDto.setTransactionType(TransactionType.valueOf(order.getActionType().toString()));
 
         HttpEntity<?> entity = new HttpEntity<>(transactionDto,headers);
 
-        ResponseEntity<?> response = rest.exchange(urlString,HttpMethod.POST,entity,Object.class);
+        ResponseEntity<Object> response = rest.exchange(transactionApiUrl+"/api/balance/all",HttpMethod.GET,new HttpEntity<>(headers),Object.class);
+        System.out.println(response.getStatusCode()+"   "+response.getBody());
+
+
+        response = rest.exchange(urlString,HttpMethod.POST,entity,Object.class);
         if(response.getStatusCode().is4xxClientError()){
             System.err.println(response.getBody());
             return null;

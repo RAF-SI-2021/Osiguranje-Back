@@ -34,4 +34,5 @@ public class TransactionDTO {
 
     private int usedReserve;
 
+    private TransactionType transactionType;
 }
