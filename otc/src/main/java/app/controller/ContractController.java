@@ -32,8 +32,6 @@ public class ContractController {
         this.transactionService = transactionService;
     }
 
-    // todo autorizacija
-
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getContracts(){
