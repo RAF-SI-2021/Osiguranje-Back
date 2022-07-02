@@ -37,6 +37,7 @@ public class BootstrapData implements CommandLineRunner {
             this.repository.save(user);
             this.repository.save(user2);
         } catch (Exception e){
+            e.printStackTrace();
             System.err.println("User already added");
         }
         System.out.println("Created INIT Users");

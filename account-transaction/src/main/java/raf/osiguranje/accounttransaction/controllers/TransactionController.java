@@ -27,8 +27,8 @@ public class TransactionController {
     public ResponseEntity<?> createTransaction(@RequestBody TransactionDTO input,@RequestHeader("Authorization") String authorization){
 
         try {
-            transactionService.createTransaction(input,authorization);
-            return ResponseEntity.accepted().build();
+            Transaction tr = transactionService.createTransaction(input,authorization);
+            return ResponseEntity.accepted().body(tr.getDto());
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }

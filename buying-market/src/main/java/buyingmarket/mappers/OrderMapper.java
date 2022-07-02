@@ -17,12 +17,6 @@ import java.util.List;
 @Component
 public class OrderMapper {
 
-    private TransactionMapper transactionMapper;
-
-    @Autowired
-    public OrderMapper(TransactionMapper transactionMapper) {
-        this.transactionMapper = transactionMapper;
-    }
 
     public Order orderCreateDtoToOrder(OrderCreateDto dto) {
         return Order.builder()
@@ -55,7 +49,7 @@ public class OrderMapper {
                 .limitPrice(order.getLimitPrice())
                 .stopPrice(order.getStopPrice())
                 .fee(order.getFee())
-                .transactions(transactionMapper.transactionsToTransactionDtos(order.getTransactions()))
+                .transactions(order.getTransactions())
                 .orderState(order.getOrderState())
                 .modificationDate(order.getModificationDate())
                 .build();

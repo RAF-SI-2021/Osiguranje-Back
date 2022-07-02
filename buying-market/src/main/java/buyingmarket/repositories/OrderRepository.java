@@ -11,6 +11,6 @@ import java.util.Optional;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByActuary(Actuary actuary);
-    List<Order> findAllByActuaryAndActive(Actuary actuary, Boolean active);
+//    List<Order> findAllByActuaryAndActive(Actuary actuary, Boolean active);
     Optional<Order> findByOrderIdAndActuary(Long id, Actuary actuary);
 }

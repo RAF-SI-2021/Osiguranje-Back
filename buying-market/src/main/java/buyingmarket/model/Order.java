@@ -1,5 +1,6 @@
 package buyingmarket.model;
 
+import buyingmarket.mappers.SetToLongConverter;
 import lombok.*;
 
 import javax.persistence.*;
@@ -46,8 +47,10 @@ public class Order {
     private Supervisor approvingActuary;
     @ManyToOne
     private Actuary actuary;
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Transaction> transactions;
+
+    @Column
+    @Convert(converter = SetToLongConverter.class)
+    private Set<Long> transactions;
 
     public Order() {}
 
@@ -147,11 +150,11 @@ public class Order {
         this.actuary = actuary;
     }
 
-    public Set<Transaction> getTransactions() {
+    public Set<Long> getTransactions() {
         return transactions;
     }
 
-    public void setTransactions(Set<Transaction> transactions) {
+    public void setTransactions(Set<Long> transactions) {
         this.transactions = transactions;
     }
 

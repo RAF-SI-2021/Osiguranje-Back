@@ -29,12 +29,6 @@ public class TransactionService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${api.securities}")
-    private String securitiesApiUrl;
-
-    @Value("${api.usercrud}")
-    private String usercrudApiUrl;
-
     @Value("${api.buyingmarket}")
     private String buyingApiUrl;
 
@@ -51,11 +45,11 @@ public class TransactionService {
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
     }
     public Transaction getTransactionFromOtcDto(TransactionOtcDto transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
     }
 
     public boolean createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
@@ -83,8 +77,8 @@ public class TransactionService {
     }
 
 
-    public boolean createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
-
+    public Transaction createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
+        System.out.println(transactionDTO);
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
         if(tmpAccount==null){
             throw new Exception("Couldn't find account");
@@ -94,6 +88,9 @@ public class TransactionService {
 
         Optional<Balance> balanceOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY);
 
+        if(transactionDTO.getTransactionType().equals(TransactionType.BUY)){
+
+        }
 
         if(transaction.getPayment() > 0){
             abstractPaymentChange(jwt, transaction, balanceOptional, transactionDTO.getCurrencyId());
@@ -107,7 +104,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        return true;
+        return transaction;
     }
 
 

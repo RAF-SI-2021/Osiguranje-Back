@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 @ToString
 public class TransactionDTO {
 
+    private Long id;
+
     private Long accountId;
 
     private LocalDateTime timestamp;
@@ -32,4 +34,5 @@ public class TransactionDTO {
 
     private int usedReserve;
 
+    private TransactionType transactionType;
 }
