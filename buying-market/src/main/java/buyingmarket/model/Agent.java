@@ -2,16 +2,16 @@ package buyingmarket.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.Version;
+
 import java.math.BigDecimal;
 
 @Entity
 public class Agent extends Actuary {
-    @Column(nullable = false)
+    @Column
     private BigDecimal spendingLimit;
-    @Column(nullable = false)
+    @Column
     private BigDecimal usedLimit;
-    @Column(nullable = false)
+    @Column
     private Boolean approvalRequired;
 
     public Agent() {
@@ -21,6 +21,7 @@ public class Agent extends Actuary {
         super(userId);
         this.spendingLimit = spendingLimit;
         this.approvalRequired = approvalRequired;
+        this.usedLimit = new BigDecimal(0);
     }
 
     public BigDecimal getSpendingLimit() {
