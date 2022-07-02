@@ -27,7 +27,11 @@ public class OrderRestController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
-        orderService.createOrder(orderCreateDto, authorization);
+        try {
+            orderService.createOrder(orderCreateDto, authorization);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

@@ -82,7 +82,7 @@ public class Transaction {
     }
 
     public TransactionDTO getDto(){
-        return new TransactionDTO(this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
+        return new TransactionDTO(this.id,this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve);
     }
 

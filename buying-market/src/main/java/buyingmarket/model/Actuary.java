@@ -4,9 +4,9 @@ import javax.persistence.*;
 import java.util.Collection;
 import java.util.HashSet;
 
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 @Entity
-public abstract class Actuary {
+public class Actuary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -16,6 +16,7 @@ public abstract class Actuary {
     private Boolean active;
     @OneToMany
     private Collection<Order> orders;
+
     @Version
     private Integer version;
 

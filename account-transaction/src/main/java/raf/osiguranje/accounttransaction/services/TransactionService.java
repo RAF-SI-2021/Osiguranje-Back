@@ -29,12 +29,6 @@ public class TransactionService {
     @Value("${jwt.secret}")
     private String jwtSecret;
 
-    @Value("${api.securities}")
-    private String securitiesApiUrl;
-
-    @Value("${api.usercrud}")
-    private String usercrudApiUrl;
-
     @Value("${api.buyingmarket}")
     private String buyingApiUrl;
 
@@ -83,7 +77,7 @@ public class TransactionService {
     }
 
 
-    public boolean createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
+    public Transaction createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
 
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
         if(tmpAccount==null){
@@ -107,7 +101,7 @@ public class TransactionService {
 
         transactionRepository.save(transaction);
 
-        return true;
+        return transaction;
     }
 
 

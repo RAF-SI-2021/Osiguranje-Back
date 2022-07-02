@@ -84,7 +84,21 @@ public class ActuaryService {
         }
     }
 
-    @Scheduled(cron = "0 0 0 * MON,TUE,WED,THU,FRI * ?")
+    public void changeLimit(Long agentId, BigDecimal addLimit) throws Exception {
+        Optional<Actuary> a = actuaryRepository.findById(agentId);
+        if (a.isPresent()) {
+            Agent agent = (Agent) a.get();
+            BigDecimal newLimit = agent.getUsedLimit().add(addLimit);
+            if(newLimit.compareTo(agent.getSpendingLimit()) > 0)
+                throw new Exception("Limit overflow less then zero");
+            agent.setUsedLimit(newLimit);
+            actuaryRepository.save(agent);
+        } else {
+            throw new UserNotFoundException("No such agent found.");
+        }
+    }
+
+    @Scheduled(cron = "0 0 8 * * MON-FRI")
     public void dailyReset() {
         for (Agent agent : getAllAgents()) {
             resetLimit(agent.getId());
@@ -100,7 +114,7 @@ public class ActuaryService {
                 .getSubject();
     }
 
-    private Long getUserId(String jws) {
+    public Long getUserId(String jws) {
         String username = extractUsername(jws);
         String urlString = usercrudApiUrl + "/api/users/id";
         UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromHttpUrl(urlString);
