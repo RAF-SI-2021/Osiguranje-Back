@@ -32,7 +32,9 @@ public class FormulaCalculator {
     public static long waitTime(Long volume, Integer amount) {
         long waitTime = ThreadLocalRandom.current().nextLong(24 * 60) * 1000L;
         if (volume > Math.abs(amount)) {
-            waitTime = ThreadLocalRandom.current().nextLong(24 * 60 / (volume / Math.abs(amount))) * 1000L;
+            long val = Math.min(Math.max(24 * 60 / (volume / Math.abs(amount)),10),25);
+            System.out.println(val);
+            waitTime = ThreadLocalRandom.current().nextLong(val) * 1000L;
         }
         return waitTime + System.currentTimeMillis();
     }

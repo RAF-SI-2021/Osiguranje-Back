@@ -18,7 +18,7 @@ public class TransactionDto {
 
     private LocalDateTime timestamp;
 
-    private Long orderId;
+    private OrderDto orderDto;
 
     private Long userId;
 
