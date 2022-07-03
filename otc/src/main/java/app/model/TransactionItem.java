@@ -25,7 +25,7 @@ public class TransactionItem {
     @Column
     private Long accountId;
     @Column
-    private String currency;
+    private Long currencyId;
     @Column
     private int amount;
     @Column
@@ -36,7 +36,7 @@ public class TransactionItem {
         this.securityId = transactionItemDTO.getSecurityId();
         this.securityType = transactionItemDTO.getSecurityType();
         this.accountId = transactionItemDTO.getAccountId();
-        this.currency = transactionItemDTO.getCurrency();
+        this.currencyId = transactionItemDTO.getCurrencyId();
         this.amount = transactionItemDTO.getAmount();
         this.pricePerShare = transactionItemDTO.getPricePerShare();
     }
