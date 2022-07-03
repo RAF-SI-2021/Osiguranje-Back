@@ -10,6 +10,7 @@ import java.math.BigDecimal;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -36,8 +37,8 @@ class ActuaryServiceTest {
 
     @BeforeEach
     public void init() {
-        Agent agent = new Agent(1l, new BigDecimal(12), true);
-        actuaryRepository.save(agent);
+        ActuaryCreateDto actuaryCreateDto = new ActuaryCreateDto(1l, new BigDecimal(123), true);
+        actuaryService.createActuary(actuaryCreateDto);
     }
 
     /**
@@ -46,8 +47,7 @@ class ActuaryServiceTest {
     @Test
     void testGetAllAgents() {
         List<Agent> actualAllAgents = this.actuaryService.getAllAgents();
-
-        assertThat(actualAllAgents).isNotEqualTo(new ArrayList<Agent>());
+        assertThat(actualAllAgents.size()).isGreaterThan(0);
     }
 
     /**
@@ -55,10 +55,14 @@ class ActuaryServiceTest {
      */
     @Test
     void testCreateActuary() {
-        ActuaryCreateDto dto = new ActuaryCreateDto(1l);
+        Long userId = 2l;
 
+        ActuaryCreateDto dto = new ActuaryCreateDto(userId, new BigDecimal(123), true);
         this.actuaryService.createActuary(dto);
 
+        Optional<Actuary> agent = actuaryRepository.findActuaryByUserId(userId);
+
+        assertThat(agent.get().getUserId()).isEqualTo(userId);
     }
 
     /**
@@ -66,17 +70,14 @@ class ActuaryServiceTest {
      */
     @Test
     void testResetLimit() {
-        Long agentId = 1l;
+        Long userId = 1l;
 
-        this.actuaryService.resetLimit(agentId);
+        Optional<Actuary> agent = actuaryRepository.findActuaryByUserId(userId);
 
-        List<Agent> actualAllAgents = this.actuaryService.getAllAgents();
+        this.actuaryService.resetLimit(agent.get().getId());
+        agent = actuaryRepository.findActuaryByUserId(userId);
 
-        for(Agent a : actualAllAgents){
-            if(agentId == a.getId()){
-                assertThat(new BigDecimal(0)).isEqualTo(a.getUsedLimit());
-            }
-        }
+        assertThat(new BigDecimal(0)).isEqualTo(agent.get().getUsedLimit());
 
     }
 
@@ -85,20 +86,16 @@ class ActuaryServiceTest {
      */
     @Test
     void testSetLimit() {
-        Long agentId = 1l;
-        ActuaryCreateDto dto = new ActuaryCreateDto(agentId);
+        Long userId = 1l;
 
-        this.actuaryService.createActuary(dto);
+        Optional<Actuary> agent = actuaryRepository.findActuaryByUserId(userId);
 
         BigDecimal newLimit = new BigDecimal(123);
 
-        this.actuaryService.setLimit(agentId, newLimit);
-        List<Agent> actualAllAgents = this.actuaryService.getAllAgents();
-        for(Agent a : actualAllAgents){
-            if(agentId == a.getId()){
-                assertThat(newLimit).isEqualTo(a.getSpendingLimit());
-            }
-        }
+        this.actuaryService.setLimit(agent.get().getId(), newLimit);
+        agent = actuaryRepository.findActuaryByUserId(userId);
+
+        assertThat(newLimit).isEqualTo(agent.get().getSpendingLimit());
     }
 
     /**
@@ -106,12 +103,11 @@ class ActuaryServiceTest {
      */
     @Test
     void testDailyReset() {
-        List<Agent> actualAllAgents = this.actuaryService.getAllAgents();
         this.actuaryService.dailyReset();
 
-        for(Agent a : actualAllAgents){
-            assertThat(a.getUsedLimit()).isEqualTo(new BigDecimal(0));
-        }
+        Optional<Actuary> agent = actuaryRepository.findActuaryByUserId(1L);
+
+        assertThat(agent.get().getUsedLimit()).isEqualTo(new BigDecimal(1));
 
     }
 
