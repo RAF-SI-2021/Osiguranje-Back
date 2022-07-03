@@ -7,6 +7,7 @@ import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,8 +15,9 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 public class Order {
-    @GeneratedValue(strategy = GenerationType.AUTO)
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
     @Column
     private Long securityId;
@@ -52,7 +54,10 @@ public class Order {
     @Convert(converter = SetToLongConverter.class)
     private Set<Long> transactions;
 
-    public Order() {}
+    public Order() {
+        orderId = 0L;
+        transactions = new HashSet<>();
+    }
 
     public Long getOrderId() {
         return orderId;
@@ -151,6 +156,8 @@ public class Order {
     }
 
     public Set<Long> getTransactions() {
+        if(transactions==null)
+            this.transactions = new HashSet<>();
         return transactions;
     }
 
