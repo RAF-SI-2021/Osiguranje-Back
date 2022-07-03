@@ -67,6 +67,8 @@ public class OrderService {
 
     public void createOrder(OrderCreateDto orderCreateDto, String jws) {
         Actuary actuary = actuaryService.getActuary(jws);
+        if(orderCreateDto.getActionType() == null)
+            orderCreateDto.setActionType(ActionType.BUY);
         Order order = orderMapper.orderCreateDtoToOrder(orderCreateDto);
         order.setActuary(actuary);
         SecurityDto security = getSecurityFromOrder(order);
@@ -78,9 +80,11 @@ public class OrderService {
         }
         order.setModificationDate(new Date());
         order = orderRepository.save(order);
-        TransactionDto transactionDto = createTransaction(jws,order,"Creating init transaction for "+ order,0,0, FormulaCalculator.getEstimatedValue(order, security).intValue(),0);
+        TransactionDto transactionDto = createTransaction(jws,order,"Creating init transaction for order",0,0, FormulaCalculator.getEstimatedValue(order, security).intValue(),0);
         System.out.println(transactionDto);
         order.getTransactions().add(transactionDto.getId());
+        order = orderRepository.save(order);
+
         if (order.getOrderState().equals(OrderState.APPROVED)) {
             execute(order,jws);
         }
@@ -136,7 +140,7 @@ public class OrderService {
         headers.setContentType(MediaType.APPLICATION_JSON);
 
         TransactionDto transactionDto = new TransactionDto();
-        transactionDto.setOrderId(order.getOrderId());
+        transactionDto.setOrderDto(orderMapper.orderToOrderDto(order));
         transactionDto.setCurrencyId(14L);
         transactionDto.setPayment(payment);
         transactionDto.setPayout(payout);
@@ -145,7 +149,10 @@ public class OrderService {
         transactionDto.setText(text);
         transactionDto.setAccountId(1L);
         transactionDto.setUserId(actuaryService.getUserId(jwt));
-        transactionDto.setTransactionType(TransactionType.valueOf(order.getActionType().toString()));
+        if(order.getActionType()!=null)
+            transactionDto.setTransactionType(TransactionType.valueOf(order.getActionType().toString()));
+        else
+            transactionDto.setTransactionType(TransactionType.BUY);
 
         HttpEntity<?> entity = new HttpEntity<>(transactionDto,headers);
 
@@ -153,12 +160,13 @@ public class OrderService {
         System.out.println(response.getStatusCode()+"   "+response.getBody());
 
 
-        response = rest.exchange(urlString,HttpMethod.POST,entity,Object.class);
+        ResponseEntity<TransactionDto> response1 = rest.exchange(urlString,HttpMethod.POST,entity,TransactionDto.class);
         if(response.getStatusCode().is4xxClientError()){
             System.err.println(response.getBody());
             return null;
         }
-        return (TransactionDto) response.getBody();
+        System.out.println(response.getBody());
+        return response1.getBody();
 
     }
 
@@ -188,19 +196,20 @@ public class OrderService {
         @Override
         public void run() {
             int amountLeft = order.getAmount() - order.getAmountFilled();
+            System.out.println(amountLeft);
             Order orderFromRepo = orderRepository.findById(order.getOrderId()).orElse(order);
-            if (!orderFromRepo.getOrderState().equals(OrderState.DECLINED) && amountLeft <= 0) {
+            if (!orderFromRepo.getOrderState().equals(OrderState.DECLINED) && amountLeft > 0) {
                 SecurityDto security = getSecurityFromOrder(order);
                 if (stopFlag && stopCheck(order, security)) {
                     stopFlag = false;
                 }
                 if (priceCheck(order, security) && !stopFlag) {
-                    int executeAmount = order.getAllOrNone() ? order.getAmount() : ThreadLocalRandom.current().nextInt(amountLeft);
+                    int executeAmount = order.getAllOrNone() ? order.getAmount() : Math.max(ThreadLocalRandom.current().nextInt(amountLeft),1);
                     order.setAmountFilled(order.getAmountFilled() + executeAmount);
                     order.setModificationDate(new Date());
 
                     TransactionDto transactionDto = createTransaction(jws,order,"Executing partial buyting",0,0,0,executeAmount);
-                    order.getTransactions().add(transactionDto.getOrderId());
+                    order.getTransactions().add(transactionDto.getId());
                     orderRepository.save(order);
 
 

@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import raf.osiguranje.accounttransaction.model.dto.OrderDto;
 import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
 import raf.osiguranje.accounttransaction.model.dto.TransactionType;
 
@@ -89,7 +90,9 @@ public class Transaction {
     }
 
     public TransactionDTO getDto(){
-        return new TransactionDTO(this.id,this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
+        OrderDto ord = new OrderDto();
+        ord.setOrderId(this.orderId);
+        return new TransactionDTO(this.id,this.accountId,this.timestamp,ord,this.userId,this.currencyId,
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve,transactionType);
     }
 
