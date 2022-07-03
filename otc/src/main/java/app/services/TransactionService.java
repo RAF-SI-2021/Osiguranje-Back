@@ -36,7 +36,7 @@ public class TransactionService {
         transactionItem.setSecurityId(transactionItemDTO.getSecurityId());
         transactionItem.setSecurityType(transactionItemDTO.getSecurityType());
         transactionItem.setAccountId(transactionItemDTO.getAccountId());
-        transactionItem.setCurrency(transactionItemDTO.getCurrency());
+        transactionItem.setCurrencyId(transactionItemDTO.getCurrencyId());
         transactionItem.setAmount(transactionItemDTO.getAmount());
         transactionItem.setPricePerShare(transactionItemDTO.getPricePerShare());
 
