@@ -45,11 +45,11 @@ public class TransactionService {
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
     public Transaction getTransactionFromOtcDto(TransactionOtcDto transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
 
     public boolean createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
@@ -97,28 +97,56 @@ public class TransactionService {
 
         Balance balanceCurrency = balanceCurrencyOptional.get();
         Balance balanceSecurity = balanceSecurityOptional.orElse(null);
-        if(transaction.getPayment() > 0){
-            balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,transaction.getPayment()),jwt);
-        }
 
-        if(transaction.getPayout() > 0){
-            int value = -transaction.getPayout();
-            balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
-        }
+        if(transactionDTO.getTransactionType().equals(TransactionType.BUY)){
+            if(balanceSecurity == null){
+                balanceSecurity = balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+            }
 
-        if(transaction.getReserve() > 0){
-            int value = transaction.getReserve();
-            balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
-            if(balanceSecurity==null){
-                balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+            if(transaction.getUsedReserve() > 0){
+                int value = -transaction.getUsedReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),transaction.getPayment()),jwt);
+            } else if(transaction.getPayment() > 0){
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,transaction.getPayment()),jwt);
+            } else if(transaction.getPayout() > 0){
+                int value = -transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+            } else if(transaction.getReserve() > 0){
+                int value = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+                if(balanceSecurity==null){
+                    balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+                }
+            }
+        } else {
+
+            if(transaction.getUsedReserve() > 0){
+                if(balanceSecurity == null){
+                    throw new Exception("Trying to sell something you dont have!!! " + orderDto.getSecurityId() + "  "+orderDto.getSecurityType());
+                }
+                int value = -transaction.getUsedReserve();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,transaction.getPayment()),jwt);
+
+                balanceService.updateReserve(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),value),jwt);
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),value),jwt);
+            } else if(transaction.getPayment() > 0){
+                if(balanceSecurity==null){
+                    balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+                }
+                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),transaction.getPayment()),jwt);
+            } else if(transaction.getPayout() > 0){
+                int value = -transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),value),jwt);
+            } else if(transaction.getReserve() > 0){
+                int value = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),value),jwt);
+
             }
         }
 
-        if(transaction.getUsedReserve() > 0){
-            int value = -transaction.getUsedReserve();
-            balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
-            balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
-        }
 
 //        if(transaction.getPayment() > 0){
 //            abstractPaymentChange(jwt, transaction, balanceOptional, transactionDTO.getCurrencyId());

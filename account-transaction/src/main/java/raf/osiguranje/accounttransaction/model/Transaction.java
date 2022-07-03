@@ -59,7 +59,7 @@ public class Transaction {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve,TransactionType transactionType) {
+    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve,String text,TransactionType transactionType) {
         this.accountId = accountId;
         this.timestamp = LocalDateTime.now();
         this.orderId = orderId;
@@ -70,6 +70,7 @@ public class Transaction {
         this.reserve = reserve;
         this.usedReserve = usedReserve;
         this.transactionType = transactionType;
+        this.text = text;
     }
 
     @Override
