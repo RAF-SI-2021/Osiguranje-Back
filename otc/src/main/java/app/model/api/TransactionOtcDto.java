@@ -6,7 +6,6 @@ import lombok.*;
 
 @AllArgsConstructor
 public class TransactionOtcDto {
-
     private TransactionType transactionType;
     private Long accountId;
     private Long securityId;
@@ -17,5 +16,4 @@ public class TransactionOtcDto {
     private int payout;
     private int reserve;
     private int usedReserve;
-
 }
