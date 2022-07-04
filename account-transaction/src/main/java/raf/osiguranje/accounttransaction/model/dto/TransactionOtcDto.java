@@ -14,8 +14,6 @@ public class TransactionOtcDto {
 
     private Long accountId;
 
-    private LocalDateTime timestamp;
-
     private Long securityId;
     private SecurityType securityType;
 
