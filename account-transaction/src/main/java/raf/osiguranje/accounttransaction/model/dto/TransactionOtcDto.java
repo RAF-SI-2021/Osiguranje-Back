@@ -3,8 +3,6 @@ package raf.osiguranje.accounttransaction.model.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
