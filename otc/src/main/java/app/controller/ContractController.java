@@ -207,25 +207,37 @@ public class ContractController {
 
         TransactionItem transactionItem = optionalTransaction.get();
 
-        double usedReserve;
-        if(transactionItem.getAction().equals(Action.BUY))
-            usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
-        else
-            usedReserve = transactionItem.getAmount();
-
         double reserve;
-        if(transactionItemDTO.getAction().equals(Action.BUY))
-            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        if(transactionItem.getAction().equals(Action.BUY))
+            reserve = - 1 * transactionItem.getAmount() * transactionItem.getPricePerShare();
         else
-            reserve = transactionItemDTO.getAmount();
+            reserve = -1 * transactionItem.getAmount();
 
-        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, reserve, usedReserve);
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, reserve, 0);
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
         ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
+        try {
+            responseStr = Objects.requireNonNull(response.getBody());
+            System.out.println(responseStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        if(transactionItemDTO.getAction().equals(Action.BUY))
+            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        else
+            reserve = transactionItemDTO.getAmount();
+
+        transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getAction(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), 0, 0, reserve, 0);
+
+        rest = new RestTemplate();
+        headers = new HttpHeaders();
+        requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+        response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
         try {
             responseStr = Objects.requireNonNull(response.getBody());
             System.out.println(responseStr);
