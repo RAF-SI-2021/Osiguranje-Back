@@ -5,6 +5,7 @@ import app.model.TransactionType;
 import lombok.*;
 
 @AllArgsConstructor
+@Getter
 public class TransactionOtcDto {
     private TransactionType transactionType;
     private Long accountId;

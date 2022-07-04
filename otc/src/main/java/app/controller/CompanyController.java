@@ -35,6 +35,8 @@ public class CompanyController {
         this.bankAccountService = bankAccountService;
     }
 
+    // todo get za employees i accounts
+
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getCompanies(@RequestParam(required = false) String name, @RequestParam(required = false) Long registrationID, @RequestParam(required = false) Long taxID){
@@ -98,11 +100,15 @@ public class CompanyController {
         Optional<Company> optionalCompany = companyService.findByID(id);
         if(optionalCompany.isEmpty())
             return ResponseEntity.badRequest().build();
-        Company company = optionalCompany.get();
 
+        Company company = optionalCompany.get();
         Employee employee = new Employee(employeeDTO);
+
         employee.setCompany(company);
         employeeService.save(employee);
+
+        company.getEmployees().add(employee);
+        companyService.save(company);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -111,14 +117,16 @@ public class CompanyController {
     @PostMapping(path = "/{id}/bank-accounts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> createBankAccount(@NotNull @PathVariable Long id, @RequestBody BankAccountDTO bankAccountDTO) {
         Optional<Company> optionalCompany = companyService.findByID(id);
-
         if(optionalCompany.isEmpty())
             return ResponseEntity.badRequest().build();
         Company company = optionalCompany.get();
-
         BankAccount bankAccount = new BankAccount(bankAccountDTO);
+
         bankAccount.setCompany(company);
         bankAccountService.save(bankAccount);
+
+        company.getBankAccounts().add(bankAccount);
+        companyService.save(company);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
