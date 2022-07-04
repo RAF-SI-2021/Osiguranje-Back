@@ -46,6 +46,7 @@
         <module>buying-market</module>
         <module>otc</module>
         <module>account-transaction</module>
+        <module>osiguranje-dto</module>
     </modules>
 
     <properties>
