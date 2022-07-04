@@ -1,19 +1,21 @@
 package app.model.api;
 
-import app.model.Action;
+
+import app.model.TransactionType;
 import lombok.*;
 
-@Getter
 @AllArgsConstructor
 public class TransactionOtcDto {
-    private Action action;
+
+    private TransactionType transactionType;
     private Long accountId;
     private Long securityId;
     private SecurityType securityType;
     private Long userId;
     private Long currencyId;
-    private double payment;
-    private double payout;
-    private double reserve;
-    private double usedReserve;
+    private int payment;
+    private int payout;
+    private int reserve;
+    private int usedReserve;
+
 }

@@ -1,5 +1,5 @@
 package app.model;
 
-public enum Action {
+public enum TransactionType {
     BUY, SELL
 }
