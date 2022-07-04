@@ -124,6 +124,40 @@ public class CompanyController {
     }
 
     @CrossOrigin(origins = "*")
+    @PutMapping(path = "/{id}/employees", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> updateEmployee(@NotNull @PathVariable Long id, @RequestBody EmployeeDTO employeeDTO) {
+        Optional<Company> optionalCompany = companyService.findByID(id);
+        if(optionalCompany.isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        Optional<Employee> optionalEmployee = employeeService.findByID(employeeDTO.getId());
+        if(optionalEmployee.isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        Employee employee = optionalEmployee.get();
+        employeeService.update(employee, employeeDTO);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "*")
+    @PutMapping(path = "/{id}/bank-accounts", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> updateBankAccount(@NotNull @PathVariable Long id, @RequestBody BankAccountDTO bankAccountDTO) {
+        Optional<Company> optionalCompany = companyService.findByID(id);
+        if(optionalCompany.isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        Optional<BankAccount> optionalBankAccount = bankAccountService.findByID(bankAccountDTO.getId());
+        if(optionalBankAccount.isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        BankAccount bankAccount = optionalBankAccount.get();
+        bankAccountService.update(bankAccount, bankAccountDTO);
+
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @CrossOrigin(origins = "*")
     @DeleteMapping("/{companyID}/bank-accounts/{employeeID}")
     public ResponseEntity<?> deleteEmployee(@NotNull @PathVariable Long companyID, @NotNull @PathVariable Long employeeID) {
         employeeService.deleteByID(employeeID);
