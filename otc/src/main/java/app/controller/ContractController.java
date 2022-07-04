@@ -13,9 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.constraints.NotNull;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/contracts")
@@ -31,6 +29,8 @@ public class ContractController {
         this.companyService = companyService;
         this.transactionService = transactionService;
     }
+
+    // todo da li contract moze da se obrise
 
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
@@ -57,16 +57,20 @@ public class ContractController {
         if(optionalCompany.isEmpty())
             return ResponseEntity.badRequest().build();
         Company company = optionalCompany.get();
-
         Contract contract = new Contract(createContractDTO);
+
         contract.setCompany(company);
         contractService.save(contract);
+
+        company.getContracts().add(contract);
+        companyService.save(company);
+
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "*")
     @PostMapping(path = "/{id}/finalize", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> finalizeContract(@NotNull @PathVariable Long id) {
+    public ResponseEntity<HttpStatus> finalizeContract(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String jwt) {
         Optional<Contract> optionalContract = contractService.findByID(id);
 
         if(optionalContract.isEmpty())
@@ -92,6 +96,8 @@ public class ContractController {
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("Authorization","Bearer " + jwt);
             HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
             ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
             String responseStr;
@@ -108,8 +114,8 @@ public class ContractController {
     }
 
     @CrossOrigin(origins = "*")
-    @PostMapping(path = "/{id}/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> createTransaction(@NotNull @PathVariable Long id, @RequestBody TransactionItemDTO transactionItemDTO) {
+    @PostMapping(path = "/{id}/transaction-items", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<HttpStatus> createTransaction(@NotNull @PathVariable Long id, @RequestBody TransactionItemDTO transactionItemDTO, @RequestHeader("Authorization") String authorization) {
         Optional<Contract> optionalContract = contractService.findByID(id);
 
         if(optionalContract.isEmpty())
@@ -129,8 +135,11 @@ public class ContractController {
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
-        HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("Authorization","Bearer " + authorization);
+
+        HttpEntity<?> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {
             responseStr = Objects.requireNonNull(response.getBody());
@@ -146,8 +155,8 @@ public class ContractController {
     }
 
     @CrossOrigin(origins = "*")
-    @DeleteMapping("/{contractID}/transactions/{transactionID}")
-    public ResponseEntity<?> deleteTransaction(@NotNull @PathVariable Long contractID, @NotNull @PathVariable Long transactionID) {
+    @DeleteMapping("/{contractID}/transaction-items/{transactionID}")
+    public ResponseEntity<?> deleteTransaction(@NotNull @PathVariable Long contractID, @NotNull @PathVariable Long transactionID, @RequestHeader("Authorization") String authorization) {
         Optional<Contract> optionalContract = contractService.findByID(contractID);
 
         if(optionalContract.isEmpty())
@@ -172,14 +181,15 @@ public class ContractController {
 
         TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, 0, usedReserve);
 
-        RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization","Bearer " + authorization);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        RestTemplate rest = new RestTemplate();
         HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
         ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
-        String responseStr;
         try {
-            responseStr = Objects.requireNonNull(response.getBody());
-            System.out.println(responseStr);
+            Objects.requireNonNull(response.getBody());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -189,8 +199,8 @@ public class ContractController {
     }
 
     @CrossOrigin(origins = "*")
-    @PutMapping(path = "/{contractID}/transactions", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateTransaction(@NotNull @PathVariable Long contractID, @RequestBody TransactionItemDTO transactionItemDTO) {
+    @PutMapping(path = "/{contractID}/transaction-items", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateTransaction(@NotNull @PathVariable Long contractID, @RequestBody TransactionItemDTO transactionItemDTO, @RequestHeader("Authorization") String authorization) {
         Optional<Contract> optionalContract = contractService.findByID(contractID);
         if(optionalContract.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -214,15 +224,15 @@ public class ContractController {
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization","Bearer " + authorization);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
         ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {
             responseStr = Objects.requireNonNull(response.getBody());
             System.out.println(responseStr);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
 
         if(transactionItemDTO.getTransactionType().equals(TransactionType.BUY))
             reserve = (int) (transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare());
@@ -233,11 +243,12 @@ public class ContractController {
 
         rest = new RestTemplate();
         headers = new HttpHeaders();
+        headers.add("Authorization","Bearer " + authorization);
+        headers.setContentType(MediaType.APPLICATION_JSON);
         requestEntity = new HttpEntity<>(transactionOtcDto, headers);
         response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transactions/otc", HttpMethod.POST, requestEntity, String.class);
         try {
-            responseStr = Objects.requireNonNull(response.getBody());
-            System.out.println(responseStr);
+            Objects.requireNonNull(response.getBody());
         } catch (Exception e) {
             e.printStackTrace();
         }

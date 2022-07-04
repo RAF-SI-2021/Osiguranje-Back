@@ -4,8 +4,10 @@ import app.model.TransactionItem;
 import app.model.TransactionType;
 import app.model.api.SecurityType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class TransactionItemDTO {
 
     private Long id;
