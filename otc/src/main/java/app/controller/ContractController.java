@@ -34,14 +34,14 @@ public class ContractController {
 
     @CrossOrigin(origins = "*")
     @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getContracts(){
+    public ResponseEntity<?> getContracts(@RequestHeader("Authorization") String authorization){
         List<ContractDTO> data = ListMapper.contractToContractDTO(contractService.findAll());
         return ResponseEntity.ok(data);
     }
 
     @CrossOrigin(origins = "*")
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getContract(@NotNull @PathVariable Long id){
+    public ResponseEntity<?> getContract(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization){
         Optional<Contract> optionalContract = contractService.findByID(id);
         if(optionalContract.isEmpty())
             return ResponseEntity.badRequest().build();
@@ -52,7 +52,7 @@ public class ContractController {
 
     @CrossOrigin(origins = "*")
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> createContract(@RequestBody CreateContractDTO createContractDTO) {
+    public ResponseEntity<HttpStatus> createContract(@RequestBody CreateContractDTO createContractDTO, @RequestHeader("Authorization") String authorization) {
         Optional<Company> optionalCompany = companyService.findByID(createContractDTO.getCompanyID());
         if(optionalCompany.isEmpty())
             return ResponseEntity.badRequest().build();
