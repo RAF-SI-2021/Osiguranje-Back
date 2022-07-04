@@ -32,7 +32,7 @@ public class TransactionService {
             return;
 
         TransactionItem transactionItem = optionalTransaction.get();
-        transactionItem.setAction(transactionItemDTO.getAction());
+        transactionItem.setTransactionType(transactionItemDTO.getTransactionType());
         transactionItem.setSecurityId(transactionItemDTO.getSecurityId());
         transactionItem.setSecurityType(transactionItemDTO.getSecurityType());
         transactionItem.setAccountId(transactionItemDTO.getAccountId());
