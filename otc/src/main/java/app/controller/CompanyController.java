@@ -152,13 +152,17 @@ public class CompanyController {
             return ResponseEntity.badRequest().build();
 
         BankAccount bankAccount = optionalBankAccount.get();
+
+        if(!bankAccountDTO.getAccountNumber().equals(bankAccount.getAccontNumber()))
+            return ResponseEntity.badRequest().build();
+
         bankAccountService.update(bankAccount, bankAccountDTO);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @CrossOrigin(origins = "*")
-    @DeleteMapping("/{companyID}/bank-accounts/{employeeID}")
+    @DeleteMapping("/{companyID}/employees/{employeeID}")
     public ResponseEntity<?> deleteEmployee(@NotNull @PathVariable Long companyID, @NotNull @PathVariable Long employeeID) {
         employeeService.deleteByID(employeeID);
         return ResponseEntity.ok().build();
