@@ -1,15 +1,17 @@
 package app.model.dto;
 
-import app.model.Action;
 import app.model.TransactionItem;
+import app.model.TransactionType;
 import app.model.api.SecurityType;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
 public class TransactionItemDTO {
 
     private Long id;
-    private Action action;
+    private TransactionType transactionType;
     private Long securityId;
     private SecurityType securityType;
     private Long accountId;
@@ -19,7 +21,7 @@ public class TransactionItemDTO {
 
     public TransactionItemDTO(TransactionItem transactionItem) {
         this.id = transactionItem.getId();
-        this.action = transactionItem.getAction();
+        this.transactionType = transactionItem.getTransactionType();
         this.securityId = transactionItem.getSecurityId();
         this.securityType = transactionItem.getSecurityType();
         this.accountId = transactionItem.getAccountId();

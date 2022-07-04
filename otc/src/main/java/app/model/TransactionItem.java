@@ -17,7 +17,7 @@ public class TransactionItem {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column
-    private Action action;
+    private TransactionType transactionType;
     @Column
     private Long securityId;
     @Column
@@ -32,7 +32,7 @@ public class TransactionItem {
     private double pricePerShare;
 
     public TransactionItem(TransactionItemDTO transactionItemDTO) {
-        this.action = transactionItemDTO.getAction();
+        this.transactionType = transactionItemDTO.getTransactionType();
         this.securityId = transactionItemDTO.getSecurityId();
         this.securityType = transactionItemDTO.getSecurityType();
         this.accountId = transactionItemDTO.getAccountId();
