@@ -74,21 +74,21 @@ public class ContractController {
         Contract contract = optionalContract.get();
 
         for (TransactionItem transactionItem : contract.getTransactionItems()){
-            double usedReserve;
-            double payment;
-            double payout;
-            if(transactionItem.getAction().equals(Action.BUY)){
-                usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
+            int usedReserve;
+            int payment;
+            int payout;
+            if(transactionItem.getTransactionType().equals(TransactionType.BUY)){
+                usedReserve = (int) (transactionItem.getAmount() * transactionItem.getPricePerShare());
                 payment = usedReserve;
                 payout = transactionItem.getAmount();
             }
             else {
                 usedReserve = transactionItem.getAmount();
                 payment = usedReserve;
-                payout = transactionItem.getAmount() * transactionItem.getPricePerShare();
+                payout = (int) (transactionItem.getAmount() * transactionItem.getPricePerShare());
             }
 
-            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), payment, payout, 0, usedReserve);
+            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), payment, payout, 0, usedReserve);
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
@@ -119,16 +119,13 @@ public class ContractController {
         if (contract.getStatus().equals(Status.FINALIZED))
             return ResponseEntity.badRequest().build();
 
-        double payment = 0;
-        double payout = 0;
-        double reserve;
-        double usedReserve = 0;
-        if(transactionItemDTO.getAction().equals(Action.BUY))
-            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        int reserve;
+        if(transactionItemDTO.getTransactionType().equals(TransactionType.BUY))
+            reserve = (int) (transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare());
         else
             reserve = transactionItemDTO.getAmount();
 
-        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getAction(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), payment, payout, reserve, usedReserve);
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getTransactionType(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), 0, 0, reserve, 0);
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -167,13 +164,13 @@ public class ContractController {
 
         TransactionItem transactionItem = optionalTransaction.get();
 
-        double usedReserve;
-        if(transactionItem.getAction().equals(Action.BUY))
-            usedReserve = transactionItem.getAmount() * transactionItem.getPricePerShare();
+        int usedReserve;
+        if(transactionItem.getTransactionType().equals(TransactionType.BUY))
+            usedReserve = (int) (transactionItem.getAmount() * transactionItem.getPricePerShare());
         else
             usedReserve = transactionItem.getAmount();
 
-        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, 0, usedReserve);
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, 0, usedReserve);
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -207,13 +204,13 @@ public class ContractController {
 
         TransactionItem transactionItem = optionalTransaction.get();
 
-        double reserve;
-        if(transactionItem.getAction().equals(Action.BUY))
-            reserve = - 1 * transactionItem.getAmount() * transactionItem.getPricePerShare();
+        int reserve;
+        if(transactionItem.getTransactionType().equals(TransactionType.BUY))
+            reserve = (int) (- 1 * transactionItem.getAmount() * transactionItem.getPricePerShare());
         else
             reserve = -1 * transactionItem.getAmount();
 
-        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getAction(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, reserve, 0);
+        TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), 0, 0, reserve, 0);
 
         RestTemplate rest = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
@@ -227,12 +224,12 @@ public class ContractController {
             e.printStackTrace();
         }
 
-        if(transactionItemDTO.getAction().equals(Action.BUY))
-            reserve = transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare();
+        if(transactionItemDTO.getTransactionType().equals(TransactionType.BUY))
+            reserve = (int) (transactionItemDTO.getAmount() * transactionItemDTO.getPricePerShare());
         else
             reserve = transactionItemDTO.getAmount();
 
-        transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getAction(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), 0, 0, reserve, 0);
+        transactionOtcDto = new TransactionOtcDto(transactionItemDTO.getTransactionType(), transactionItemDTO.getAccountId(), transactionItemDTO.getSecurityId(), transactionItemDTO.getSecurityType(), 0L, transactionItemDTO.getCurrencyId(), 0, 0, reserve, 0);
 
         rest = new RestTemplate();
         headers = new HttpHeaders();
