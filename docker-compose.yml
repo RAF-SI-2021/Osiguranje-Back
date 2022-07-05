@@ -171,8 +171,8 @@ volumes:
   eureka:
   gateway:
   usercrud:
-  securities:
   buyingmarket:
+  securities:
   pythonflask:
   account-transaction:
 
