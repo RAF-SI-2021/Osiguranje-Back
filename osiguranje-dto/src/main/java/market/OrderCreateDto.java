@@ -1,17 +1,13 @@
 package market;
 
-import buyingmarket.model.ActionType;
-import buyingmarket.model.SecurityType;
 
-import javax.validation.constraints.NotNull;
+import securities.SecurityType;
+
 import java.math.BigDecimal;
 
 public class OrderCreateDto {
-    @NotNull
     private Long securityId;
-    @NotNull
     private Integer amount;
-    @NotNull
     private SecurityType securityType;
     private Boolean allOrNone;
     private BigDecimal margin;

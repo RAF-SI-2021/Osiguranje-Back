@@ -2,6 +2,9 @@ package buyingmarket.model;
 
 import buyingmarket.mappers.SetToLongConverter;
 import lombok.*;
+import market.ActionType;
+import market.OrderState;
+import securities.SecurityType;
 
 import javax.persistence.*;
 

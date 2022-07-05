@@ -1,8 +1,7 @@
 package buyingmarket.formulas;
 
 import buyingmarket.model.Order;
-import buyingmarket.model.dto.SecurityDto;
-import org.springframework.stereotype.Component;
+import market.SecurityDto;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;

@@ -1,5 +1,7 @@
 package buyingmarket.model;
 
+import market.ActuaryType;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Collection;

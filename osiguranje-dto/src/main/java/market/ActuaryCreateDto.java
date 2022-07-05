@@ -1,7 +1,5 @@
 package market;
 
-import buyingmarket.model.ActuaryType;
-
 import java.math.BigDecimal;
 
 public class ActuaryCreateDto {

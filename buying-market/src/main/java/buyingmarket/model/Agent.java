@@ -1,5 +1,7 @@
 package buyingmarket.model;
 
+import market.ActuaryType;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 
@@ -12,7 +14,7 @@ public class Agent extends Actuary {
     }
 
     public Agent(Long userId, BigDecimal spendingLimit, Boolean approvalRequired) {
-        super(userId,ActuaryType.AGENT);
+        super(userId, ActuaryType.AGENT);
         this.spendingLimit = spendingLimit;
         this.approvalRequired = approvalRequired;
         this.usedLimit = new BigDecimal(0);

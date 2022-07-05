@@ -1,12 +1,11 @@
 package buyingmarket.mappers;
 
 import buyingmarket.model.Order;
-import buyingmarket.model.OrderState;
-import buyingmarket.model.dto.OrderCreateDto;
-import buyingmarket.model.dto.OrderDto;
 
 import lombok.NoArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import market.OrderCreateDto;
+import market.OrderDto;
+import market.OrderState;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package buyingmarket.model;
+package market;
 
 public enum ActuaryType {
     SUPERVISOR, AGENT

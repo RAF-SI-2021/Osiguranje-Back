@@ -1,5 +1,7 @@
 package buyingmarket.model;
 
+import market.ActuaryType;
+
 import javax.persistence.Entity;
 
 @Entity
@@ -8,6 +10,6 @@ public class Supervisor extends Actuary {
     }
 
     public Supervisor(Long userId) {
-        super(userId,ActuaryType.SUPERVISOR);
+        super(userId, ActuaryType.SUPERVISOR);
     }
 }
