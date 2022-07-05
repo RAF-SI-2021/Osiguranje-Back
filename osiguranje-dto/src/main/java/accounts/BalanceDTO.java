@@ -1,6 +1,7 @@
-package raf.osiguranje.accounttransaction.model.dto;
+package accounts;
 
 import lombok.*;
+import securities.SecurityType;
 
 @Getter
 @Setter

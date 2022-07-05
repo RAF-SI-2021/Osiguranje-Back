@@ -1,10 +1,10 @@
 package raf.osiguranje.accounttransaction.model;
 
+import accounts.BalanceDTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import raf.osiguranje.accounttransaction.model.dto.BalanceDTO;
-import raf.osiguranje.accounttransaction.model.dto.SecurityType;
+import securities.SecurityType;
 
 import javax.persistence.*;
 

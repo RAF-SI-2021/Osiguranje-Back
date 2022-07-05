@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.AccountType;
 import raf.osiguranje.accounttransaction.model.Balance;
-import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
+import securities.SecurityType;
 
 import java.util.List;
 

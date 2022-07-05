@@ -1,13 +1,13 @@
 package raf.osiguranje.accounttransaction.model;
 
 
+import accounts.TransactionDto;
+import accounts.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
-import raf.osiguranje.accounttransaction.model.dto.OrderDto;
-import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
-import raf.osiguranje.accounttransaction.model.dto.TransactionType;
+import market.OrderDto;
+
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -90,10 +90,10 @@ public class Transaction {
                 '}';
     }
 
-    public TransactionDTO getDto(){
+    public TransactionDto getDto(){
         OrderDto ord = new OrderDto();
         ord.setOrderId(this.orderId);
-        return new TransactionDTO(this.id,this.accountId,this.timestamp,ord,this.userId,this.currencyId,
+        return new TransactionDto(this.id,this.accountId,this.timestamp,ord,this.userId,this.currencyId,
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve,transactionType);
     }
 

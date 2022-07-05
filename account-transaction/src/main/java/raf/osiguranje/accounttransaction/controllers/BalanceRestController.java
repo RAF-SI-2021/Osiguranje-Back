@@ -1,17 +1,16 @@
 package raf.osiguranje.accounttransaction.controllers;
 
 
+import accounts.BalanceDTO;
+import accounts.BalanceUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.osiguranje.accounttransaction.model.Balance;
-import raf.osiguranje.accounttransaction.model.dto.BalanceDTO;
-import raf.osiguranje.accounttransaction.model.dto.BalanceUpdateDto;
 import raf.osiguranje.accounttransaction.services.BalanceService;
 import raf.osiguranje.accounttransaction.services.TransactionService;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class BalanceRestController {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveBalance(@RequestBody BalanceDTO input,@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> saveBalance(@RequestBody BalanceDTO input, @RequestHeader("Authorization") String authorization) {
         System.out.println(input.toString());
 
         try {
@@ -83,7 +82,7 @@ public class BalanceRestController {
     }
 
     @PostMapping(path="/amount",produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
+    public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input, @RequestHeader("Authorization") String authorization){
 
         try {
             transactionService.updateBalanceTransaction(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount(),authorization);

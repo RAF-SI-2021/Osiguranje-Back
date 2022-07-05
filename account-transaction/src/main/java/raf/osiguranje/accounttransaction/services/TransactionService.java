@@ -1,18 +1,20 @@
 package raf.osiguranje.accounttransaction.services;
 
+import accounts.BalanceUpdateDto;
+import accounts.TransactionDto;
+import accounts.TransactionOtcDto;
+import accounts.TransactionType;
 import lombok.NoArgsConstructor;
+import market.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.Transaction;
-import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.TransactionRepository;
+import securities.SecurityType;
 
 import java.util.List;
 import java.util.Optional;
@@ -43,7 +45,7 @@ public class TransactionService {
 
 
 
-    public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
+    public Transaction getTransactionFromDto(TransactionDto transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
                 transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
@@ -71,7 +73,7 @@ public class TransactionService {
         if(transaction.getTransactionType().equals(TransactionType.BUY)){
             if(transaction.getReserve() != 0){
                 int val = transaction.getReserve();
-                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,val),jwt);
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(), SecurityType.CURRENCY,val),jwt);
             }
             if(transaction.getUsedReserve() != 0){
                 int val = -transaction.getUsedReserve();
@@ -110,7 +112,7 @@ public class TransactionService {
     }
 
 
-    public Transaction createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
+    public Transaction createTransaction(TransactionDto transactionDTO, String jwt) throws Exception{
         System.out.println(transactionDTO);
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
         if(tmpAccount==null){

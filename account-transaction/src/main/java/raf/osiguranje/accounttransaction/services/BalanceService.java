@@ -1,5 +1,6 @@
 package raf.osiguranje.accounttransaction.services;
 
+import accounts.BalanceUpdateDto;
 import io.jsonwebtoken.Jwts;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,9 +15,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
-import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
+import securities.CurrencyDTO;
+import securities.SecurityDTO;
+import securities.SecurityType;
+import users.UserDto;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -118,7 +122,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public Optional<Balance> getBalancesByFullId(Long accountId, Long security,SecurityType securityType){
+    public Optional<Balance> getBalancesByFullId(Long accountId, Long security, SecurityType securityType){
         Account account = accountRepository.findAccountByAccountNumber(accountId);
         if(account==null){
             return Optional.empty();
@@ -148,7 +152,7 @@ public class BalanceService {
     }
 
     @Transactional
-    public boolean updateReserve(BalanceUpdateDto input,String jwt) throws Exception{
+    public boolean updateReserve(BalanceUpdateDto input, String jwt) throws Exception{
         Optional<Balance> balanceOptional = getBalancesByFullId(input.getAccountId(), input.getSecurityId(), input.getSecurityType());
         if(balanceOptional.isEmpty()){
             throw new Exception("Couldn't find balance" + input);
