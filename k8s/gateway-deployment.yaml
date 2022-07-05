@@ -44,6 +44,10 @@ spec:
               value: "8092"
             - name: MARKET_INTERNAL_PORT
               value: "8092"
+            - name: OTC_EXTERNAL_PORT
+              value: "8094"
+            - name: OTC_INTERNAL_PORT
+              value: "8094"
             - name: MYSQL_EXTERNAL_PORT
               value: "3307"
             - name: MYSQL_INTERNAL_PORT
