@@ -68,9 +68,4 @@
             <version>0.8.8</version>
         </dependency>
     </dependencies>
-    <dependencyManagement>
-        <dependencies>
-
-        </dependencies>
-    </dependencyManagement>
 </project>

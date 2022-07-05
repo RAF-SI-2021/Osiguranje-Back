@@ -1,7 +1,14 @@
 package otc;
 
-import app.model.Company;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class SimpleCompanyDTO {
 
     private Long id;
@@ -11,12 +18,5 @@ public class SimpleCompanyDTO {
     private Long industrialClassificationID;
     private String address;
 
-    public SimpleCompanyDTO(Company company) {
-        this.id = company.getId();
-        this.registrationID = company.getRegistrationID();
-        this.name = company.getName();
-        this.taxID = company.getTaxID();
-        this.industrialClassificationID = company.getIndustrialClassificationID();
-        this.address = company.getAddress();
-    }
+
 }
