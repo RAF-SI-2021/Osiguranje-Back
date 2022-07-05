@@ -114,7 +114,7 @@
         <dependency>
             <groupId>raf.osiguranje</groupId>
             <artifactId>osiguranje-dto</artifactId>
-            <version>0.1-SNAPSHOT</version>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 
