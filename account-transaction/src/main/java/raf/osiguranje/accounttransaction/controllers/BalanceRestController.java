@@ -1,8 +1,8 @@
 package raf.osiguranje.accounttransaction.controllers;
 
 
-import accounts.BalanceDTO;
-import accounts.BalanceUpdateDto;
+import dto.accounts.BalanceDTO;
+import dto.accounts.BalanceUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;

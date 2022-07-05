@@ -1,12 +1,12 @@
 package raf.osiguranje.accounttransaction.model;
 
 
-import accounts.TransactionDto;
-import accounts.TransactionType;
+import dto.accounts.TransactionDto;
+import dto.accounts.TransactionType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
-import market.OrderDto;
+import dto.market.OrderDto;
 
 
 import javax.persistence.*;

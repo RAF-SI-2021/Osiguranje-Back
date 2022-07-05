@@ -1,11 +1,11 @@
 package raf.osiguranje.accounttransaction.services;
 
-import accounts.BalanceUpdateDto;
-import accounts.TransactionDto;
-import accounts.TransactionOtcDto;
-import accounts.TransactionType;
+import dto.accounts.BalanceUpdateDto;
+import dto.accounts.TransactionDto;
+import dto.accounts.TransactionOtcDto;
+import dto.accounts.TransactionType;
 import lombok.NoArgsConstructor;
-import market.OrderDto;
+import dto.market.OrderDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.Transaction;
 import raf.osiguranje.accounttransaction.repositories.TransactionRepository;
-import securities.SecurityType;
+import dto.securities.SecurityType;
 
 import java.util.List;
 import java.util.Optional;

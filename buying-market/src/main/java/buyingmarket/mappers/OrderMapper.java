@@ -3,9 +3,9 @@ package buyingmarket.mappers;
 import buyingmarket.model.Order;
 
 import lombok.NoArgsConstructor;
-import market.OrderCreateDto;
-import market.OrderDto;
-import market.OrderState;
+import dto.market.OrderCreateDto;
+import dto.market.OrderDto;
+import dto.market.OrderState;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;

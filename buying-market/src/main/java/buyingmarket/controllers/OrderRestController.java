@@ -1,9 +1,9 @@
 package buyingmarket.controllers;
 
 import buyingmarket.services.OrderService;
-import market.OrderCreateDto;
-import market.OrderDto;
-import market.OrderState;
+import dto.market.OrderCreateDto;
+import dto.market.OrderDto;
+import dto.market.OrderState;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

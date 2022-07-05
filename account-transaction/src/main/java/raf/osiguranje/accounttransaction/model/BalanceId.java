@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import securities.SecurityType;
+import dto.securities.SecurityType;
 
 import java.io.Serializable;
 import java.util.Objects;

@@ -1,6 +1,6 @@
 package raf.osiguranje.accounttransaction.services;
 
-import accounts.BalanceUpdateDto;
+import dto.accounts.BalanceUpdateDto;
 import io.jsonwebtoken.Jwts;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +17,10 @@ import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
-import securities.CurrencyDTO;
-import securities.SecurityDTO;
-import securities.SecurityType;
-import users.UserDto;
+import dto.securities.CurrencyDTO;
+import dto.securities.SecurityDTO;
+import dto.securities.SecurityType;
+import dto.users.UserDto;
 
 import java.util.ArrayList;
 import java.util.Collections;

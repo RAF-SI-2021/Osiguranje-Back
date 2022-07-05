@@ -1,6 +1,6 @@
 package buyingmarket.model;
 
-import market.ActuaryType;
+import dto.market.ActuaryType;
 
 import javax.persistence.Entity;
 

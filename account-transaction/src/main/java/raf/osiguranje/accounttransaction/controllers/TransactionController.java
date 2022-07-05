@@ -1,7 +1,7 @@
 package raf.osiguranje.accounttransaction.controllers;
 
-import accounts.TransactionDto;
-import accounts.TransactionOtcDto;
+import dto.accounts.TransactionDto;
+import dto.accounts.TransactionOtcDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

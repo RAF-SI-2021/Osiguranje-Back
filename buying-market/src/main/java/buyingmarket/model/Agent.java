@@ -1,8 +1,7 @@
 package buyingmarket.model;
 
-import market.ActuaryType;
+import dto.market.ActuaryType;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 
 import java.math.BigDecimal;

@@ -3,8 +3,8 @@ package buyingmarket.mappers;
 import buyingmarket.model.Actuary;
 import buyingmarket.model.Agent;
 import buyingmarket.model.Supervisor;
-import market.ActuaryCreateDto;
-import market.ActuaryType;
+import dto.market.ActuaryCreateDto;
+import dto.market.ActuaryType;
 import org.springframework.stereotype.Component;
 
 @Component

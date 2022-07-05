@@ -1,7 +1,7 @@
 package buyingmarket.controllers;
 
 import buyingmarket.services.ActuaryService;
-import market.ActuaryCreateDto;
+import dto.market.ActuaryCreateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

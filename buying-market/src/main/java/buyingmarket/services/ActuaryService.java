@@ -6,7 +6,7 @@ import buyingmarket.model.Actuary;
 import buyingmarket.model.Agent;
 import buyingmarket.repositories.ActuaryRepository;
 import io.jsonwebtoken.Jwts;
-import market.ActuaryCreateDto;
+import dto.market.ActuaryCreateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;

@@ -1,7 +1,7 @@
 package buyingmarket.formulas;
 
 import buyingmarket.model.Order;
-import market.SecurityDto;
+import dto.market.SecurityDto;
 
 import java.math.BigDecimal;
 import java.util.concurrent.ThreadLocalRandom;

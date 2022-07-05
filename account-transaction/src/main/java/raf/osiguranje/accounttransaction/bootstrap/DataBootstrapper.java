@@ -8,7 +8,7 @@ import raf.osiguranje.accounttransaction.model.AccountType;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
-import securities.SecurityType;
+import dto.securities.SecurityType;
 
 import java.util.List;
 

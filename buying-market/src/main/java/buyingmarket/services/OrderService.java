@@ -1,13 +1,14 @@
 package buyingmarket.services;
 
-import accounts.TransactionDto;
-import accounts.TransactionType;
+import dto.accounts.TransactionDto;
+import dto.accounts.TransactionType;
 import buyingmarket.exceptions.OrderNotFoundException;
 import buyingmarket.exceptions.UpdateNotAllowedException;
 import buyingmarket.formulas.FormulaCalculator;
 import buyingmarket.mappers.OrderMapper;
 import buyingmarket.model.*;
 import buyingmarket.repositories.OrderRepository;
+import dto.market.*;
 import market.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
