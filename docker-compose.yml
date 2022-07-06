@@ -80,6 +80,7 @@ services:
       ZUUL_ROUTES_BUYINGMARKET_URL: http://buyingmarket:$MARKET_INTERNAL_PORT/api
       ZUUL_ROUTES_STOCKINFO_URL: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
       ZUUL_ROUTES_TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+      ZUUL_ROUTES_OTC_URL: http://otc:$OTC_INTERNAL_PORT
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     networks:
@@ -103,6 +104,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       REDIS_HOSTNAME: redis_db
       REDIS_PORT: $REDIS_INTERNAL_PORT
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
     ports:
       - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
@@ -123,6 +125,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
     ports:
       - $OTC_EXTERNAL_PORT:$OTC_INTERNAL_PORT
     volumes:
@@ -143,7 +146,7 @@ services:
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       API_USERCRUD: http://usercrud:$USERCRUD_INTERNAL_PORT
-      API_SECURITIES: http://securities:$SECURITIES_INTERNAL_PORT
+      API_SECURITIES: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
     ports:
       - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
     volumes:
@@ -195,6 +198,7 @@ volumes:
   buyingmarket:
   pythonflask:
   account-transaction:
+  otc:
 
 networks:
   nginx:
