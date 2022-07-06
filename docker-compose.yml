@@ -112,6 +112,26 @@ services:
     networks:
       - backend
 
+
+  otc:
+    depends_on:
+      - mysqldb
+      - eureka
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/otc
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+    ports:
+      - $OTC_EXTERNAL_PORT:$OTC_INTERNAL_PORT
+    volumes:
+      - otc:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
+
   account-transaction:
     depends_on:
       - mysqldb

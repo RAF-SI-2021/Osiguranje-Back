@@ -9,6 +9,7 @@ import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.dto.BalanceDTO;
 import raf.osiguranje.accounttransaction.model.dto.BalanceUpdateDto;
 import raf.osiguranje.accounttransaction.services.BalanceService;
+import raf.osiguranje.accounttransaction.services.TransactionService;
 
 import java.util.Collections;
 import java.util.List;
@@ -22,10 +23,13 @@ public class BalanceRestController {
 
 
     private final BalanceService balanceService;
+    private final TransactionService transactionService;
+
 
     @Autowired
-    public BalanceRestController(BalanceService balanceService) {
+    public BalanceRestController(BalanceService balanceService, TransactionService transactionService) {
         this.balanceService = balanceService;
+        this.transactionService = transactionService;
     }
 
     @GetMapping(path="/all",produces=MediaType.APPLICATION_JSON_VALUE)
@@ -82,22 +86,22 @@ public class BalanceRestController {
     public ResponseEntity<?> updateAmount(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
 
         try {
-            balanceService.updateAmount(input,authorization);
+            transactionService.updateBalanceTransaction(input.getAccountId(), input.getSecurityId(), input.getSecurityType(),input.getAmount(),authorization);
             return ResponseEntity.accepted().build();
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
-    @PostMapping(path="/reserve",produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> updateReserved(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
-        try {
-            balanceService.updateReserve(input,authorization);
-            return ResponseEntity.accepted().build();
-        }catch (Exception e){
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
-    }
+//    @PostMapping(path="/reserve",produces=MediaType.APPLICATION_JSON_VALUE)
+//    public ResponseEntity<?> updateReserved(@RequestBody BalanceUpdateDto input,@RequestHeader("Authorization") String authorization){
+//        try {
+//            balanceService.updateReserve(input,authorization);
+//            return ResponseEntity.accepted().build();
+//        }catch (Exception e){
+//            return ResponseEntity.badRequest().body(e.getMessage());
+//        }
+//    }
 
 
 }
