@@ -36,9 +36,15 @@ public class OrderRestController {
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> findAll(@RequestHeader("Authorization") String authorization) {
-        List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+    public ResponseEntity<?> findAll(@RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @GetMapping("/{id}")
