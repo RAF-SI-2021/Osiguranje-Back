@@ -96,6 +96,8 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/transaction/**").hasRole("USER")
                 .antMatchers("/account/**").hasRole("USER")
                 .antMatchers("/balance/**").hasRole("USER")
+                .antMatchers("/companies/**").hasRole("USER")
+                .antMatchers("/contracts/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable()
