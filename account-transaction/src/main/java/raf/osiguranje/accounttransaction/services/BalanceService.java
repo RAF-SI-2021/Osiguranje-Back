@@ -202,7 +202,7 @@ public class BalanceService {
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, CurrencyDTO.class);
         } catch(RestClientException e) {
-            throw new Exception("Something went wrong while trying to retrieve security info");
+            throw new Exception("Something went wrong while trying to retrieve currency info");
         }
 
         CurrencyDTO currencyDTO = null;
@@ -219,6 +219,7 @@ public class BalanceService {
 
     protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
+        System.out.println(urlString);
         ResponseEntity<SecurityDTO> response;
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDTO.class);

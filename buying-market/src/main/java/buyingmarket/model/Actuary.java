@@ -33,6 +33,9 @@ public class Actuary {
 
     public Actuary() {
         this.orders = new HashSet<>();
+        this.spendingLimit = BigDecimal.ZERO;
+        this.usedLimit = BigDecimal.ZERO;
+        this.approvalRequired = false;
     }
 
     public Actuary(Long userId,ActuaryType actuaryType) {

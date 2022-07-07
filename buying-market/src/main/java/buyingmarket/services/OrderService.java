@@ -125,6 +125,7 @@ public class OrderService {
 
     protected SecurityDto getSecurityFromOrder(Order order) {
         String urlString = securitiesApiUrl + "/api/data/" + order.getSecurityType().toString().toLowerCase() + "/" + order.getSecurityId();
+        System.out.println(urlString);
         ResponseEntity<SecurityDto> response = rest.exchange(urlString, HttpMethod.GET, null, SecurityDto.class);
         SecurityDto security = null;
         if(response.getBody() != null) {
