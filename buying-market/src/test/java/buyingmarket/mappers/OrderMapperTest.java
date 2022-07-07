@@ -61,7 +61,7 @@ class OrderMapperTest {
         Order actualOrderCreateDtoToOrderResult = this.orderMapper.orderCreateDtoToOrder(orderCreateDto);
         assertEquals(ActionType.BUY, actualOrderCreateDtoToOrderResult.getActionType());
         assertNull(actualOrderCreateDtoToOrderResult.getUserId());
-        assertNull(actualOrderCreateDtoToOrderResult.getTransactions());
+        assertEquals(new HashSet<>(), actualOrderCreateDtoToOrderResult.getTransactions());
         BigDecimal stopPrice = actualOrderCreateDtoToOrderResult.getStopPrice();
         assertEquals(valueOfResult, stopPrice);
         assertEquals(SecurityType.STOCKS, actualOrderCreateDtoToOrderResult.getSecurityType());
@@ -117,7 +117,7 @@ class OrderMapperTest {
         Order actualOrderCreateDtoToOrderResult = this.orderMapper.orderCreateDtoToOrder(orderCreateDto);
         assertEquals(ActionType.BUY, actualOrderCreateDtoToOrderResult.getActionType());
         assertNull(actualOrderCreateDtoToOrderResult.getUserId());
-        assertNull(actualOrderCreateDtoToOrderResult.getTransactions());
+        assertEquals(new HashSet<>(), actualOrderCreateDtoToOrderResult.getTransactions());
         BigDecimal stopPrice = actualOrderCreateDtoToOrderResult.getStopPrice();
         assertEquals(valueOfResult, stopPrice);
         assertEquals(SecurityType.STOCKS, actualOrderCreateDtoToOrderResult.getSecurityType());

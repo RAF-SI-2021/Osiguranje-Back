@@ -246,7 +246,7 @@ class OrderServiceTest {
         Supervisor approvingActuary = new Supervisor();
         Actuary actuary1 = new Actuary();
 
-        Order order1 = new Order(123L, 123L, 123L, 10, -9, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee,
+        Order order1 = new Order(123L, 123L, 123L, 10, 9, SecurityType.STOCKS, true, margin, limitPrice, stopPrice, fee,
                 OrderState.APPROVED, ActionType.BUY, modificationDate, approvingActuary, actuary1, new HashSet<>());
         order1.setAmount(1);
         (orderService.new ExecuteOrderTask(order1, true, "Jws")).run();
