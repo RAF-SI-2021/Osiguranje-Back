@@ -3,8 +3,6 @@ package raf.osiguranje.accounttransaction.model.dto;
 
 import lombok.*;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -13,8 +11,6 @@ import java.time.LocalDateTime;
 public class TransactionOtcDto {
 
     private Long accountId;
-
-    private LocalDateTime timestamp;
 
     private Long securityId;
     private SecurityType securityType;

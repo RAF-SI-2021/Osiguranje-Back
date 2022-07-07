@@ -79,7 +79,8 @@ services:
       ZUUL_ROUTES_SECURITIES_URL: http://securities:$SECURITIES_INTERNAL_PORT/api
       ZUUL_ROUTES_BUYINGMARKET_URL: http://buyingmarket:$MARKET_INTERNAL_PORT/api
       ZUUL_ROUTES_STOCKINFO_URL: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
-      ZUUL_ROUTES_TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+      ZUUL_ROUTES_TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT/api
+      ZUUL_ROUTES_OTC_URL: http://otc:$OTC_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     networks:
@@ -101,6 +102,9 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      REDIS_HOSTNAME: redis_db
+      REDIS_PORT: $REDIS_INTERNAL_PORT
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
     ports:
       - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
@@ -110,11 +114,32 @@ services:
     networks:
       - backend
 
+
+  otc:
+    depends_on:
+      - mysqldb
+      - eureka
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/otc
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+    ports:
+      - $OTC_EXTERNAL_PORT:$OTC_INTERNAL_PORT
+    volumes:
+      - otc:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
+
   account-transaction:
     depends_on:
       - mysqldb
       - securities
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
+    image:  ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -173,6 +198,7 @@ volumes:
   buyingmarket:
   pythonflask:
   account-transaction:
+  otc:
 
 networks:
   nginx:

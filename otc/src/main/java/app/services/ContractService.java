@@ -15,12 +15,12 @@ import java.util.Optional;
 public class ContractService {
 
     private final ContractRepository contractRepository;
-    private final TransactionService transactionService;
+    private final TransactionItemService transactionItemService;
 
     @Autowired
-    public ContractService(ContractRepository contractRepository, TransactionService transactionService) {
+    public ContractService(ContractRepository contractRepository, TransactionItemService transactionItemService) {
         this.contractRepository = contractRepository;
-        this.transactionService = transactionService;
+        this.transactionItemService = transactionItemService;
     }
 
     public void save(Contract contract){
@@ -35,21 +35,21 @@ public class ContractService {
         return contractRepository.findById(id);
     }
 
-    public void createTransaction(Contract contract, TransactionItem transactionItem) {
+    public void createTransactionItem(Contract contract, TransactionItem transactionItem) {
         contract.getTransactionItems().add(transactionItem);
         contract.setLastUpdated();
         contractRepository.save(contract);
     }
 
-    public void deleteTransaction(Contract contract, Long transactionID) {
-        transactionService.deleteByID(transactionID);
+    public void deleteTransactionItem(Contract contract, Long transactionID) {
+        transactionItemService.deleteByID(transactionID);
         contract.setLastUpdated();
         contractRepository.save(contract);
     }
 
 
-    public void updateTransaction(Contract contract, TransactionItemDTO transactionItemDTO) {
-        transactionService.update(transactionItemDTO);
+    public void updateTransactionItem(Contract contract, TransactionItemDTO transactionItemDTO) {
+        transactionItemService.update(transactionItemDTO);
         contract.setLastUpdated();
         contractRepository.save(contract);
     }

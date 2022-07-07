@@ -11,7 +11,7 @@ public class Actuary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     private Long userId;
     @Column(nullable = false)
     private Boolean active;
@@ -33,6 +33,9 @@ public class Actuary {
 
     public Actuary() {
         this.orders = new HashSet<>();
+        this.spendingLimit = BigDecimal.ZERO;
+        this.usedLimit = BigDecimal.ZERO;
+        this.approvalRequired = false;
     }
 
     public Actuary(Long userId,ActuaryType actuaryType) {

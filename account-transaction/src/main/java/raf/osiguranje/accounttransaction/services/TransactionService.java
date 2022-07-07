@@ -44,15 +44,15 @@ public class TransactionService {
 
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
-        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
+        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
     public Transaction getTransactionFromOtcDto(TransactionOtcDto transactionDTO){
         return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getTransactionType());
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
 
-    public boolean createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
+    public Transaction createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
         Account tmpAccount = accountService.findAccountById(transactionOtcDto.getAccountId());
         if(tmpAccount==null){
             throw new Exception("Couldn't find account");
@@ -60,20 +60,53 @@ public class TransactionService {
 
         Transaction transaction = getTransactionFromOtcDto(transactionOtcDto);
 
-        Optional<Balance> balanceOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),transactionOtcDto.getCurrencyId(),SecurityType.CURRENCY);
+        Optional<Balance> balanceCurrencyOptional = balanceService.getBalancesByFullId(transactionOtcDto.getAccountId(),transactionOtcDto.getCurrencyId(),SecurityType.CURRENCY);
+        Optional<Balance> balanceSecurityOptional = balanceService.getBalancesByFullId(transactionOtcDto.getAccountId(),transactionOtcDto.getSecurityId(),transactionOtcDto.getSecurityType());
+        if(balanceCurrencyOptional.isEmpty())
+            throw new Exception("Couldn't find currency balaces");
 
+        Balance balanceCurrency = balanceCurrencyOptional.get();
+        Balance balanceSecurity = balanceSecurityOptional.orElse(balanceService.createBalance(transaction.getAccountId(),transactionOtcDto.getSecurityId(),transactionOtcDto.getSecurityType(),0,jwt));
 
-        if(transaction.getPayment() > 0){
-            abstractPaymentChange(jwt, transaction, balanceOptional, transactionOtcDto.getCurrencyId());
-        } else if(transaction.getPayout() > 0){
-                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),transactionOtcDto.getCurrencyId(),SecurityType.CURRENCY,-transaction.getPayout()),jwt);
-        }else {
-            changeBalanceReserve(jwt, transaction, transactionOtcDto.getSecurityId(), transactionOtcDto.getSecurityType());
+        if(transaction.getTransactionType().equals(TransactionType.BUY)){
+            if(transaction.getReserve() != 0){
+                int val = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,val),jwt);
+            }
+            if(transaction.getUsedReserve() != 0){
+                int val = -transaction.getUsedReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,val),jwt);
+            }
+            if(transaction.getPayout() != 0){
+                int val = transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),val),jwt);
+            }
+            if(transaction.getPayment() != 0){
+                int val = transaction.getPayment();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),val),jwt);
+            }
+        }else{
+            if(transaction.getReserve() != 0){
+                int val = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),val),jwt);
+            }
+            if(transaction.getUsedReserve() != 0){
+                int val = -transaction.getUsedReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),val),jwt);
+            }
+            if(transaction.getPayout() != 0){
+                int val = transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,val),jwt);
+            }
+            if(transaction.getPayment() != 0){
+                int val = transaction.getPayment();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,val),jwt);
+            }
         }
 
         transactionRepository.save(transaction);
 
-        return true;
+        return transaction;
     }
 
 
@@ -84,22 +117,67 @@ public class TransactionService {
             throw new Exception("Couldn't find account");
         }
 
+        OrderDto orderDto = transactionDTO.getOrderDto();
+
+
         Transaction transaction = getTransactionFromDto(transactionDTO);
 
-        Optional<Balance> balanceOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY);
+
+        Optional<Balance> balanceCurrencyOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY);
+        Optional<Balance> balanceSecurityOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType());
+        if(balanceCurrencyOptional.isEmpty())
+            throw new Exception("Couldn't find currency balaces");
+
+        Balance balanceCurrency = balanceCurrencyOptional.get();
+        Balance balanceSecurity = balanceSecurityOptional.orElse(null);
 
         if(transactionDTO.getTransactionType().equals(TransactionType.BUY)){
+            if(balanceSecurity == null){
+                balanceSecurity = balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+            }
 
-        }
+            if(transaction.getUsedReserve() > 0){
+                int value = -transaction.getUsedReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
 
-        if(transaction.getPayment() > 0){
-            abstractPaymentChange(jwt, transaction, balanceOptional, transactionDTO.getCurrencyId());
-        } else if(transaction.getPayout() > 0){
-            balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY,-transaction.getPayout()),jwt);
-        }else {
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),transaction.getPayment()),jwt);
+            } else if(transaction.getPayment() > 0){
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,transaction.getPayment()),jwt);
+            } else if(transaction.getPayout() > 0){
+                int value = -transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+            } else if(transaction.getReserve() > 0){
+                int value = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,value),jwt);
+                if(balanceSecurity==null){
+                    balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+                }
+            }
+        } else {
 
-            OrderDto orderDto = getOrderById(transactionDTO.getOrderId(), jwt);
-            changeBalanceReserve(jwt, transaction, orderDto.getSecurityId(), orderDto.getSecurityType());
+            if(transaction.getUsedReserve() > 0){
+                if(balanceSecurity == null){
+                    throw new Exception("Trying to sell something you dont have!!! " + orderDto.getSecurityId() + "  "+orderDto.getSecurityType());
+                }
+                int value = -transaction.getUsedReserve();
+                balanceService.updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY,transaction.getPayment()),jwt);
+
+                balanceService.updateReserve(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),value),jwt);
+                balanceService.updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(),value),jwt);
+            } else if(transaction.getPayment() > 0){
+                if(balanceSecurity==null){
+                    balanceService.createBalance(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),0,jwt);
+                }
+                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),transaction.getPayment()),jwt);
+            } else if(transaction.getPayout() > 0){
+                int value = -transaction.getPayout();
+                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),value),jwt);
+            } else if(transaction.getReserve() > 0){
+                int value = transaction.getReserve();
+                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType(),value),jwt);
+
+            }
         }
 
         transactionRepository.save(transaction);
@@ -107,35 +185,14 @@ public class TransactionService {
         return transaction;
     }
 
-
-    private void abstractPaymentChange(String jwt, Transaction transaction, Optional<Balance> balanceOptional, Long currencyId ) throws Exception {
-        if(balanceOptional.isEmpty()){
-            try {
-                balanceService.createBalance(transaction.getAccountId(), currencyId, SecurityType.CURRENCY, transaction.getPayment(), jwt);
-            }catch (Exception e){
-                throw new Exception("Wrong transaction. No balance. And error with balance create: "+e.getMessage());
-            }
-        } else {
-            balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(), currencyId,SecurityType.CURRENCY,transaction.getPayment()),jwt);
-        }
-    }
-
-    private void changeBalanceReserve(String jwt, Transaction transaction, Long securityId, SecurityType securityType) throws Exception {
-        if (transaction.getReserve() > 0) {
-            try {
-                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, transaction.getReserve()), jwt);
-            } catch (Exception e) {
-                throw new Exception("Wrong transaction. And error with balance reservation: " + e.getMessage());
-            }
-        } else if (transaction.getUsedReserve() > 0) {
-            int value = -transaction.getUsedReserve();
-            try {
-                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, value), jwt);
-                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, value),jwt);
-            } catch (Exception e) {
-                throw new Exception("Wrong transaction. And error with balance reservation: " + e.getMessage());
-            }
-        }
+    public void updateBalanceTransaction(Long accountId, Long securityId, SecurityType securityType,int amount,String jwt) throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(accountId);
+        transaction.setOrderId(-1L);
+        transaction.setText("Update balance amount: "+amount);
+        transaction.setPayment(amount);
+        balanceService.updateAmount(new BalanceUpdateDto(accountId,securityId,securityType,amount),jwt);
+        transactionRepository.save(transaction);
     }
 
     public List<Transaction> getAllTransactions(){
@@ -158,23 +215,5 @@ public class TransactionService {
         return transactionRepository.findAllByCurrencyId(input);
     }
 
-
-    protected OrderDto getOrderById(Long orderId, String jwtToken) throws Exception {
-        String urlString = buyingApiUrl + "/api/orders/"+orderId;
-        ResponseEntity<OrderDto> response;
-        try {
-            response = rest.exchange(urlString, HttpMethod.GET, null, OrderDto.class);
-        } catch(RestClientException e) {
-            throw new Exception("Something went wrong while trying to retrieve security info");
-        }
-        OrderDto order = null;
-        if(response.getBody() != null) {
-            order = response.getBody();
-        }
-        if (order == null) {
-            throw new IllegalArgumentException("Something went wrong trying to find buying market");
-        }
-        return order;
-    }
 
 }

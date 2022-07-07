@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import raf.osiguranje.accounttransaction.model.dto.OrderDto;
 import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
 import raf.osiguranje.accounttransaction.model.dto.TransactionType;
 
@@ -58,7 +59,7 @@ public class Transaction {
         this.timestamp = LocalDateTime.now();
     }
 
-    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve,TransactionType transactionType) {
+    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve,String text,TransactionType transactionType) {
         this.accountId = accountId;
         this.timestamp = LocalDateTime.now();
         this.orderId = orderId;
@@ -69,6 +70,7 @@ public class Transaction {
         this.reserve = reserve;
         this.usedReserve = usedReserve;
         this.transactionType = transactionType;
+        this.text = text;
     }
 
     @Override
@@ -89,7 +91,9 @@ public class Transaction {
     }
 
     public TransactionDTO getDto(){
-        return new TransactionDTO(this.id,this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
+        OrderDto ord = new OrderDto();
+        ord.setOrderId(this.orderId);
+        return new TransactionDTO(this.id,this.accountId,this.timestamp,ord,this.userId,this.currencyId,
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve,transactionType);
     }
 
