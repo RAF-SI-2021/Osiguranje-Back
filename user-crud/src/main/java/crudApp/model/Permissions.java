@@ -11,13 +11,19 @@ public class Permissions {
     private boolean stockTrading;
     private boolean stockOverview;
     private boolean contractConclusion;
+    private boolean supervisor;
+    private boolean traineeAgent;
+    private boolean agent;
 
     public Permissions() {}
 
-    public Permissions(boolean admin, boolean stockTrading, boolean stockOverview, boolean contractConclusion) {
+    public Permissions(boolean admin, boolean stockTrading, boolean stockOverview, boolean contractConclusion, boolean supervisor, boolean traineeAgent, boolean agent) {
         this.isAdmin = admin;
         this.stockTrading = stockTrading;
         this.stockOverview = stockOverview;
         this.contractConclusion = contractConclusion;
+        this.supervisor = supervisor;
+        this.traineeAgent = traineeAgent;
+        this.agent = agent;
     }
 }

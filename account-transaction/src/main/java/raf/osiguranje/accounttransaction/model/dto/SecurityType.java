@@ -1,5 +1,5 @@
 package raf.osiguranje.accounttransaction.model.dto;
 
 public enum SecurityType {
-    STOCKS, FOREX, FUTURES
+    STOCK, FOREX, FUTURE, OPTION, CURRENCY
 }

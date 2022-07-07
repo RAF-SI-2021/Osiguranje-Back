@@ -72,7 +72,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("12345");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,false));
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +103,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("12346");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,false,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +141,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123466");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,false,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +158,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123467");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,true,false,false));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +174,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123468");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,false));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -222,7 +222,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("126545");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,false,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)

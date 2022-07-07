@@ -1,10 +1,7 @@
 package app.controllers;
 
 import app.model.dto.*;
-import app.services.ForexService;
-import app.services.FuturesService;
-import app.services.OptionsService;
-import app.services.StockService;
+import app.services.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -34,12 +31,17 @@ class ControllerTest {
     private StockService stockService;
     @Mock
     private OptionsService optionsService;
+    @Mock
+    private CurrencyService currencyService;
 
+
+    @Mock
+    private RedisCacheService redisCacheService;
     private Controller underTest;
 
     @BeforeEach
     void setUp() {
-        underTest = new Controller( futuresService, forexService, stockService, optionsService );
+        underTest = new Controller(futuresService, forexService, stockService, optionsService, redisCacheService,currencyService);
     }
 
 
