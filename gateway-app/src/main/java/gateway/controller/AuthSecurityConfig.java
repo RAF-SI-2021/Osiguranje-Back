@@ -93,6 +93,8 @@ public class AuthSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/securities/**").hasRole("USER")
                 .antMatchers("/buyingmarket/**").hasRole("USER")
                 .antMatchers("/stockinfo/**").hasRole("USER")
+                .antMatchers("/account-transaction/**").hasRole("USER")
+                .antMatchers("/otc/**").hasRole("USER")
                 .anyRequest().authenticated()
                 .and()
                 .formLogin().disable()

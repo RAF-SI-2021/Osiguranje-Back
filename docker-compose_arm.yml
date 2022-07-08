@@ -109,11 +109,11 @@ services:
     networks:
       - backend
 
-  accounttransaction:
+  account-transaction:
     depends_on:
       - mysqldb
       - securities
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/accounttransaction
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -121,14 +121,14 @@ services:
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       API_USERCRUD: http://usercrud:$USERCRUD_INTERNAL_PORT
       API_SECURITIES: http://securities:$SECURITIES_INTERNAL_PORT
-      ports:
-        - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
-      volumes:
-        - accounttransaction:/root/.m2
-      stdin_open: true
-      tty: true
-      networks:
-        - backend
+    ports:
+      - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
+    volumes:
+      - account-transaction:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
 
 
   frontend:
@@ -158,6 +158,7 @@ volumes:
   securities:
   buyingmarket:
   pythonflask:
+  account-transaction:
 
 networks:
   nginx:

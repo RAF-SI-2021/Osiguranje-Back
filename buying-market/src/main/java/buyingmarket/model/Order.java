@@ -1,11 +1,13 @@
 package buyingmarket.model;
 
+import buyingmarket.mappers.SetToLongConverter;
 import lombok.*;
 
 import javax.persistence.*;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -13,8 +15,9 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 public class Order {
-    @GeneratedValue(strategy = GenerationType.AUTO)
+
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
     @Column
     private Long securityId;
@@ -46,10 +49,15 @@ public class Order {
     private Supervisor approvingActuary;
     @ManyToOne
     private Actuary actuary;
-    @OneToMany(mappedBy = "order", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Set<Transaction> transactions;
 
-    public Order() {}
+    @Column
+    @Convert(converter = SetToLongConverter.class)
+    private Set<Long> transactions;
+
+    public Order() {
+        orderId = 0L;
+        transactions = new HashSet<>();
+    }
 
     public Long getOrderId() {
         return orderId;
@@ -147,11 +155,13 @@ public class Order {
         this.actuary = actuary;
     }
 
-    public Set<Transaction> getTransactions() {
+    public Set<Long> getTransactions() {
+        if(transactions==null)
+            this.transactions = new HashSet<>();
         return transactions;
     }
 
-    public void setTransactions(Set<Transaction> transactions) {
+    public void setTransactions(Set<Long> transactions) {
         this.transactions = transactions;
     }
 

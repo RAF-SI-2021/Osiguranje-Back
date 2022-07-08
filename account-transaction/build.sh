@@ -1,2 +1,2 @@
 #!/bin/sh
-docker build -t osiguranjeraf2022/accounttransaction .
+docker build -t osiguranjeraf2022/account-transaction .

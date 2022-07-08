@@ -5,14 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import raf.osiguranje.accounttransaction.model.dto.OrderDto;
 import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
+import raf.osiguranje.accounttransaction.model.dto.TransactionType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@NoArgsConstructor
 @AllArgsConstructor
 @Entity
 public class Transaction {
@@ -51,8 +52,14 @@ public class Transaction {
     @Column
     private int usedReserve;
 
+    @Column
+    private TransactionType transactionType;
 
-    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve) {
+    public Transaction(){
+        this.timestamp = LocalDateTime.now();
+    }
+
+    public Transaction(Long accountId, Long orderId, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve,String text,TransactionType transactionType) {
         this.accountId = accountId;
         this.timestamp = LocalDateTime.now();
         this.orderId = orderId;
@@ -62,6 +69,8 @@ public class Transaction {
         this.payout = payout;
         this.reserve = reserve;
         this.usedReserve = usedReserve;
+        this.transactionType = transactionType;
+        this.text = text;
     }
 
     @Override
@@ -82,8 +91,10 @@ public class Transaction {
     }
 
     public TransactionDTO getDto(){
-        return new TransactionDTO(this.accountId,this.timestamp,this.orderId,this.userId,this.currencyId,
-                this.text,this.payment,this.payout,this.reserve,this.usedReserve);
+        OrderDto ord = new OrderDto();
+        ord.setOrderId(this.orderId);
+        return new TransactionDTO(this.id,this.accountId,this.timestamp,ord,this.userId,this.currencyId,
+                this.text,this.payment,this.payout,this.reserve,this.usedReserve,transactionType);
     }
 
 }

@@ -27,14 +27,24 @@ public class OrderRestController {
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
-        orderService.createOrder(orderCreateDto, authorization);
+        try {
+            orderService.createOrder(orderCreateDto, authorization);
+        } catch (Exception e){
+            e.printStackTrace();
+        }
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @GetMapping
-    public ResponseEntity<List<OrderDto>> findAll(@RequestHeader("Authorization") String authorization) {
-        List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
-        return new ResponseEntity<>(orders, HttpStatus.OK);
+    public ResponseEntity<?> findAll(@RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            e.printStackTrace();
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     @GetMapping("/{id}")

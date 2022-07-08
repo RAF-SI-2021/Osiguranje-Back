@@ -38,4 +38,14 @@ public class ActuaryRestController {
         actuaryService.setLimit(id, value);
         return ResponseEntity.noContent().build();
     }
+
+    @PutMapping(value = "/limit/update/{id}",consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> updateLimit(@PathVariable Long id, @RequestBody BigDecimal value){
+        try {
+            actuaryService.changeLimit(id,value);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 }

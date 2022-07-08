@@ -2,64 +2,37 @@ package buyingmarket.model.dto;
 
 import lombok.*;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 @Builder
 public class TransactionDto {
+
     private Long id;
-    private LocalDateTime time;
-    private BigDecimal price;
-    private Long volume;
-    private Long orderId;
 
-    public TransactionDto() {}
+    private Long accountId;
 
-    public TransactionDto(Long id, LocalDateTime time, BigDecimal price, Long volume, Long orderId) {
-        this.id = id;
-        this.time = time;
-        this.price = price;
-        this.volume = volume;
-        this.orderId = orderId;
-    }
+    private LocalDateTime timestamp;
 
-    public Long getId() {
-        return id;
-    }
+    private OrderDto orderDto;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Long userId;
 
-    public LocalDateTime getTime() {
-        return time;
-    }
+    private Long currencyId;
 
-    public void setTime(LocalDateTime time) {
-        this.time = time;
-    }
+    private String text;
 
-    public BigDecimal getPrice() {
-        return price;
-    }
+    private int payment;
 
-    public void setPrice(BigDecimal price) {
-        this.price = price;
-    }
+    private int payout;
 
-    public Long getVolume() {
-        return volume;
-    }
+    private int reserve;
 
-    public void setVolume(Long volume) {
-        this.volume = volume;
-    }
+    private int usedReserve;
 
-    public Long getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Long orderId) {
-        this.orderId = orderId;
-    }
+    private TransactionType transactionType;
 }
