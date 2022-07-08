@@ -16,4 +16,5 @@ RUN ./mvnw clean package
 FROM openjdk:11-jre-slim as run
 COPY --from=build /app/target/otc-1.0-SNAPSHOT.jar otc-1.0-SNAPSHOT.jar
 COPY --from=build /app/src/main/resources src/main/resources
+EXPOSE 8094
 CMD ["java", "-jar", "otc-1.0-SNAPSHOT.jar"]
