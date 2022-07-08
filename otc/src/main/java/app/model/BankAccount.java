@@ -29,4 +29,10 @@ public class BankAccount {
         this.bankName = bankAccountDTO.getBankName();
         this.accountType = bankAccountDTO.getAccountType();
     }
+
+    public BankAccount(String accontNumber, String bankName, String accountType) {
+        this.accontNumber = accontNumber;
+        this.bankName = bankName;
+        this.accountType = accountType;
+    }
 }
