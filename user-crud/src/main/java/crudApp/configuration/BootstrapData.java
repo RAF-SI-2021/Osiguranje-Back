@@ -31,11 +31,17 @@ public class BootstrapData implements CommandLineRunner {
         //user.setId(2l);
         user2.setPassword(encoder.encode("raf"));
 
+
+        User user3 = new User("Aleksandar","MacMillan","alek@gmail.com","1141113411114","Admin","+381658779045",true,new Permissions(true,true,true,true,false,true,false));
+        //user.setId(2l);
+        user3.setPassword(encoder.encode("raf"));
+
         this.repository.findAll().forEach(System.out::println);
 
         try {
             this.repository.save(user);
             this.repository.save(user2);
+            this.repository.save(user3);
         } catch (Exception e){
             e.printStackTrace();
             System.err.println("User already added");
