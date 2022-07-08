@@ -47,7 +47,7 @@ public class ContractController {
             return ResponseEntity.badRequest().build();
 
         Contract contract = optionalContract.get();
-        return ResponseEntity.ok(contract);
+        return ResponseEntity.ok(new ContractDTO(contract));
     }
 
     @CrossOrigin(origins = "*")
