@@ -128,10 +128,10 @@ public class FuturesBootstrap {
 //                            if(volume == 0)
 //                                volume = 5000 + (long)(random.nextDouble()*20000);
 
-                            BigDecimal price = new BigDecimal(random.nextDouble() * 600);
-                            BigDecimal ask = new BigDecimal(price.doubleValue() + random.nextDouble() * 10);
-                            BigDecimal bid = new BigDecimal(price.doubleValue() - random.nextDouble() * 10);
-                            BigDecimal priceChange = new BigDecimal(random.nextDouble() * 10);
+                            BigDecimal price = BigDecimal.valueOf(random.nextDouble() * 600);
+                            BigDecimal ask = BigDecimal.valueOf(price.doubleValue() + random.nextDouble() * 10);
+                            BigDecimal bid = BigDecimal.valueOf(price.doubleValue() - random.nextDouble() * 10);
+                            BigDecimal priceChange = BigDecimal.valueOf(random.nextDouble() * 10);
                             Long volume = (long)random.nextInt(30000);
 
                             Future newFuture = new Future(currSymbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
@@ -141,10 +141,7 @@ public class FuturesBootstrap {
                             newFuture.setSecurityHistory(null);
 
                             futuresRepository.save(newFuture);
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                       // year++;
+                        } catch(Exception e) {}
                     }
                 }
             }
@@ -200,8 +197,7 @@ public class FuturesBootstrap {
         Date currDate = new Date();
         SimpleDateFormat formatter = new SimpleDateFormat("MM");
         String currMonthStr = formatter.format(currDate);
-//        int currMonth = Integer.parseInt(currMonthStr);
-        int currMonth = 6;
+        int currMonth = Integer.parseInt(currMonthStr);
         int month = getMonth(monthChar);
         if(month <= currMonth)
             year++;
