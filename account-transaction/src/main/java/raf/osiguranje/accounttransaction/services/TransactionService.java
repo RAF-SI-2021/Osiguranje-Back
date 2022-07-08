@@ -180,50 +180,19 @@ public class TransactionService {
             }
         }
 
-
-//        if(transaction.getPayment() > 0){
-//            abstractPaymentChange(jwt, transaction, balanceOptional, transactionDTO.getCurrencyId());
-//        } else if(transaction.getPayout() > 0){
-//            balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(),transactionDTO.getCurrencyId(),SecurityType.CURRENCY,-transaction.getPayout()),jwt);
-//        }else {
-//
-//            changeBalanceReserve(jwt, transaction, orderDto.getSecurityId(), orderDto.getSecurityType());
-//        }
-
         transactionRepository.save(transaction);
 
         return transaction;
     }
 
-
-    private void abstractPaymentChange(String jwt, Transaction transaction, Optional<Balance> balanceOptional, Long currencyId ) throws Exception {
-        if(balanceOptional.isEmpty()){
-            try {
-                balanceService.createBalance(transaction.getAccountId(), currencyId, SecurityType.CURRENCY, transaction.getPayment(), jwt);
-            }catch (Exception e){
-                throw new Exception("Wrong transaction. No balance. And error with balance create: "+e.getMessage());
-            }
-        } else {
-            balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(), currencyId,SecurityType.CURRENCY,transaction.getPayment()),jwt);
-        }
-    }
-
-    private void changeBalanceReserve(String jwt, Transaction transaction, Long securityId, SecurityType securityType) throws Exception {
-        if (transaction.getReserve() > 0) {
-            try {
-                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, transaction.getReserve()), jwt);
-            } catch (Exception e) {
-                throw new Exception("Wrong transaction. And error with balance reservation: " + e.getMessage());
-            }
-        } else if (transaction.getUsedReserve() > 0) {
-            int value = -transaction.getUsedReserve();
-            try {
-                balanceService.updateReserve(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, value), jwt);
-                balanceService.updateAmount(new BalanceUpdateDto(transaction.getAccountId(), securityId, securityType, value),jwt);
-            } catch (Exception e) {
-                throw new Exception("Wrong transaction. And error with balance reservation: " + e.getMessage());
-            }
-        }
+    public void updateBalanceTransaction(Long accountId, Long securityId, SecurityType securityType,int amount,String jwt) throws Exception {
+        Transaction transaction = new Transaction();
+        transaction.setAccountId(accountId);
+        transaction.setOrderId(-1L);
+        transaction.setText("Update balance amount: "+amount);
+        transaction.setPayment(amount);
+        balanceService.updateAmount(new BalanceUpdateDto(accountId,securityId,securityType,amount),jwt);
+        transactionRepository.save(transaction);
     }
 
     public List<Transaction> getAllTransactions(){
@@ -246,24 +215,5 @@ public class TransactionService {
         return transactionRepository.findAllByCurrencyId(input);
     }
 
-
-    protected OrderDto getOrderById(Long orderId, String jwtToken) throws Exception {
-        String urlString = buyingApiUrl + "/api/orders/"+orderId;
-        ResponseEntity<OrderDto> response;
-        try {
-            response = rest.exchange(urlString, HttpMethod.GET, null, OrderDto.class);
-        } catch(RestClientException e) {
-
-            throw new Exception("Something went wrong while trying to retrieve security info");
-        }
-        OrderDto order = null;
-        if(response.getBody() != null) {
-            order = response.getBody();
-        }
-        if (order == null) {
-            throw new IllegalArgumentException("Something went wrong trying to find buying market");
-        }
-        return order;
-    }
 
 }
