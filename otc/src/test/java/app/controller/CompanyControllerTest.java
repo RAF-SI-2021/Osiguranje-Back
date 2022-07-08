@@ -433,7 +433,7 @@ class CompanyControllerTest {
         /* When. */
         ResponseEntity<?> result = underTest.deleteBankAccount( ID, ID );
 
-        /* Then. */
+        /* Then.. */
         assertEquals( result.getStatusCode(), HttpStatus.OK );
     }
 }
