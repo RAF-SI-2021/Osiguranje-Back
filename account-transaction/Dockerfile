@@ -16,4 +16,5 @@ RUN ./mvnw clean package
 FROM openjdk:11-jre-slim as run
 COPY --from=build /app/target/account-transaction-0.1-SNAPSHOT.jar account-transaction-0.1-SNAPSHOT.jar
 COPY --from=build /app/src/main/resources src/main/resources
+EXPOSE 8093
 CMD ["java", "-jar", "account-transaction-0.1-SNAPSHOT.jar"]
