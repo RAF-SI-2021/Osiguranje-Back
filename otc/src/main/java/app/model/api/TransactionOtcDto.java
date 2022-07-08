@@ -17,4 +17,18 @@ public class TransactionOtcDto {
     private int payout;
     private int reserve;
     private int usedReserve;
+    private String text = "";
+
+    public TransactionOtcDto(TransactionType transactionType, Long accountId, Long securityId, SecurityType securityType, Long userId, Long currencyId, int payment, int payout, int reserve, int usedReserve) {
+        this.transactionType = transactionType;
+        this.accountId = accountId;
+        this.securityId = securityId;
+        this.securityType = securityType;
+        this.userId = userId;
+        this.currencyId = currencyId;
+        this.payment = payment;
+        this.payout = payout;
+        this.reserve = reserve;
+        this.usedReserve = usedReserve;
+    }
 }

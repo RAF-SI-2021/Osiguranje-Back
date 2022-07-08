@@ -15,5 +15,5 @@ RUN ./mvnw clean package
 
 FROM openjdk:11-jre-slim as run
 COPY --from=build /app/target/crudApp-0.0.1-SNAPSHOT.jar crudApp-0.0.1-SNAPSHOT.jar
-
+EXPOSE 8091
 CMD ["java", "-jar", "crudApp-0.0.1-SNAPSHOT.jar"]
