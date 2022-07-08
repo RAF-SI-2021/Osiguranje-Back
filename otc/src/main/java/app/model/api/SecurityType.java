@@ -1,7 +1,7 @@
 package app.model.api;
 
 public enum SecurityType {
-    STOCK, FOREX, FUTURE, OPTION, CURRENCY;
+    STOCKS, FOREX, FUTURES, OPTIONS, CURRENCY;
 
     @Override
     public String toString(){

@@ -63,7 +63,7 @@ public class CompanyController {
             return ResponseEntity.badRequest().build();
 
         Company company = optionalCompany.get();
-        return ResponseEntity.ok(company);
+        return ResponseEntity.ok(new CompanyDTO(company));
     }
 
     @CrossOrigin(origins = "*")
