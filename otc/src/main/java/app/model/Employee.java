@@ -37,4 +37,13 @@ public class Employee {
         this.companyPosition = employeeDTO.getCompanyPosition();
         this.description = employeeDTO.getDescription();
     }
+
+    public Employee(String name, String surname, String phone, String email, String companyPosition, String description) {
+        this.name = name;
+        this.surname = surname;
+        this.phone = phone;
+        this.email = email;
+        this.companyPosition = companyPosition;
+        this.description = description;
+    }
 }

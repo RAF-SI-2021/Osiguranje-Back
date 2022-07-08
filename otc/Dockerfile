@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM openjdk:11-jdk-slim as build
 LABEL org.opencontainers.image.source https://github.com/RAF-SI-2021/Osiguranje-Back
 
@@ -13,6 +14,7 @@ RUN dos2unix ./mvnw && apt-get --purge remove -y dos2unix && rm -rf /var/lib/apt
 RUN ./mvnw clean package
 
 FROM openjdk:11-jre-slim as run
-COPY --from=build /app/target/buying-market-2.4.1.jar buying-market-2.4.1.jar
-EXPOSE 8092
-CMD ["java", "-jar", "buying-market-2.4.1.jar"]
+COPY --from=build /app/target/otc-1.0-SNAPSHOT.jar otc-1.0-SNAPSHOT.jar
+COPY --from=build /app/src/main/resources src/main/resources
+EXPOSE 8094
+CMD ["java", "-jar", "otc-1.0-SNAPSHOT.jar"]

@@ -15,5 +15,5 @@ RUN ./mvnw clean package
 
 FROM openjdk:11-jre-slim as run
 COPY --from=build /app/target/gateway-app-2.4.1.jar gateway-app-2.4.1.jar
-
+EXPOSE 8080
 CMD ["java", "-jar", "gateway-app-2.4.1.jar"]

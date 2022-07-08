@@ -104,29 +104,35 @@ public class FuturesBootstrap {
                         String lastUpdated = formatter.format(date);
                         String currSymbol = symbol + c + quoteYear;
                         try{
-                            RestTemplate rest = new RestTemplate();
-                            HttpHeaders headers = new HttpHeaders();
-                            HttpEntity<FutureAPIResponse> entity = new HttpEntity <>(headers);
-                            System.out.println(Config.getProperty("nasdaq_futures_url") + currSymbol + "?start_date=2022-04-20" + "&end_date=2022-04-20" + "&api_key=" + Config.getProperty("nasdaq_api_key"));
-                            ResponseEntity<FutureAPIResponse> response = rest.exchange(Config.getProperty("nasdaq_futures_url") + currSymbol + "?start_date=2022-04-20" + "&end_date=2022-04-20" + "&api_key=" + Config.getProperty("nasdaq_api_key"), HttpMethod.GET, entity, FutureAPIResponse.class);
-                            ArrayList<ArrayList<String>> dataWrapper = Objects.requireNonNull(response.getBody()).getDataset().getData();
-                            if(dataWrapper.isEmpty())
-                                continue;
-                            ArrayList<String> data = dataWrapper.get(0);
-                            if(data.isEmpty())
-                                continue;
+//                            RestTemplate rest = new RestTemplate();
+//                            HttpHeaders headers = new HttpHeaders();
+//                            HttpEntity<FutureAPIResponse> entity = new HttpEntity <>(headers);
+//                            System.out.println(Config.getProperty("nasdaq_futures_url") + currSymbol + "?start_date=2022-04-20" + "&end_date=2022-04-20" + "&api_key=" + Config.getProperty("nasdaq_api_key"));
+//                            ResponseEntity<FutureAPIResponse> response = rest.exchange(Config.getProperty("nasdaq_futures_url") + currSymbol + "?start_date=2022-04-20" + "&end_date=2022-04-20" + "&api_key=" + Config.getProperty("nasdaq_api_key"), HttpMethod.GET, entity, FutureAPIResponse.class);
+//                            ArrayList<ArrayList<String>> dataWrapper = Objects.requireNonNull(response.getBody()).getDataset().getData();
+//                            if(dataWrapper.isEmpty())
+//                                continue;
+//                            ArrayList<String> data = dataWrapper.get(0);
+//                            if(data.isEmpty())
+//                                continue;
+//
+//                            BigDecimal price = new BigDecimal(data.get(4));
+//                            BigDecimal ask = new BigDecimal(data.get(2));
+//                            if(ask.compareTo(BigDecimal.valueOf(0)) == 0)
+//                                ask = price;
+//                            BigDecimal bid = new BigDecimal(data.get(3));
+//                            if(bid.compareTo(BigDecimal.valueOf(0)) == 0)
+//                                bid = price;
+//                            BigDecimal priceChange = bid.subtract(ask);
+//                            Long volume = (long)Double.parseDouble(data.get(5));
+//                            if(volume == 0)
+//                                volume = 5000 + (long)(random.nextDouble()*20000);
 
-                            BigDecimal price = new BigDecimal(data.get(4));
-                            BigDecimal ask = new BigDecimal(data.get(2));
-                            if(ask.compareTo(BigDecimal.valueOf(0)) == 0)
-                                ask = price;
-                            BigDecimal bid = new BigDecimal(data.get(3));
-                            if(bid.compareTo(BigDecimal.valueOf(0)) == 0)
-                                bid = price;
-                            BigDecimal priceChange = bid.subtract(ask);
-                            Long volume = (long)Double.parseDouble(data.get(5));
-                            if(volume == 0)
-                                volume = 5000 + (long)(random.nextDouble()*20000);
+                            BigDecimal price = BigDecimal.valueOf(random.nextDouble() * 600);
+                            BigDecimal ask = BigDecimal.valueOf(price.doubleValue() + random.nextDouble() * 10);
+                            BigDecimal bid = BigDecimal.valueOf(price.doubleValue() - random.nextDouble() * 10);
+                            BigDecimal priceChange = BigDecimal.valueOf(random.nextDouble() * 10);
+                            Long volume = (long)random.nextInt(30000);
 
                             Future newFuture = new Future(currSymbol, description, lastUpdated, price, ask, bid, priceChange, volume, contractSize, contractUnit, maintenanceMargin, settlementDate);
 
@@ -135,10 +141,7 @@ public class FuturesBootstrap {
                             newFuture.setSecurityHistory(null);
 
                             futuresRepository.save(newFuture);
-                        } catch(Exception e) {
-                            e.printStackTrace();
-                        }
-                       // year++;       // todo
+                        } catch(Exception e) {}
                     }
                 }
             }

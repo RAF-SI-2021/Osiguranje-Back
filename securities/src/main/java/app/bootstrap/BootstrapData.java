@@ -35,8 +35,8 @@ public class BootstrapData implements CommandLineRunner {
         forexBootstrap.loadForexData();
         futuresBootstrap.loadFuturesData();
 
-        Thread updater = new Thread(updaterThread);
-        updater.start();
+//        Thread updater = new Thread(updaterThread);
+//        updater.start();
     }
 
 }
