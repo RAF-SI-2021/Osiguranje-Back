@@ -23,8 +23,8 @@ public class ContractService {
         this.transactionItemService = transactionItemService;
     }
 
-    public void save(Contract contract){
-        contractRepository.save(contract);
+    public Contract save(Contract contract){
+        return contractRepository.save(contract);
     }
 
     public List<Contract> findAll() {
