@@ -43,4 +43,15 @@ public class Company {
         this.contracts = new ArrayList<>();
         this.bankAccounts = new ArrayList<>();
     }
+
+    public Company(Long registrationID, String name, Long taxID, Long industrialClassificationID, String address) {
+        this.registrationID = registrationID;
+        this.name = name;
+        this.taxID = taxID;
+        this.industrialClassificationID = industrialClassificationID;
+        this.address = address;
+        this.employees = new ArrayList<>();
+        this.contracts = new ArrayList<>();
+        this.bankAccounts = new ArrayList<>();
+    }
 }
