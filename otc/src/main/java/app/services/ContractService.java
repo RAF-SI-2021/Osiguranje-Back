@@ -6,6 +6,7 @@ import app.model.TransactionItem;
 import app.model.dto.TransactionItemDTO;
 import app.repositories.ContractRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,7 +16,11 @@ import java.util.Optional;
 public class ContractService {
 
     private final ContractRepository contractRepository;
+
     private final TransactionItemService transactionItemService;
+
+    @Value("${api.transaction}")
+    private String transactionsApiUrl;
 
     @Autowired
     public ContractService(ContractRepository contractRepository, TransactionItemService transactionItemService) {
@@ -27,11 +32,11 @@ public class ContractService {
         return contractRepository.save(contract);
     }
 
-    public List<Contract> findAll() {
+    public List <Contract> findAll() {
         return contractRepository.findAll();
     }
 
-    public Optional<Contract> findByID(Long id){
+    public Optional <Contract> findByID(Long id) {
         return contractRepository.findById(id);
     }
 
@@ -60,4 +65,7 @@ public class ContractService {
         contractRepository.save(contract);
     }
 
+    public String getTransactionsApiServiceURL() {
+        return transactionsApiUrl;
+    }
 }

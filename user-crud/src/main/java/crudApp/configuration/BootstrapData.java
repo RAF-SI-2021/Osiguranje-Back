@@ -36,7 +36,7 @@ public class BootstrapData implements CommandLineRunner {
         //user.setId(2l);
         user3.setPassword(encoder.encode("raf"));
 
-        User user4 = new User("Radenko","Milosevic","car@gmail.com","1111121118811","User","+381657749045", true, new Permissions(true,true,true,true,true,false,false));
+        User user4 = new User("Nikola","Jovic","jovic@miami.com","2011121118811","User","+381657749045", true, new Permissions(true,true,true,true,true,false,false));
         //user.setId(1l);
         user4.setPassword(encoder.encode("raf"));
 

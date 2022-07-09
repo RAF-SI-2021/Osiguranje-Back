@@ -10,6 +10,8 @@ import lombok.*;
 @ToString
 public class TransactionOtcDto {
 
+    private Long id;
+
     private Long accountId;
 
     private Long securityId;

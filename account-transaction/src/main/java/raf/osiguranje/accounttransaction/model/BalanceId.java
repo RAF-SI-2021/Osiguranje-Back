@@ -33,7 +33,7 @@ public class BalanceId implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(accountId, securityId);
+        return Objects.hash(accountId, securityId,securityType);
     }
 
     @Override
@@ -41,6 +41,7 @@ public class BalanceId implements Serializable {
         return "BalanceId{" +
                 "accountId=" + accountId +
                 ", securityId=" + securityId +
+                ", securityType=" + securityType +
                 '}';
     }
 }
