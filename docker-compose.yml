@@ -13,18 +13,6 @@ services:
     networks:
       - backend
 
-  eureka:
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/eureka
-    env_file: ./.env
-    ports:
-      - $EUREKA_EXTERNAL_PORT:$EUREKA_INTERNAL_PORT
-    volumes:
-      - eureka:/root/.m2
-    stdin_open: true
-    tty: true
-    networks:
-      - backend
-
   usercrud:
     depends_on:
       - mysqldb
@@ -79,7 +67,7 @@ services:
       ZUUL_ROUTES_SECURITIES_URL: http://securities:$SECURITIES_INTERNAL_PORT/api
       ZUUL_ROUTES_BUYINGMARKET_URL: http://buyingmarket:$MARKET_INTERNAL_PORT/api
       ZUUL_ROUTES_STOCKINFO_URL: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
-      ZUUL_ROUTES_TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT/api
+      ZUUL_ROUTES_ACCOUNT-TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT/api
       ZUUL_ROUTES_OTC_URL: http://otc:$OTC_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
@@ -105,6 +93,7 @@ services:
       REDIS_HOSTNAME: redis_db
       REDIS_PORT: $REDIS_INTERNAL_PORT
       API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+      API_STOCKINFO: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
     ports:
       - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
@@ -147,6 +136,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       API_USERCRUD: http://usercrud:$USERCRUD_INTERNAL_PORT
       API_SECURITIES: http://securities:$SECURITIES_INTERNAL_PORT
+      API_BUYINGMARKET: http://buyingmarket:$MARKET_INTERNAL_PORT
     ports:
       - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
     volumes:
