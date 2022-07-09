@@ -20,11 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-@Setter
 public class ForexService  {
-
-    private Date lastupdated = new Date();
-
     private final ForexRepository forexRepository;
     private final CurrencyRepository currencyRepository;
 

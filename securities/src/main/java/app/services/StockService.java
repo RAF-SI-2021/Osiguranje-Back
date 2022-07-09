@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import yahoofinance.YahooFinance;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,6 +23,7 @@ public class StockService {
     @Value("${api.stockinfo}")
     public String stockinfoApiUrl;
 
+    @Autowired
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
