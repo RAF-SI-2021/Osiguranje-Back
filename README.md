@@ -32,8 +32,6 @@ docker-compose stop
 Docker zna da koristi dosta resursa, i moja preporuka je da ukoliko vidite da vam racunar sporije radi dok je docker ukljucen, modifikujete kolicinu resursa koju docker zahteva.
 # Baza
 Baza radi na portu 3307 na localhostu, ime baze je osiguranje, konektujete se na root korisnika, a password mozete naci u .env file-u.
-# Eureka
-Eureka radi na portu 8761.
 
 #K8S
 

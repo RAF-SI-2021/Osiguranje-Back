@@ -52,6 +52,9 @@ public class RedisCacheService {
         } catch (JsonProcessingException e) {
             System.err.println(e.getMessage());
         }
+        catch (Exception e) {
+            return;
+        }
     }
 
     public ForexDTO getForex (String id) {
@@ -60,7 +63,14 @@ public class RedisCacheService {
         }
 
         ForexDTO forex = null;
-        String forexContent = jedis.get(ForexKeyPrefix + id);
+        String forexContent = null;
+        try {
+            forexContent = jedis.get(ForexKeyPrefix + id);
+        }
+        catch (Exception e) {
+            return null;
+        }
+
         if (forexContent != null && !forexContent.equals("")) {
             try {
                 forex = mapper.readValue(forexContent, ForexDTO.class);

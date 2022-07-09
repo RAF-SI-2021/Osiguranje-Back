@@ -1,6 +1,7 @@
 package crudApp.integration;
 
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crudApp.dto.PasswordDto;
 import crudApp.dto.UserDto;
@@ -72,14 +73,13 @@ public class IntegrationTests{
                 .andExpect(status().isOk());
 
         Optional<User> userOpt = repository.findUserByEmail(userEmail);
-        assertThat(userOpt.isPresent());
+        assertThat(userOpt.isPresent()).isTrue();
         User realUser = userOpt.get();
-        assertThat(realUser.getActive());
-        assertThat(realUser.getPhoneNumber().equals("+13456"));
-        System.out.println(realUser);
+        assertThat(realUser.getActive()).isTrue();
+        assertThat(realUser.getPhoneNumber().equals("+13456")).isTrue();
 
         userOpt = repository.findUserByEmail("yuuy@gmail.com");
-        assertThat(userOpt.isEmpty());
+        assertThat(userOpt.isEmpty()).isTrue();
     }
 
     @Test
@@ -87,7 +87,7 @@ public class IntegrationTests{
 
         String userEmail = "test3@test.com";
         User user = new User();
-            user.setFirstName("Test");
+        user.setFirstName("Test");
         user.setLastName("Test");
         user.setPosition("ADMIN");
         user.setEmail(userEmail);
@@ -103,8 +103,8 @@ public class IntegrationTests{
                 .andExpect(status().isOk());
 
         System.out.println(user.getJMBG());
-        user.setPhoneNumber("+09876");
         user.setFirstName("Kontrola");
+        user.setLastName("Kontrola");
 
         mockMvc.perform(put("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -113,11 +113,11 @@ public class IntegrationTests{
 
         Optional<User> userOptional = repository.findUserByEmail(userEmail);
 
-        assertThat(userOptional.isPresent());
+        assertThat(userOptional.isPresent()).isTrue();
 
         user = userOptional.get();
-        assertThat(user.getFirstName().equals("Kontrola"));
-        assertThat(user.getPhoneNumber().equals("+09876"));
+        assertThat(user.getFirstName().equals("Kontrola")).isTrue();
+        assertThat(user.getLastName().equals("Kontrola")).isTrue();
 
     }
 
@@ -180,9 +180,11 @@ public class IntegrationTests{
 
 
         String jsonstr = resultActions.andReturn().getResponse().getContentAsString();
-        List userList = objectMapper.readValue(jsonstr, List.class);
-        assertThat(userList.size() == 3);
-        assertThat(userList.get(0) instanceof UserDto);
+        List<UserDto> userList = objectMapper.readValue(jsonstr, new TypeReference<>() {
+        });
+        assertThat(userList.size() == 3).isTrue();
+        System.out.println(userList.get(0).getClass());
+        assertThat(userList.get(0) != null).isTrue();
     }
 
     @Test

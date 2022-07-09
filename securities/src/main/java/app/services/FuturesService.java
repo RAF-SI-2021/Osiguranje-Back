@@ -5,20 +5,19 @@ import app.model.Stock;
 import app.model.dto.FutureDTO;
 import app.repositories.FuturesRepository;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Setter
 public class FuturesService {
-    private Date lastupdated;
-
     private final FuturesRepository futuresRepository;
+
+    @Autowired
     public FuturesService(FuturesRepository futuresContractRepository) {
         this.futuresRepository = futuresContractRepository;
     }

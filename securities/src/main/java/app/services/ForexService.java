@@ -20,11 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
-@Setter
 public class ForexService  {
-
-    private Date lastupdated = new Date();
-
     private final ForexRepository forexRepository;
     private final CurrencyRepository currencyRepository;
 
@@ -74,7 +70,6 @@ public class ForexService  {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        setLastupdated(date);
 
         List<Currency> currencies = currencyRepository.findAll();
         for (Currency currency : currencies) {

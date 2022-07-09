@@ -80,7 +80,6 @@ public class FuturesBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        futuresService.setLastupdated(date);
 
         SecureRandom random = new SecureRandom();
         for (List<String> eurexList : eurexData) {
