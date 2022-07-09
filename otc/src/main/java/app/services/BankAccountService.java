@@ -18,8 +18,8 @@ public class BankAccountService {
         this.bankAccountRepository = bankAccountRepository;
     }
 
-    public void save(BankAccount bankAccount){
-        bankAccountRepository.save(bankAccount);
+    public BankAccount save(BankAccount bankAccount){
+        return bankAccountRepository.save(bankAccount);
     }
 
     public void deleteByID(Long id){
@@ -30,8 +30,8 @@ public class BankAccountService {
         return bankAccountRepository.findById(id);
     }
 
-    public void update(BankAccount bankAccount, BankAccountDTO bankAccountDTO) {
+    public BankAccount update(BankAccount bankAccount, BankAccountDTO bankAccountDTO) {
         bankAccount.setBankName(bankAccountDTO.getBankName());
-        save(bankAccount);
+        return save(bankAccount);
     }
 }
