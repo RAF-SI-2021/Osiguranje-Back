@@ -5,6 +5,7 @@ import app.model.dto.StockDTO;
 import app.repositories.StocksRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import yahoofinance.YahooFinance;
 
@@ -20,6 +21,10 @@ import java.util.Optional;
 @Setter
 public class StockService {
     private final StocksRepository stockRepository;
+
+    @Value("${api.stockinfo}")
+    public String stockinfoApiUrl;
+
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
     }

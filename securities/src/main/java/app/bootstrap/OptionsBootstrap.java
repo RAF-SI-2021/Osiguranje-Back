@@ -32,7 +32,7 @@ public class OptionsBootstrap {
 
     public void loadOptionsData(){
         List<Stock> stocks = stockService.getStocksData();
-        String url = Config.getProperty("python_service_url");
+        String url = stockService.stockinfoApiUrl;
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
@@ -53,7 +53,7 @@ public class OptionsBootstrap {
 
                 List<HashMap<String, String>> responseContent;
                 try {
-                    ResponseEntity<OptionsAPIResponse> response = rest.exchange(url + "options/" + optionType + "?symbol=" + stock.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
+                    ResponseEntity<OptionsAPIResponse> response = rest.exchange(url + "/options/" + optionType + "?symbol=" + stock.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
                     responseContent = Objects.requireNonNull(response.getBody()).getData();
                 } catch (Exception e) {
                     continue;
