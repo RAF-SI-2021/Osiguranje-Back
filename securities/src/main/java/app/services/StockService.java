@@ -18,12 +18,8 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Setter
 public class StockService {
     private final StocksRepository stockRepository;
-
-    @Value("${api.stockinfo}")
-    public String stockinfoApiUrl;
 
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
@@ -91,4 +87,5 @@ public class StockService {
         Stock stock = opStock.get();
         return new StockDTO(stock);
     }
+
 }

@@ -8,6 +8,7 @@ import app.model.api.OptionsAPIResponse;
 import app.services.OptionsService;
 import app.services.StockService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -23,6 +24,8 @@ public class OptionsBootstrap {
 
     private final StockService stockService;
     private final OptionsService optionsService;
+    @Value("$ {api.stockinfo}")
+    private String stockinfoApiUrl;
 
     @Autowired
     public OptionsBootstrap(StockService stockService, OptionsService optionsService) {
@@ -30,41 +33,41 @@ public class OptionsBootstrap {
         this.optionsService = optionsService;
     }
 
-    public void loadOptionsData(){
-        List<Stock> stocks = stockService.getStocksData();
-        String url = stockService.stockinfoApiUrl;
+    public void loadOptionsData() {
+        List <Stock> stocks = stockService.getStocksData();
+        String url = stockinfoApiUrl;
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
         String lastUpdated = formatter.format(date);
 
-        for(Stock stock: stocks){
-            for (OptionType optionType: OptionType.values()){
+        for (Stock stock : stocks) {
+            for (OptionType optionType : OptionType.values()) {
                 RestTemplate rest = new RestTemplate();
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<OptionsAPIResponse> entity = new HttpEntity<>(headers);
+                HttpEntity <OptionsAPIResponse> entity = new HttpEntity <>(headers);
 
-                List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+                List <HttpMessageConverter <?>> messageConverters = new ArrayList <>();
                 MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
                 converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
                 messageConverters.add(converter);
                 rest.setMessageConverters(messageConverters);
 
-                List<HashMap<String, String>> responseContent;
+                List <HashMap <String, String>> responseContent;
                 try {
-                    ResponseEntity<OptionsAPIResponse> response = rest.exchange(url + "/options/" + optionType + "?symbol=" + stock.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
+                    ResponseEntity <OptionsAPIResponse> response = rest.exchange(url + "/options/" + optionType + "?symbol=" + stock.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
                     responseContent = Objects.requireNonNull(response.getBody()).getData();
                 } catch (Exception e) {
                     continue;
                 }
-                for (int i = 0; i <= 3; i++){
-                    if(responseContent.size() <= i)
+                for (int i = 0; i <= 3; i++) {
+                    if (responseContent.size() <= i)
                         break;
 
-                    HashMap<String, String> optionMap = responseContent.get(i);
+                    HashMap <String, String> optionMap = responseContent.get(i);
                     StockOption option;
-                    try{
+                    try {
                         option = new StockOption(optionMap.get("Contract Name"), optionMap.get("Contract Name"), stock.getExchange(), lastUpdated,
                                 (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Last Price").replace("-", "0")))),
                                 (BigDecimal.valueOf(Double.parseDouble(optionMap.get("Ask").replace("-", "0")))),
@@ -79,7 +82,7 @@ public class OptionsBootstrap {
                         String dateString = "20" + optionMap.get("Contract Name").replace(stock.getTicker(), "").substring(0, 6);
                         Date settlementDate = new SimpleDateFormat("yyyyMMdd").parse(dateString);
                         option.setSettlementDate(settlementDate);
-                    } catch (Exception e){
+                    } catch (Exception e) {
                         continue;
                     }
 

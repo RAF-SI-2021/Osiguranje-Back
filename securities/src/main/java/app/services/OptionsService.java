@@ -22,7 +22,7 @@ public class OptionsService {
     private final OptionsRepository optionsRepository;
 
     @Value("${api.stockinfo}")
-    public String stockinfoApiUrl;
+    private String stockinfoApiUrl;
 
     public OptionsService(OptionsRepository optionsRepository) {
         this.optionsRepository = optionsRepository;
