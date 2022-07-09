@@ -5,7 +5,6 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -54,18 +53,5 @@ public class Company {
         this.employees = new ArrayList<>();
         this.contracts = new ArrayList<>();
         this.bankAccounts = new ArrayList<>();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Company company = (Company) o;
-        return Objects.equals(id, company.id) && Objects.equals(registrationID, company.registrationID) && Objects.equals(name, company.name) && Objects.equals(taxID, company.taxID) && Objects.equals(industrialClassificationID, company.industrialClassificationID) && Objects.equals(address, company.address) && Objects.equals(employees, company.employees) && Objects.equals(bankAccounts, company.bankAccounts) && Objects.equals(contracts, company.contracts);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, registrationID, name, taxID, industrialClassificationID, address, employees, bankAccounts, contracts);
     }
 }
