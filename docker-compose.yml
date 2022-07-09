@@ -105,6 +105,8 @@ services:
       REDIS_HOSTNAME: redis_db
       REDIS_PORT: $REDIS_INTERNAL_PORT
       API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+      API_STOCKINFO: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
+
     ports:
       - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
