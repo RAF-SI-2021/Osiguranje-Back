@@ -1,17 +1,16 @@
 package app.services;
 
-import app.Config;
 import app.model.StockOption;
 import app.model.api.OptionsAPIResponse;
 import app.model.dto.OptionDTO;
 import app.repositories.OptionsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import yahoofinance.YahooFinance;
 
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
@@ -24,6 +23,7 @@ public class OptionsService {
     @Value("${api.stockinfo}")
     private String stockinfoApiUrl;
 
+    @Autowired
     public OptionsService(OptionsRepository optionsRepository) {
         this.optionsRepository = optionsRepository;
     }

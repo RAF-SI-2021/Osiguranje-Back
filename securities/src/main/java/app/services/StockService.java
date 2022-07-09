@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import yahoofinance.YahooFinance;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -21,6 +20,10 @@ import java.util.Optional;
 public class StockService {
     private final StocksRepository stockRepository;
 
+    @Value("${api.stockinfo}")
+    public String stockinfoApiUrl;
+
+    @Autowired
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
     }
@@ -28,10 +31,6 @@ public class StockService {
     public Stock save(Stock stock){
         return stockRepository.save(stock);
     }
-
-//    public List<Stock> findByDateWindow(Date startDate, Date endDate){
-//        return stockRepository.findByDateWindow(startDate, endDate);
-//    }
 
     public List<Stock> findByTicker(String symbol){
         return stockRepository.findStockByTicker(symbol);
@@ -87,5 +86,4 @@ public class StockService {
         Stock stock = opStock.get();
         return new StockDTO(stock);
     }
-
 }
