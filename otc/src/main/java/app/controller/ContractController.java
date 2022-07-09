@@ -139,6 +139,7 @@ public class ContractController {
         headers.add("Authorization","Bearer " + authorization);
 
         HttpEntity<?> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
+
         ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {

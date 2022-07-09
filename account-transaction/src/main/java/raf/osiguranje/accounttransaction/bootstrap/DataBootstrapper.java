@@ -48,10 +48,10 @@ public class DataBootstrapper implements CommandLineRunner {
     private void createBalance(){
         try {
             Account account = accountRepository.findAccountByAccountNumber(1L);
-            Balance balance = new Balance(account,14L, SecurityType.CURRENCY,100000); // USD balans
+            Balance balance = new Balance(account,20L, SecurityType.CURRENCY,100000); // USD balans
             balanceRepository.save(balance);
 
-            balance = new Balance(account,56L, SecurityType.CURRENCY,100000); // EUR balans
+            balance = new Balance(account,62L, SecurityType.CURRENCY,100000); // EUR balans
             balanceRepository.save(balance);
 
         }catch (Exception e){

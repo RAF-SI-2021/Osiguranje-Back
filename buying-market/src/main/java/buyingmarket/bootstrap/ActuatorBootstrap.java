@@ -32,7 +32,7 @@ public class ActuatorBootstrap implements CommandLineRunner {
             actuaryRepository.save(actuary);
             actuary = new Supervisor(4L);
             actuaryRepository.save(actuary);
-        }catch (Exception ignored){}
+        }catch (Exception e){}
 
     }
 }
