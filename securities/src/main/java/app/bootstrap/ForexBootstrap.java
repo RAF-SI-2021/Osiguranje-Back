@@ -43,7 +43,6 @@ public class ForexBootstrap {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        forexService.setLastupdated(date);
 
         for (Currency currency : currencies) {
 

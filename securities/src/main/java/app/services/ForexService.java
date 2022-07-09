@@ -70,7 +70,6 @@ public class ForexService  {
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();
-        setLastupdated(date);
 
         List<Currency> currencies = currencyRepository.findAll();
         for (Currency currency : currencies) {
