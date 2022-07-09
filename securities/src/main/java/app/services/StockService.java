@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Setter
 public class StockService {
     private final StocksRepository stockRepository;
 
@@ -32,10 +31,6 @@ public class StockService {
     public Stock save(Stock stock){
         return stockRepository.save(stock);
     }
-
-//    public List<Stock> findByDateWindow(Date startDate, Date endDate){
-//        return stockRepository.findByDateWindow(startDate, endDate);
-//    }
 
     public List<Stock> findByTicker(String symbol){
         return stockRepository.findStockByTicker(symbol);
