@@ -1,9 +1,8 @@
 version: "3.8"
 services:
   mysqldb:
-    image: mysql:8.0.28
+    image: arm64v8/mysql
     env_file: ./.env
-    platform: linux/amd64
     environment:
       - MYSQL_ROOT_PASSWORD=$MYSQL_PASSWORD
       - MYSQL_DATABASE=$MYSQL_NAME
@@ -14,22 +13,9 @@ services:
     networks:
       - backend
 
-  eureka:
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/eureka
-    env_file: ./.env
-    ports:
-      - $EUREKA_EXTERNAL_PORT:$EUREKA_INTERNAL_PORT
-    volumes:
-      - eureka:/root/.m2
-    stdin_open: true
-    tty: true
-    networks:
-      - backend
-
   usercrud:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/user-crud
     env_file: ./.env
     environment:
@@ -48,7 +34,6 @@ services:
   buyingmarket:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/buying-market
     env_file: ./.env
     environment:
@@ -57,6 +42,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       API_USERCRUD: http://usercrud:$USERCRUD_INTERNAL_PORT
       API_SECURITIES: http://securities:$SECURITIES_INTERNAL_PORT
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
     ports:
       - $MARKET_EXTERNAL_PORT:$MARKET_INTERNAL_PORT
     volumes:
@@ -79,6 +65,8 @@ services:
       ZUUL_ROUTES_SECURITIES_URL: http://securities:$SECURITIES_INTERNAL_PORT/api
       ZUUL_ROUTES_BUYINGMARKET_URL: http://buyingmarket:$MARKET_INTERNAL_PORT/api
       ZUUL_ROUTES_STOCKINFO_URL: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
+      ZUUL_ROUTES_ACCOUNT-TRANSACTION_URL: http://account-transaction:$TRANSACTION_INTERNAL_PORT/api
+      ZUUL_ROUTES_OTC_URL: http://otc:$OTC_INTERNAL_PORT/api
     ports:
       - $GATEWAY_EXTERNAL_PORT:$GATEWAY_INTERNAL_PORT
     networks:
@@ -93,13 +81,16 @@ services:
   securities:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/securities
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      REDIS_HOSTNAME: redis_db
+      REDIS_PORT: $REDIS_INTERNAL_PORT
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+      API_STOCKINFO: http://pythonflask:$PYTHONFLASK_INTERNAL_PORT
     ports:
       - $SECURITIES_EXTERNAL_PORT:$SECURITIES_INTERNAL_PORT
     volumes:
@@ -109,11 +100,31 @@ services:
     networks:
       - backend
 
+
+  otc:
+    depends_on:
+      - mysqldb
+    image: ghcr.io/raf-si-2021/osiguranjeraf2022/otc
+    env_file: ./.env
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
+      API_TRANSACTION: http://account-transaction:$TRANSACTION_INTERNAL_PORT
+    ports:
+      - $OTC_EXTERNAL_PORT:$OTC_INTERNAL_PORT
+    volumes:
+      - otc:/root/.m2
+    stdin_open: true
+    tty: true
+    networks:
+      - backend
+
   account-transaction:
     depends_on:
       - mysqldb
       - securities
-    image: ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
+    image:  ghcr.io/raf-si-2021/osiguranjeraf2022/account-transaction
     env_file: ./.env
     environment:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:$MYSQL_INTERNAL_PORT/$MYSQL_NAME?allowPublicKeyRetrieval=true&useSSL=false
@@ -121,6 +132,7 @@ services:
       SPRING_DATASOURCE_PASSWORD: $MYSQL_PASSWORD
       API_USERCRUD: http://usercrud:$USERCRUD_INTERNAL_PORT
       API_SECURITIES: http://securities:$SECURITIES_INTERNAL_PORT
+      API_BUYINGMARKET: http://buyingmarket:$MARKET_INTERNAL_PORT
     ports:
       - $TRANSACTION_EXTERNAL_PORT:$TRANSACTION_INTERNAL_PORT
     volumes:
@@ -129,7 +141,6 @@ services:
     tty: true
     networks:
       - backend
-
 
   frontend:
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/frontend
@@ -150,15 +161,29 @@ services:
     networks:
       - backend
 
+  redis_db:
+    image: arm64v8/redis
+    env_file: ./.env
+    environment:
+      REDIS_HOSTNAME: redis_db
+      REDIS_PORT: $REDIS_INTERNAL_PORT
+      CACHEEXPIRYTIME: 60
+    ports:
+      - $REDIS_EXTERNAL_PORT:$REDIS_INTERNAL_PORT
+    tty: true
+    networks:
+      - backend
+
 volumes:
   db:
-  eureka:
+  redis_db:
   gateway:
   usercrud:
   securities:
   buyingmarket:
   pythonflask:
   account-transaction:
+  otc:
 
 networks:
   nginx:

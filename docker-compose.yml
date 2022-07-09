@@ -16,7 +16,6 @@ services:
   usercrud:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/user-crud
     env_file: ./.env
     environment:
@@ -35,7 +34,6 @@ services:
   buyingmarket:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/buying-market
     env_file: ./.env
     environment:
@@ -83,7 +81,6 @@ services:
   securities:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/securities
     env_file: ./.env
     environment:
@@ -107,7 +104,6 @@ services:
   otc:
     depends_on:
       - mysqldb
-      - eureka
     image: ghcr.io/raf-si-2021/osiguranjeraf2022/otc
     env_file: ./.env
     environment:
@@ -181,7 +177,6 @@ services:
 volumes:
   db:
   redis_db:
-  eureka:
   gateway:
   usercrud:
   securities:
