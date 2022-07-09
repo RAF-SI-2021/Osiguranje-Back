@@ -3,10 +3,8 @@ package raf.osiguranje.accounttransaction.services;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClientException;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
@@ -51,7 +49,7 @@ public class TransactionService {
         return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
                 transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
     }
-
+    @Transactional
     public Transaction createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
         Account tmpAccount = accountService.findAccountById(transactionOtcDto.getAccountId());
         if(tmpAccount==null){
@@ -109,7 +107,7 @@ public class TransactionService {
         return transaction;
     }
 
-
+    @Transactional
     public Transaction createTransaction(TransactionDTO transactionDTO, String jwt) throws Exception{
         System.out.println(transactionDTO);
         Account tmpAccount = accountService.findAccountById(transactionDTO.getAccountId());
@@ -127,7 +125,7 @@ public class TransactionService {
         Optional<Balance> balanceSecurityOptional = balanceService.getBalancesByFullId(transaction.getAccountId(),orderDto.getSecurityId(),orderDto.getSecurityType());
         if(balanceCurrencyOptional.isEmpty())
             throw new Exception("Couldn't find currency balaces");
-
+        System.out.println("++"+balanceSecurityOptional);
         Balance balanceCurrency = balanceCurrencyOptional.get();
         Balance balanceSecurity = balanceSecurityOptional.orElse(null);
 

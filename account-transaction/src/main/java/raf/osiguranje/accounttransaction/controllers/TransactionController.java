@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.osiguranje.accounttransaction.model.Transaction;
+import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 import raf.osiguranje.accounttransaction.model.dto.TransactionDTO;
 import raf.osiguranje.accounttransaction.model.dto.TransactionOtcDto;
 import raf.osiguranje.accounttransaction.services.TransactionService;
@@ -38,8 +39,10 @@ public class TransactionController {
     public ResponseEntity<?> createTransactionOtc(@RequestBody TransactionOtcDto input, @RequestHeader("Authorization") String authorization){
 
         try {
-            transactionService.createTransactionOtc(input,authorization);
-            return ResponseEntity.accepted().build();
+            Transaction transaction = transactionService.createTransactionOtc(input,authorization);
+            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transaction.getId(),transaction.getAccountId(),-1L, SecurityType.STOCKS,
+                    transaction.getUserId(),transaction.getCurrencyId(),transaction.getText(),transaction.getPayment(),transaction.getPayout(),transaction.getReserve(),transaction.getUsedReserve(),transaction.getTransactionType());
+            return ResponseEntity.accepted().body(transactionOtcDto);
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
