@@ -5,7 +5,9 @@ import app.model.StockOption;
 import app.model.api.OptionsAPIResponse;
 import app.model.dto.OptionDTO;
 import app.repositories.OptionsRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.http.*;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -21,8 +23,8 @@ import java.util.*;
 public class OptionsService {
     private final OptionsRepository optionsRepository;
 
-    @Value("${api.stockinfo}")
-    public String stockinfoApiUrl;
+    @Autowired
+    private Environment env;
 
     public OptionsService(OptionsRepository optionsRepository) {
         this.optionsRepository = optionsRepository;
@@ -68,7 +70,7 @@ public class OptionsService {
 
             List <HashMap <String, String>> responseContent;
             try {
-                ResponseEntity <OptionsAPIResponse> response = rest.exchange(stockinfoApiUrl + "/options/" + o.getOptionType() + "?symbol=" + o.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
+                ResponseEntity <OptionsAPIResponse> response = rest.exchange(env.getProperty("api.stockinfo") + "/options/" + o.getOptionType() + "?symbol=" + o.getTicker(), HttpMethod.GET, entity, OptionsAPIResponse.class);
                 responseContent = Objects.requireNonNull(response.getBody()).getData();
                 if (responseContent.isEmpty())
                     throw new Exception("Empty response");
