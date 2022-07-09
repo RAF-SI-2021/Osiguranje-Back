@@ -32,7 +32,7 @@ public class OptionsBootstrap {
 
     public void loadOptionsData(){
         List<Stock> stocks = stockService.getStocksData();
-        String url = stockService.stockinfoApiUrl;
+        String url = stockService.getStockinfoApiUrl();
 
         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         Date date = new Date();

@@ -6,6 +6,7 @@ import app.repositories.StocksRepository;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import yahoofinance.YahooFinance;
 
@@ -22,8 +23,12 @@ import java.util.Optional;
 public class StockService {
     private final StocksRepository stockRepository;
 
-    @Value("${api.stockinfo}")
-    public String stockinfoApiUrl;
+    @Autowired
+    private Environment env;
+
+    public String getStockinfoApiUrl() {
+        return env.getProperty("api.stockinfo");
+    }
 
     public StockService(StocksRepository stockRepository) {
         this.stockRepository = stockRepository;
