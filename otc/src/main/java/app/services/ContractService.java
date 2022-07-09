@@ -16,9 +16,10 @@ import java.util.Optional;
 public class ContractService {
 
     private final ContractRepository contractRepository;
+
     private final TransactionItemService transactionItemService;
 
-    @Value("${api.transactions}")
+    @Value("${api.transaction}")
     private String transactionsApiUrl;
 
     @Autowired
