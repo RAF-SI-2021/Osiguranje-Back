@@ -204,7 +204,6 @@ public class BalanceService {
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, CurrencyDTO.class);
         } catch(RestClientException e) {
-            e.printStackTrace();
             throw new Exception("Something went wrong while trying to retrieve currency info");
         }
 
