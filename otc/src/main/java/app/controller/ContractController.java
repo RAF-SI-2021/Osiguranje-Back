@@ -99,7 +99,7 @@ public class ContractController {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.add("Authorization","Bearer " + jwt);
             HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-            ResponseEntity<String> response = rest.exchange(contractService.getTransactionsApiServiceURL() + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
+            ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
             String responseStr;
             try {
                 responseStr = Objects.requireNonNull(response.getBody());
@@ -139,7 +139,8 @@ public class ContractController {
         headers.add("Authorization","Bearer " + authorization);
 
         HttpEntity<?> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-        ResponseEntity<String> response = rest.exchange(contractService.getTransactionsApiServiceURL() + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
+
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {
             responseStr = Objects.requireNonNull(response.getBody());
@@ -187,7 +188,7 @@ public class ContractController {
 
         RestTemplate rest = new RestTemplate();
         HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-        ResponseEntity<String> response = rest.exchange(contractService.getTransactionsApiServiceURL() + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         try {
             Objects.requireNonNull(response.getBody());
         } catch (Exception e) {
@@ -227,7 +228,7 @@ public class ContractController {
         headers.add("Authorization","Bearer " + authorization);
         headers.setContentType(MediaType.APPLICATION_JSON);
         HttpEntity<TransactionOtcDto> requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-        ResponseEntity<String> response = rest.exchange(contractService.getTransactionsApiServiceURL() + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
+        ResponseEntity<String> response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         String responseStr;
         try {
             responseStr = Objects.requireNonNull(response.getBody());
@@ -246,7 +247,7 @@ public class ContractController {
         headers.add("Authorization","Bearer " + authorization);
         headers.setContentType(MediaType.APPLICATION_JSON);
         requestEntity = new HttpEntity<>(transactionOtcDto, headers);
-        response = rest.exchange(contractService.getTransactionsApiServiceURL() + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
+        response = rest.exchange(Config.getProperty("accounts_api_url") + "/api/transaction/otc", HttpMethod.POST, requestEntity, String.class);
         try {
             Objects.requireNonNull(response.getBody());
         } catch (Exception e) {
