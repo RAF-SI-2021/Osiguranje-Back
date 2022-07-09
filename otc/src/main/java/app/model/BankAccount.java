@@ -16,7 +16,7 @@ public class BankAccount {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     @Column
-    private String accontNumber;
+    private String accountNumber;
     @ManyToOne
     private Company company;
     @Column
@@ -25,7 +25,7 @@ public class BankAccount {
     private String accountType;
 
     public BankAccount(BankAccountDTO bankAccountDTO) {
-        this.accontNumber = bankAccountDTO.getAccountNumber();
+        this.accountNumber = bankAccountDTO.getAccountNumber();
         this.bankName = bankAccountDTO.getBankName();
         this.accountType = bankAccountDTO.getAccountType();
     }

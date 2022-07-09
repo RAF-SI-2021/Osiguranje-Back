@@ -16,7 +16,7 @@ public class BankAccountDTO {
 
     public BankAccountDTO(BankAccount bankAccount) {
         this.id = bankAccount.getId();
-        this.accountNumber = bankAccount.getAccontNumber();
+        this.accountNumber = bankAccount.getAccountNumber();
         this.bankName = bankAccount.getBankName();
         this.accountType = bankAccount.getAccountType();
     }

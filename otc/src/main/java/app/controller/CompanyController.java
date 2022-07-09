@@ -161,7 +161,7 @@ public class CompanyController {
 
         BankAccount bankAccount = optionalBankAccount.get();
 
-        if(!bankAccountDTO.getAccountNumber().equals(bankAccount.getAccontNumber()))
+        if(!bankAccountDTO.getAccountNumber().equals(bankAccount.getAccountNumber()))
             return ResponseEntity.badRequest().build();
 
         bankAccountService.update(bankAccount, bankAccountDTO);
