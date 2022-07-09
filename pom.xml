@@ -40,6 +40,7 @@
 
     <modules>
         <module>user-crud</module>
+        <module>eureka</module>
         <module>gateway-app</module>
         <module>securities</module>
         <module>buying-market</module>

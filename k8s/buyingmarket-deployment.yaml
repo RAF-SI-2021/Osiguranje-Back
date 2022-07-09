@@ -1,0 +1,95 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.26.1 (HEAD)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: buyingmarket
+  name: buyingmarket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: buyingmarket
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        kompose.cmd: kompose convert
+        kompose.version: 1.26.1 (HEAD)
+      creationTimestamp: null
+      labels:
+        io.kompose.network/backend: "true"
+        io.kompose.service: buyingmarket
+    spec:
+      containers:
+        - env:
+            - name: API_SECURITIES
+              value: http://securities:2000
+            - name: API_USERCRUD
+              value: http://usercrud:8091
+            - name: EUREKA_EXTERNAL_PORT
+              value: "8761"
+            - name: EUREKA_INTERNAL_PORT
+              value: "8761"
+            - name: FRONTEND_EXTERNAL_PORT
+              value: "80"
+            - name: FRONTEND_INTERNAL_PORT
+              value: "80"
+            - name: GATEWAY_EXTERNAL_PORT
+              value: "8080"
+            - name: GATEWAY_INTERNAL_PORT
+              value: "8080"
+            - name: MARKET_EXTERNAL_PORT
+              value: "8092"
+            - name: MARKET_INTERNAL_PORT
+              value: "8092"
+            - name: OTC_EXTERNAL_PORT
+              value: "8094"
+            - name: OTC_INTERNAL_PORT
+              value: "8094"
+            - name: MYSQL_EXTERNAL_PORT
+              value: "3307"
+            - name: MYSQL_INTERNAL_PORT
+              value: "3306"
+            - name: MYSQL_NAME
+              value: osiguranje
+            - name: MYSQL_PASSWORD
+              value: YZUhhNEXfAW8j7Qc
+            - name: PYTHONFLASK_EXTERNAL_PORT
+              value: "9999"
+            - name: PYTHONFLASK_INTERNAL_PORT
+              value: "5000"
+            - name: SECURITIES_EXTERNAL_PORT
+              value: "2000"
+            - name: SECURITIES_INTERNAL_PORT
+              value: "2000"
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: YZUhhNEXfAW8j7Qc
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:mysql://mysqldb:3306/osiguranje?allowPublicKeyRetrieval=true&useSSL=false
+            - name: SPRING_DATASOURCE_USERNAME
+              value: root
+            - name: USERCRUD_EXTERNAL_PORT
+              value: "8091"
+            - name: USERCRUD_INTERNAL_PORT
+              value: "8091"
+          image: ghcr.io/raf-si-2021/osiguranjeraf2022/buying-market
+          name: buyingmarket
+          ports:
+            - containerPort: 8092
+          resources: {}
+          stdin: true
+          tty: true
+          volumeMounts:
+            - mountPath: /root/.m2
+              name: buyingmarket
+      restartPolicy: Always
+      volumes:
+        - name: buyingmarket
+          persistentVolumeClaim:
+            claimName: buyingmarket
+status: {}
