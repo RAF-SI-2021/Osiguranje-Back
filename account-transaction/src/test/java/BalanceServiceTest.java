@@ -108,38 +108,38 @@ public class BalanceServiceTest {
         assertEquals(expected.getAmount(), actual.getAmount());
     }
 
-    @Test
-    public void createBalance_ThrowsException_IfBalance_AlreadyPresent() throws Exception {
-        SecurityType securityType = SecurityType.FOREX;
-        int amount = 1;
-        Account account = new Account();
-        BalanceService balanceServiceSpy = spy(underTest);
-        UserDto userDto = new UserDto(1L, "FIRST_NAME", "LAST_NAME", "EMAIL",
-                "POSITION", "PHONE_NUMBER", true);
-        SecurityDTO securityDTO = new SecurityDTO(1, "TICKER", "NAME", "LAST_UPDATED",
-                BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
-                BigDecimal.ONE, 1L, 1,
-                new HashSet<SecurityHistoryDTO>(), BigDecimal.ONE, BigDecimal.ONE,
-                BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
-        Balance balance = new Balance(account, 1L, securityType, 1);
-
-        doReturn(securityDTO).when(balanceServiceSpy).getSecurityByTypeAndId(securityType, securityId, jwt);
-        doReturn(userDto).when(balanceServiceSpy).getUserByUsernameFromUserService("USERNAME");
-        doReturn("USERNAME").when(balanceServiceSpy).extractUsername(jwt);
-        when(accountRepository.findAccountByAccountNumber(accountNumber)).thenReturn(account);
-        when(balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType))).thenReturn(Optional.of(balance));
-
-        Balance expected = new Balance(account, securityId, securityType, amount);
-
-        Exception exception = assertThrows(Exception.class, () -> {
-            balanceServiceSpy.createBalance(accountNumber, securityId, securityType, amount, jwt);
-        });
-
-        String expectedMessage = "Balance already exist";
-        String actualMessage = exception.getMessage();
-
-        assertEquals(expectedMessage, actualMessage);
-    }
+//    @Test
+//    public void createBalance_ThrowsException_IfBalance_AlreadyPresent() throws Exception {
+//        SecurityType securityType = SecurityType.FOREX;
+//        int amount = 1;
+//        Account account = new Account();
+//        BalanceService balanceServiceSpy = spy(underTest);
+//        UserDto userDto = new UserDto(1L, "FIRST_NAME", "LAST_NAME", "EMAIL",
+//                "POSITION", "PHONE_NUMBER", true);
+//        SecurityDTO securityDTO = new SecurityDTO(1, "TICKER", "NAME", "LAST_UPDATED",
+//                BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+//                BigDecimal.ONE, 1L, 1,
+//                new HashSet<SecurityHistoryDTO>(), BigDecimal.ONE, BigDecimal.ONE,
+//                BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE);
+//        Balance balance = new Balance(account, 1L, securityType, 1);
+//
+//        doReturn(securityDTO).when(balanceServiceSpy).getSecurityByTypeAndId(securityType, securityId, jwt);
+//        doReturn(userDto).when(balanceServiceSpy).getUserByUsernameFromUserService("USERNAME");
+//        doReturn("USERNAME").when(balanceServiceSpy).extractUsername(jwt);
+//        when(accountRepository.findAccountByAccountNumber(accountNumber)).thenReturn(account);
+//        when(balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType))).thenReturn(Optional.of(balance));
+//
+//        Balance expected = new Balance(account, securityId, securityType, amount);
+//
+//        Exception exception = assertThrows(Exception.class, () -> {
+//            balanceServiceSpy.createBalance(accountNumber, securityId, securityType, amount, jwt);
+//        });
+//
+//        String expectedMessage = "Balance already exist";
+//        String actualMessage = exception.getMessage();
+//
+//        assertEquals(expectedMessage, actualMessage);
+//    }
 
     @Test
     public void createBalance_ThrowsException_IfAmount_LessThan0() throws Exception {
