@@ -7,6 +7,7 @@ import raf.osiguranje.accounttransaction.model.dto.BalanceDTO;
 import raf.osiguranje.accounttransaction.model.dto.SecurityType;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -71,5 +72,18 @@ public class Balance {
                 ", amount=" + amount +
                 ", reserved=" + reserved +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Balance balance = (Balance) o;
+        return version == balance.version && Objects.equals(accountId, balance.accountId) && Objects.equals(account, balance.account) && Objects.equals(securityId, balance.securityId) && securityType == balance.securityType && Objects.equals(amount, balance.amount) && Objects.equals(reserved, balance.reserved);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(accountId, account, securityId, securityType, amount, reserved, version);
     }
 }

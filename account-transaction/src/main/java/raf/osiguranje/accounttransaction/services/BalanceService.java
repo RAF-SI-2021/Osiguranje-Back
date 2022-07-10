@@ -197,7 +197,7 @@ public class BalanceService {
         return user;
     }
 
-    protected CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
+    public CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
         String urlString = securitiesApiUrl + "/api/data/currency/" + id;
         System.out.println(urlString);
         ResponseEntity<CurrencyDTO> response;
@@ -219,7 +219,7 @@ public class BalanceService {
         return currencyDTO;
     }
 
-    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
+    public SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
         System.out.println(urlString);
         ResponseEntity<SecurityDTO> response;
