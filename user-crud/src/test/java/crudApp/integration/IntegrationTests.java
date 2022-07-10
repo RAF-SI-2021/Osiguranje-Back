@@ -1,29 +1,21 @@
 package crudApp.integration;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import crudApp.dto.PasswordDto;
 import crudApp.dto.UserDto;
 import crudApp.model.Permissions;
 import crudApp.model.User;
 import crudApp.repositories.UserRepository;
-import org.junit.Before;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.MockMvcPrint;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
@@ -72,7 +64,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("12345");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -103,7 +95,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("12346");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +133,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123466");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -158,7 +150,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123467");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -174,7 +166,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("123468");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -222,7 +214,7 @@ public class IntegrationTests{
         user.setPhoneNumber("+13456");
         user.setJMBG("126545");
         user.setPassword("pwd");
-        user.setPermissions(new Permissions(false,true,true,true));
+        user.setPermissions(new Permissions(false,true,true,true,false,true,true));
 
         mockMvc.perform(post("/api/users")
                         .contentType(MediaType.APPLICATION_JSON)

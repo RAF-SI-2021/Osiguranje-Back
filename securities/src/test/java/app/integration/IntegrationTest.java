@@ -53,10 +53,8 @@ public class IntegrationTest {
 
     private final String BASE_URL = "/api/data/";
 
-    
-    /* There is a problem with Redis so until that is fixed keep this test disabled. */
+
     @Test
-    @Disabled
     void forexTest() throws Exception {
         /* Given. */
         Currency currency = new Currency();

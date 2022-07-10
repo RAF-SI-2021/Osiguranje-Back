@@ -26,10 +26,13 @@ public class ActuatorBootstrap implements CommandLineRunner {
         try {
             Actuary actuary = new Supervisor(1L);
             actuaryRepository.save(actuary);
-            actuary = new Agent(2L, BigDecimal.valueOf(10000L), false);
+            actuary = new Agent(2L, BigDecimal.valueOf(100000L), false);
             actuaryRepository.save(actuary);
-        }catch (Exception e){
+            actuary = new Agent(3L, BigDecimal.valueOf(10000L), true);
+            actuaryRepository.save(actuary);
+            actuary = new Supervisor(4L);
+            actuaryRepository.save(actuary);
+        }catch (Exception e){}
 
-        }
     }
 }

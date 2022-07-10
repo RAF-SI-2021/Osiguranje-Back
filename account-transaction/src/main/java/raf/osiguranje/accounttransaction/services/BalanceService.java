@@ -69,7 +69,8 @@ public class BalanceService {
             SecurityDTO securityDto = getSecurityByTypeAndId(securityType, securityId, jwt);
         }
         if (balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType)).isPresent()){
-            throw new Exception("Balance already exist");
+            System.err.println("Balance already exists");
+            return balanceRepository.findById(new BalanceId(accountNumber, securityId, securityType)).get();
         }
         if(amount<0)
             throw new Exception("Amount is less then zero");
@@ -196,8 +197,9 @@ public class BalanceService {
         return user;
     }
 
-    protected CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
+    public CurrencyDTO getCurrencyById(Long id,String jwtToken) throws Exception{
         String urlString = securitiesApiUrl + "/api/data/currency/" + id;
+        System.out.println(urlString);
         ResponseEntity<CurrencyDTO> response;
         try {
             response = rest.exchange(urlString, HttpMethod.GET, null, CurrencyDTO.class);
@@ -217,7 +219,7 @@ public class BalanceService {
         return currencyDTO;
     }
 
-    protected SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
+    public SecurityDTO getSecurityByTypeAndId(SecurityType securityType, Long securityId,String jwtToken) throws Exception {
         String urlString = securitiesApiUrl + "/api/data/" + securityType.toString().toLowerCase() + "/" + securityId;
         System.out.println(urlString);
         ResponseEntity<SecurityDTO> response;
