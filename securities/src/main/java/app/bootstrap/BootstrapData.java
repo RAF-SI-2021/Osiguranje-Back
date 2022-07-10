@@ -31,7 +31,7 @@ public class BootstrapData implements CommandLineRunner {
         currencyBootstrap.loadCurrenciesData();
         exchangeBootstrap.loadStockExchangeData();
         stocksBootstrap.loadStocksData();
-//        optionsBootstrap.loadOptionsData();
+        optionsBootstrap.loadOptionsData();
         forexBootstrap.loadForexData();
         futuresBootstrap.loadFuturesData();
 
