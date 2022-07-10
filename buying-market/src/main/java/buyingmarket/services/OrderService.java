@@ -147,7 +147,7 @@ public class OrderService {
 
         TransactionDto transactionDto = new TransactionDto();
         transactionDto.setOrderDto(orderMapper.orderToOrderDto(order));
-        transactionDto.setCurrencyId(20L);
+        transactionDto.setCurrencyId(14L);
         transactionDto.setPayment(payment);
         transactionDto.setPayout(payout);
         transactionDto.setReserve(reserve);
