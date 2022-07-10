@@ -11,6 +11,7 @@ import raf.osiguranje.accounttransaction.model.dto.TransactionType;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -97,4 +98,16 @@ public class Transaction {
                 this.text,this.payment,this.payout,this.reserve,this.usedReserve,transactionType);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Transaction that = (Transaction) o;
+        return payment == that.payment && payout == that.payout && reserve == that.reserve && usedReserve == that.usedReserve && Objects.equals(id, that.id) && Objects.equals(accountId, that.accountId) && Objects.equals(orderId, that.orderId) && Objects.equals(userId, that.userId) && Objects.equals(currencyId, that.currencyId) && Objects.equals(text, that.text) && transactionType == that.transactionType;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, accountId, orderId, userId, currencyId, text, payment, payout, reserve, usedReserve, transactionType);
+    }
 }
