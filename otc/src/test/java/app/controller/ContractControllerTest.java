@@ -218,7 +218,7 @@ class ContractControllerTest {
     }
 
     @Test
-    @Disabled
+    // @Disabled
     void createTransactionItem() {
         /* Given. */
         final long ID = 123;
