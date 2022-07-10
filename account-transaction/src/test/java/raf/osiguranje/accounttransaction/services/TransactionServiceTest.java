@@ -1,14 +1,17 @@
+package raf.osiguranje.accounttransaction.services;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.web.client.RestTemplate;
+import raf.osiguranje.accounttransaction.AccountService;
+import raf.osiguranje.accounttransaction.BalanceService;
+import raf.osiguranje.accounttransaction.TransactionService;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.Transaction;
 import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.TransactionRepository;
-import raf.osiguranje.accounttransaction.services.AccountService;
-import raf.osiguranje.accounttransaction.services.BalanceService;
-import raf.osiguranje.accounttransaction.services.TransactionService;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -123,7 +126,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeBuy1() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 0,
                 1, 0, TransactionType.BUY);
@@ -147,7 +150,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeBuy2() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 0,
                 0, 1, TransactionType.BUY);
@@ -171,7 +174,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeBuy3() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 1,
                 0, 0, TransactionType.BUY);
@@ -195,7 +198,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeBuy4() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 1, 0,
                 0, 0, TransactionType.BUY);
@@ -219,7 +222,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeNOTBuy1() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 0,
                 1, 0, TransactionType.SELL);
@@ -243,7 +246,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeNOTBuy2() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 0,
                 0, 1, TransactionType.SELL);
@@ -267,7 +270,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeNOTBuy3() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 0, 1,
                 0, 0, TransactionType.SELL);
@@ -291,7 +294,7 @@ public class TransactionServiceTest {
 
     @Test
     public void createTransactionOtc_TransactionTypeNOTBuy4() throws Exception {
-        TransactionService transactionServiceSpy = spy(underTest);
+        TransactionService transactionServiceSpy = Mockito.spy(underTest);
         TransactionOtcDto transactionOtcDTO = new TransactionOtcDto(1L, accountId, securityId, SecurityType.FOREX,
                 1L, 1L, "TEXT", 1, 0,
                 0, 0, TransactionType.SELL);

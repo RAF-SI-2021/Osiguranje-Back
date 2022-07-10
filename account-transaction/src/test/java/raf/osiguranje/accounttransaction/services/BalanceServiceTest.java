@@ -1,13 +1,15 @@
+package raf.osiguranje.accounttransaction.services;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
+import raf.osiguranje.accounttransaction.BalanceService;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.Balance;
 import raf.osiguranje.accounttransaction.model.BalanceId;
 import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
 import raf.osiguranje.accounttransaction.repositories.BalanceRepository;
-import raf.osiguranje.accounttransaction.services.BalanceService;
 
 import java.math.BigDecimal;
 import java.util.*;

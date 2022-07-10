@@ -1,9 +1,11 @@
+package raf.osiguranje.accounttransaction.services;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import raf.osiguranje.accounttransaction.AccountService;
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.AccountType;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
-import raf.osiguranje.accounttransaction.services.AccountService;
 
 import java.util.ArrayList;
 
