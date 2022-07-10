@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -77,6 +78,27 @@ public class OrderRestControllerTest {
         orderCreateDto.setAmount(100);
         orderCreateDto.setSecurityId(167L);
         orderCreateDto.setSecurityType(SecurityType.FOREX);
+
+        ResponseEntity<?> result = underTest.createOrder( orderCreateDto,JWT );
+
+        assertEquals(result.getStatusCode(), HttpStatus.OK);
+
+    }
+
+    @Test
+    public void createOrderTestException(){
+        final String JWT = "jwt";
+
+        OrderCreateDto orderCreateDto = new OrderCreateDto();
+        orderCreateDto.setAmount(100);
+        orderCreateDto.setSecurityId(167L);
+        orderCreateDto.setSecurityType(SecurityType.FOREX);
+
+        try {
+            Mockito.doThrow(new UserNotFoundException("No actuary found")).when(orderService).createOrder(orderCreateDto,JWT);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         ResponseEntity<?> result = underTest.createOrder( orderCreateDto,JWT );
 

@@ -41,7 +41,6 @@ public class OrderRestController {
             List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
             return new ResponseEntity<>(orders, HttpStatus.OK);
         }catch (Exception e){
-//            e.printStackTrace();
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
 
