@@ -1,3 +1,5 @@
+package raf.osiguranje.accounttransaction.services;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import raf.osiguranje.accounttransaction.model.Account;

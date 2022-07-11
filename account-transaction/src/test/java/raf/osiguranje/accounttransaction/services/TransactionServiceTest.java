@@ -1,3 +1,5 @@
+package raf.osiguranje.accounttransaction.services;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.client.RestTemplate;
@@ -311,6 +313,323 @@ public class TransactionServiceTest {
         underTest.createTransactionOtc(transactionOtcDTO, jwt);
 
         verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, transaction.getPayment()),jwt);
+    }
+
+    @Test
+    public void createTransaction_ThrowsException_IfAccountNull() {
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                                                            1L, "TEXT", 1, 1, 1,
+                                                            1, TransactionType.BUY);
+
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(null);
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            underTest.createTransaction(transactionDTO, jwt);
+        });
+
+        String expectedMessage = "Couldn't find account";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    public void createTransaction_ThrowsException_IfBalanceEmpty() {
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 1, 1, 1,
+                1, TransactionType.BUY);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.empty());
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(Exception.class, () -> {
+            underTest.createTransaction(transactionDTO, jwt);
+        });
+
+        String expectedMessage = "Couldn't find currency balaces";
+        String actualMessage = exception.getMessage();
+
+        assertEquals(expectedMessage, actualMessage);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeBuy1() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 0, 0,
+                1, TransactionType.BUY);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = -transaction.getUsedReserve();
+        verify(balanceService, times(1)).updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, value),jwt);
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, value),jwt);
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(), transaction.getPayment()),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeBuy2() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 1, 0, 0,
+                0, TransactionType.BUY);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = transaction.getPayment();
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeBuy3() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 1, 0,
+                0, TransactionType.BUY);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = -transaction.getPayout();
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeBuy4() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 0, 1,
+                0, TransactionType.BUY);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = transaction.getReserve();
+        verify(balanceService, times(1)).updateReserve(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceCurrency.getSecurityId(),SecurityType.CURRENCY, value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeNOTBuy1() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 0, 0,
+                1, TransactionType.SELL);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = -transaction.getUsedReserve();
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceCurrency.getAccountId(),balanceSecurity.getSecurityId(),SecurityType.CURRENCY, transaction.getPayment()),jwt);
+        verify(balanceService, times(1)).updateReserve(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(), value),jwt);
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(balanceSecurity.getAccountId(),balanceSecurity.getSecurityId(),balanceSecurity.getSecurityType(), value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeNOTBuy2() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 1, 0, 0,
+                0, TransactionType.SELL);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = transaction.getPayment();
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(transaction.getAccountId(),transactionDTO.getOrderDto().getSecurityId(),transactionDTO.getOrderDto().getSecurityType(), value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeNOTBuy3() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 1, 0,
+                0, TransactionType.SELL);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = -transaction.getPayout();
+        verify(balanceService, times(1)).updateAmount(new BalanceUpdateDto(transaction.getAccountId(),transactionDTO.getOrderDto().getSecurityId(),transactionDTO.getOrderDto().getSecurityType(), value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
+    }
+
+    @Test
+    public void createTransaction_TransactionTypeNOTBuy4() throws Exception {
+        TransactionService transactionServiceSpy = spy(underTest);
+        OrderDto orderDto = new OrderDto(1L, securityId, 1L, 1, SecurityType.FOREX,
+                true, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE, BigDecimal.ONE,
+                BigDecimal.ONE, true);
+        TransactionDTO transactionDTO = new TransactionDTO(1L, accountId, LocalDateTime.now(), orderDto, 1L,
+                1L, "TEXT", 0, 0, 1,
+                0, TransactionType.SELL);
+        Account account = new Account();
+        Balance balanceCurrency = new Balance(account, securityId, SecurityType.CURRENCY, 1);
+        Balance balanceSecurity = new Balance(account, securityId, SecurityType.FOREX, 1);
+
+        Transaction transaction = new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),
+                transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
+                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(),
+                transactionDTO.getUsedReserve(),transactionDTO.getText(),
+                transactionDTO.getTransactionType());
+
+        doReturn(transaction).when(transactionServiceSpy).getTransactionFromDto(transactionDTO);
+        when(accountService.findAccountById(transactionDTO.getAccountId())).thenReturn(account);
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getCurrencyId(),
+                SecurityType.CURRENCY)).thenReturn(Optional.of(balanceCurrency));
+        when(balanceService.getBalancesByFullId(transactionDTO.getAccountId(), transactionDTO.getOrderDto().getSecurityId(),
+                transactionDTO.getOrderDto().getSecurityType())).thenReturn(Optional.of(balanceSecurity));
+
+        underTest.createTransaction(transactionDTO, jwt);
+
+        int value = transaction.getReserve();
+        verify(balanceService, times(1)).updateReserve(new BalanceUpdateDto(transaction.getAccountId(),transactionDTO.getOrderDto().getSecurityId(),transactionDTO.getOrderDto().getSecurityType(), value),jwt);
+        verify(transactionRepository, times(1)).save(transaction);
     }
 
     @Test

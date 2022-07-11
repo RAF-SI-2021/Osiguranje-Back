@@ -2,8 +2,8 @@ package raf.osiguranje.accounttransaction.model.dto;
 
 import lombok.*;
 
-@Getter
 @Setter
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
