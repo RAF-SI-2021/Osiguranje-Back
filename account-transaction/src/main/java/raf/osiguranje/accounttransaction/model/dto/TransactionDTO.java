@@ -1,8 +1,6 @@
 package raf.osiguranje.accounttransaction.model.dto;
 
 import lombok.*;
-import org.hibernate.criterion.Order;
-;
 import java.time.LocalDateTime;
 
 
@@ -24,6 +22,10 @@ public class TransactionDTO {
     private Long userId;
 
     private Long currencyId;
+
+    private Long securityId;
+
+    private SecurityType securityType;
 
     private String text;
 

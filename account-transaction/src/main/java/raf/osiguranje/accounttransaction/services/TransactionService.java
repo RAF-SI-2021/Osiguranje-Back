@@ -6,10 +6,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import raf.osiguranje.accounttransaction.model.Account;
-import raf.osiguranje.accounttransaction.model.Balance;
-import raf.osiguranje.accounttransaction.model.Transaction;
+import raf.osiguranje.accounttransaction.model.*;
 import raf.osiguranje.accounttransaction.model.dto.*;
+import raf.osiguranje.accounttransaction.repositories.MarginAccountRepository;
+import raf.osiguranje.accounttransaction.repositories.MarginTransactionRepository;
 import raf.osiguranje.accounttransaction.repositories.TransactionRepository;
 
 import java.util.List;
@@ -20,6 +20,8 @@ import java.util.Optional;
 public class TransactionService {
 
     private TransactionRepository transactionRepository;
+    private MarginTransactionRepository marginTransactionRepository;
+    private MarginAccountRepository marginAccountRepository;
     private AccountService accountService;
     private BalanceService balanceService;
     private RestTemplate rest;
@@ -32,8 +34,10 @@ public class TransactionService {
 
 
     @Autowired
-    public TransactionService(TransactionRepository transactionRepository, AccountService accountService, BalanceService balanceService, RestTemplate rest) {
+    public TransactionService(TransactionRepository transactionRepository, MarginTransactionRepository marginTransactionRepository, MarginAccountRepository marginAccountRepository, AccountService accountService, BalanceService balanceService, RestTemplate rest) {
         this.transactionRepository = transactionRepository;
+        this.marginTransactionRepository = marginTransactionRepository;
+        this.marginAccountRepository = marginAccountRepository;
         this.accountService = accountService;
         this.balanceService = balanceService;
         this.rest = rest;
@@ -42,12 +46,17 @@ public class TransactionService {
 
 
     public Transaction getTransactionFromDto(TransactionDTO transactionDTO){
-        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
+        return new Transaction(transactionDTO.getAccountId(),transactionDTO.getOrderDto().getOrderId(),transactionDTO.getUserId(),transactionDTO.getCurrencyId(),transactionDTO.getSecurityId(), transactionDTO.getSecurityType(),
+                transactionDTO.getText(),transactionDTO.getTransactionType(), transactionDTO.getPayment(), transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
     }
     public Transaction getTransactionFromOtcDto(TransactionOtcDto transactionDTO){
-        return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),
-                transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve(),transactionDTO.getText(),transactionDTO.getTransactionType());
+        return new Transaction(transactionDTO.getAccountId(),-1L,transactionDTO.getUserId(),transactionDTO.getCurrencyId(),transactionDTO.getSecurityId(), transactionDTO.getSecurityType(),
+                transactionDTO.getText(),transactionDTO.getTransactionType(), transactionDTO.getPayment(),transactionDTO.getPayout(),transactionDTO.getReserve(), transactionDTO.getUsedReserve());
+    }
+    public MarginTransaction getMarginTransactionFromDto(MarginTransactionDto marginTransactionDto) {
+        return new MarginTransaction(marginTransactionDto.getAccountId(), marginTransactionDto.getOrderId(), marginTransactionDto.getUserId(), marginTransactionDto.getCurrencyId(),
+                marginTransactionDto.getSecurityId(), marginTransactionDto.getSecurityType(), marginTransactionDto.getText(), marginTransactionDto.getTransactionType(), marginTransactionDto.getDeposit(), marginTransactionDto.getLoanValue(), marginTransactionDto.getMaintenanceMargin(),
+                marginTransactionDto.getInterestValue());
     }
     @Transactional
     public Transaction createTransactionOtc(TransactionOtcDto transactionOtcDto, String jwt) throws Exception {
@@ -181,6 +190,27 @@ public class TransactionService {
         transactionRepository.save(transaction);
 
         return transaction;
+    }
+
+    public MarginTransaction createMarginTransaction (MarginTransactionDto marginTransactionDto, String jwt) throws Exception {
+        Optional<MarginTransaction> mt = marginTransactionRepository.findById(marginTransactionDto.getAccountId());
+        if (mt.isPresent()) {
+            MarginTransaction marginTransaction = mt.get();
+            Optional<MarginAccount> ma = marginAccountRepository.findById(marginTransaction.getAccountId());
+            if (ma.isPresent()) {
+                MarginAccount marginAccount = ma.get();
+                marginAccount.setInvestedFunds(marginAccount.getInvestedFunds().add(marginTransaction.getInvestedFunds()));
+                marginAccount.setLoanValue(marginAccount.getLoanValue().add(marginTransaction.getLoanValue()));
+                marginAccount.setMaintenanceMargin(marginAccount.getMaintenanceMargin().add(marginTransaction.getMaintenanceMargin()));
+                marginAccountRepository.save(marginAccount);
+            } else {
+                throw new Exception("No such account found.");
+            }
+            marginTransactionRepository.save(marginTransaction);
+        } else {
+            throw new Exception("No such account found.");
+        }
+        return mt.get();
     }
 
     public void updateBalanceTransaction(Long accountId, Long securityId, SecurityType securityType,int amount,String jwt) throws Exception {

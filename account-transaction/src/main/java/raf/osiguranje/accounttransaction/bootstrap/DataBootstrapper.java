@@ -25,7 +25,7 @@ public class DataBootstrapper implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         createAccounts();
         createBalance();
     }
@@ -37,7 +37,7 @@ public class DataBootstrapper implements CommandLineRunner {
             System.out.println(account);
             this.accountRepository.save(account);
 
-            account = new Account(AccountType.MARGINS);
+            account = new Account(AccountType.MARGIN);
             this.accountRepository.save(account);
         } else {
             System.out.println(allAccounts);

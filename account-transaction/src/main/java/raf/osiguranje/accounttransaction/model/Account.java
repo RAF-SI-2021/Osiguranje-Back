@@ -8,10 +8,10 @@ public class Account {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private Long accountNumber;
+    protected Long accountNumber;
 
     @Column(nullable = false)
-    private AccountType accountType;
+    protected AccountType accountType;
 
     public Account(AccountType accountType) {
         this.accountType = accountType;

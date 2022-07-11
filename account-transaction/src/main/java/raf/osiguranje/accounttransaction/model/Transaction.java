@@ -15,7 +15,6 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@AllArgsConstructor
 @Entity
 public class Transaction {
 
