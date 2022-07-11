@@ -16,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -99,6 +97,21 @@ public class OrderService {
         Actuary actuary = actuaryService.getActuary(jws);
         List<Order> orders = orderRepository.findAllByActuary(actuary);
         return orderMapper.ordersToOrderDtos(orders);
+    }
+
+    public List<OrderDto> findAllOrdersForTrainees(String jws) {
+        Actuary actuary = actuaryService.getActuary(jws);
+        if(actuary.getActuaryType().equals(ActuaryType.SUPERVISOR) || !actuary.getApprovalRequired()) {
+            List<Actuary> trainee = actuaryService.getTraineeActuary();
+            List<Order> orders = new ArrayList<>();
+            for(Actuary a:trainee){
+                orders.addAll(orderRepository.findAllByActuary(a));
+            }
+
+            return orderMapper.ordersToOrderDtos(orders);
+        }else {
+            return Collections.emptyList();
+        }
     }
 
     public OrderDto findOrderForUser(Long id, String jws) {
