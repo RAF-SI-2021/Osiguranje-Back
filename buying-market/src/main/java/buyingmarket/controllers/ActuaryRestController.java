@@ -1,5 +1,6 @@
 package buyingmarket.controllers;
 
+import buyingmarket.model.Actuary;
 import buyingmarket.model.dto.ActuaryCreateDto;
 import buyingmarket.services.ActuaryService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,16 @@ public class ActuaryRestController {
     @Autowired
     public ActuaryRestController(ActuaryService actuaryService) {
         this.actuaryService = actuaryService;
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getActuary(@PathVariable Long id){
+        Actuary actuary = actuaryService.getActuaryById(id);
+        if(actuary == null){
+            return new ResponseEntity<>("Actuary not found",HttpStatus.NOT_FOUND);
+        }
+
+        return ResponseEntity.ok(actuary);
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
@@ -48,4 +59,5 @@ public class ActuaryRestController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
 }

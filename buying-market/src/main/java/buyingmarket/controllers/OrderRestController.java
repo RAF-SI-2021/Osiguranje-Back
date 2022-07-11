@@ -43,8 +43,18 @@ public class OrderRestController {
         }catch (Exception e){
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
+
+    @GetMapping("/trainees")
+    public ResponseEntity<?> findAllTraineesOrders(@RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.findAllOrdersForTrainees(authorization);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> findOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
