@@ -54,7 +54,6 @@ public class OrderMapper {
                 .modificationDate(order.getModificationDate())
                 .actionType(order.getActionType())
                 .amountFilled(order.getAmountFilled())
-                .fee(order.getFee())
                 .build();
     }
 
