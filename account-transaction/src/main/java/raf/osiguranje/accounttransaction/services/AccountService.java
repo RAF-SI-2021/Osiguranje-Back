@@ -1,8 +1,10 @@
 package raf.osiguranje.accounttransaction.services;
 
 import lombok.NoArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
 import raf.osiguranje.accounttransaction.model.Account;
 import raf.osiguranje.accounttransaction.model.AccountType;
 import raf.osiguranje.accounttransaction.repositories.AccountRepository;
