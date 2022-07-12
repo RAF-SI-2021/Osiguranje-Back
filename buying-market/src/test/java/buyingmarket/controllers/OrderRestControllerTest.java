@@ -115,7 +115,7 @@ public class OrderRestControllerTest {
 
         when(orderService.findAllOrdersForUser(JWT)).thenReturn(orderDtos);
 
-        ResponseEntity<?> result = underTest.findAll( JWT );
+        ResponseEntity<?> result = underTest.findAllForUser( JWT );
 
         assertEquals(result.getStatusCode(), HttpStatus.OK);
         Object body = result.getBody();
@@ -137,7 +137,7 @@ public class OrderRestControllerTest {
 
         when(orderService.findAllOrdersForUser(JWT)).thenThrow(new UserNotFoundException("No actuary found"));
 
-        ResponseEntity<?> result = underTest.findAll( JWT );
+        ResponseEntity<?> result = underTest.findAllForUser( JWT );
 
         assertEquals(result.getStatusCode(), HttpStatus.BAD_REQUEST);
         Object body = result.getBody();
