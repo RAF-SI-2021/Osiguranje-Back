@@ -24,7 +24,7 @@ public class EmployeeDTO {
         this.name = employee.getName();
         this.surname = employee.getSurname();
         this.phone = employee.getPhone();
-        this.email = employee.getPhone();
+        this.email = employee.getEmail();
         this.companyPosition = employee.getCompanyPosition();
         this.description = employee.getDescription();
     }
