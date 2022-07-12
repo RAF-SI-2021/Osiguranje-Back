@@ -26,13 +26,15 @@ public class OrderRestController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
         try {
             orderService.createOrder(orderCreateDto, authorization);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e){
             e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @GetMapping
