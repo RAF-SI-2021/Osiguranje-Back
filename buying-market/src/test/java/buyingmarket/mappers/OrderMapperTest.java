@@ -204,14 +204,14 @@ class OrderMapperTest {
         order.setTransactions(new HashSet<>());
         order.setUserId(123L);
         OrderDto actualOrderToOrderDtoResult = this.orderMapper.orderToOrderDto(order);
-        assertNull(actualOrderToOrderDtoResult.getActionType());
+
         assertEquals(123L, actualOrderToOrderDtoResult.getUserId().longValue());
         assertTrue(actualOrderToOrderDtoResult.getTransactions().isEmpty());
         BigDecimal stopPrice = actualOrderToOrderDtoResult.getStopPrice();
         assertEquals(valueOfResult, stopPrice);
         assertEquals(SecurityType.STOCKS, actualOrderToOrderDtoResult.getSecurityType());
         assertTrue(actualOrderToOrderDtoResult.getAllOrNone());
-        assertNull(actualOrderToOrderDtoResult.getAmountFilled());
+
         assertSame(fromResult, actualOrderToOrderDtoResult.getModificationDate());
         assertEquals(123L, actualOrderToOrderDtoResult.getSecurityId().longValue());
         assertEquals(OrderState.APPROVED, actualOrderToOrderDtoResult.getOrderState());
@@ -315,7 +315,7 @@ class OrderMapperTest {
         assertEquals(valueOfResult, stopPrice);
         assertEquals(SecurityType.STOCKS, actualOrderToOrderDtoResult.getSecurityType());
         assertTrue(actualOrderToOrderDtoResult.getAllOrNone());
-        assertNull(actualOrderToOrderDtoResult.getAmountFilled());
+
         assertSame(fromResult, actualOrderToOrderDtoResult.getModificationDate());
         assertEquals(123L, actualOrderToOrderDtoResult.getSecurityId().longValue());
         assertEquals(OrderState.APPROVED, actualOrderToOrderDtoResult.getOrderState());

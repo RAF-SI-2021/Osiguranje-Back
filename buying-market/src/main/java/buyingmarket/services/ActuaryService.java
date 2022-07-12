@@ -3,6 +3,7 @@ package buyingmarket.services;
 import buyingmarket.exceptions.UserNotFoundException;
 import buyingmarket.mappers.ActuaryMapper;
 import buyingmarket.model.Actuary;
+import buyingmarket.model.ActuaryType;
 import buyingmarket.model.Agent;
 import buyingmarket.model.dto.ActuaryCreateDto;
 import buyingmarket.repositories.ActuaryRepository;
@@ -20,6 +21,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ActuaryService {
@@ -38,6 +40,11 @@ public class ActuaryService {
         this.actuaryRepository = actuaryRepository;
         this.actuaryMapper = actuaryMapper;
         this.rest = new RestTemplate();
+    }
+
+    public Actuary getActuaryById(Long id){
+        Optional<Actuary> actuaryOptional = actuaryRepository.findActuaryByUserId(id);
+        return actuaryOptional.orElse(null);
     }
 
     public List<Agent> getAllAgents() {
@@ -130,5 +137,12 @@ public class ActuaryService {
         } else {
             throw new UserNotFoundException("No actuary found");
         }
+    }
+
+    public List<Actuary> getTraineeActuary() {
+        List<Actuary> actuaries = actuaryRepository.findAll();
+
+        return actuaries.stream().filter(actuary -> actuary.getActuaryType().equals(ActuaryType.AGENT) &&
+                actuary.getApprovalRequired()).collect(Collectors.toList());
     }
 }

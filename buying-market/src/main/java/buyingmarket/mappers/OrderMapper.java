@@ -52,6 +52,8 @@ public class OrderMapper {
                 .transactions(order.getTransactions())
                 .orderState(order.getOrderState())
                 .modificationDate(order.getModificationDate())
+                .actionType(order.getActionType())
+                .amountFilled(order.getAmountFilled())
                 .build();
     }
 
