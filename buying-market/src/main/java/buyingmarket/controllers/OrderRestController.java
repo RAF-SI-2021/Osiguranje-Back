@@ -26,25 +26,47 @@ public class OrderRestController {
     }
 
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<HttpStatus> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> createOrder(@Valid @RequestBody OrderCreateDto orderCreateDto, @RequestHeader("Authorization") String authorization) {
         try {
             orderService.createOrder(orderCreateDto, authorization);
+            return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e){
             e.printStackTrace();
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(HttpStatus.OK);
+
     }
 
     @GetMapping
-    public ResponseEntity<?> findAll(@RequestHeader("Authorization") String authorization) {
+    public ResponseEntity<?> findAllForUser(@RequestHeader("Authorization") String authorization) {
         try {
             List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
             return new ResponseEntity<>(orders, HttpStatus.OK);
         }catch (Exception e){
             return  ResponseEntity.badRequest().body(e.getMessage());
         }
-
     }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> findAll(@RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.findAllOrders(authorization);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/trainees")
+    public ResponseEntity<?> findAllTraineesOrders(@RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.findAllOrdersForTrainees(authorization);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<OrderDto> findOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
