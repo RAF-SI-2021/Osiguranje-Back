@@ -96,13 +96,12 @@ public class OrderRestControllerTest {
 
         try {
             Mockito.doThrow(new UserNotFoundException("No actuary found")).when(orderService).createOrder(orderCreateDto,JWT);
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception ignored) {
         }
 
         ResponseEntity<?> result = underTest.createOrder( orderCreateDto,JWT );
 
-        assertEquals(result.getStatusCode(), HttpStatus.OK);
+        assertEquals(result.getStatusCode(), HttpStatus.BAD_REQUEST);
 
     }
 
