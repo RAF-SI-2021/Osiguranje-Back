@@ -37,7 +37,7 @@ public class OrderRestController {
 
     }
 
-    @GetMapping
+    @GetMapping("/user")
     public ResponseEntity<?> findAllForUser(@RequestHeader("Authorization") String authorization) {
         try {
             List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
