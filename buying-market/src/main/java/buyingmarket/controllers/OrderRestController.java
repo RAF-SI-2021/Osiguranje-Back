@@ -68,7 +68,7 @@ public class OrderRestController {
     }
 
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<OrderDto> findOrder(@NotNull @RequestParam Long id, @RequestHeader("Authorization") String authorization) {
         OrderDto order = orderService.findOrderForUser(id, authorization);
         return new ResponseEntity<>(order, HttpStatus.OK);
