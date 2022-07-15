@@ -31,13 +31,13 @@ public class OrderRestController {
             orderService.createOrder(orderCreateDto, authorization);
             return new ResponseEntity<>(HttpStatus.OK);
         } catch (Exception e){
-            e.printStackTrace();
+//            e.printStackTrace();
             return new ResponseEntity<>(e.getMessage(),HttpStatus.BAD_REQUEST);
         }
 
     }
 
-    @GetMapping
+    @GetMapping("/user")
     public ResponseEntity<?> findAllForUser(@RequestHeader("Authorization") String authorization) {
         try {
             List<OrderDto> orders = orderService.findAllOrdersForUser(authorization);
@@ -68,8 +68,8 @@ public class OrderRestController {
     }
 
 
-    @GetMapping("/{id}")
-    public ResponseEntity<OrderDto> findOrder(@NotNull @PathVariable Long id, @RequestHeader("Authorization") String authorization) {
+    @GetMapping
+    public ResponseEntity<OrderDto> findOrder(@NotNull @RequestParam Long id, @RequestHeader("Authorization") String authorization) {
         OrderDto order = orderService.findOrderForUser(id, authorization);
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
@@ -88,7 +88,11 @@ public class OrderRestController {
 
     @PutMapping(value = "/{orderId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<HttpStatus> validateOrder(@PathVariable Long orderId, @RequestBody OrderState orderState, @RequestHeader("Authorization") String authorization) {
-        orderService.validateOrder(orderId, orderState, authorization);
-        return ResponseEntity.noContent().build();
+        try {
+            orderService.validateOrder(orderId, orderState, authorization);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+           return ResponseEntity.badRequest().build();
+        }
     }
 }
