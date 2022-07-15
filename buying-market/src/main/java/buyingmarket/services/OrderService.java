@@ -59,7 +59,7 @@ public class OrderService {
                 SecurityDto security = getSecurityFromOrder(order);
                 actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
             }catch (Exception e){
-                throw new Exception("Agent limit exceeded");
+                throw new UpdateNotAllowedException("Agent limit exceeded");
             }
 
             order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
