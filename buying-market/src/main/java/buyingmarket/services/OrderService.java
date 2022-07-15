@@ -79,10 +79,12 @@ public class OrderService {
         if (actuary instanceof Agent) {
             Agent agent = (Agent) actuary;
             BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
-            if (agent.getApprovalRequired() || agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) <= 0) {
+            if (agent.getApprovalRequired()) {
                 order.setOrderState(OrderState.WAITING);
-            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) > 0) {
+            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
                 actuaryService.changeLimit(agent.getId(), estimation);
+            } else {
+                throw new Exception("Agent limit exceeded");
             }
         }
         order.setModificationDate(new Date());
