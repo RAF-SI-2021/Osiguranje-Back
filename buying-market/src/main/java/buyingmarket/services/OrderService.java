@@ -55,9 +55,12 @@ public class OrderService {
         if (o.isPresent()) {
             Order order = o.get();
             order.setOrderState(orderState);
-
-            SecurityDto security = getSecurityFromOrder(order);
-            actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
+            try {
+                SecurityDto security = getSecurityFromOrder(order);
+                actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
+            }catch (Exception e){
+                throw new UpdateNotAllowedException("Agent limit exceeded");
+            }
 
             order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
             orderRepository.save(order);
@@ -79,10 +82,12 @@ public class OrderService {
         if (actuary instanceof Agent) {
             Agent agent = (Agent) actuary;
             BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
-            if (agent.getApprovalRequired() || agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) <= 0) {
+            if (agent.getApprovalRequired()) {
                 order.setOrderState(OrderState.WAITING);
-            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) > 0) {
+            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
                 actuaryService.changeLimit(agent.getId(), estimation);
+            } else {
+                throw new Exception("Agent limit exceeded");
             }
         }
         order.setModificationDate(new Date());
