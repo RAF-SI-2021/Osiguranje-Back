@@ -93,7 +93,9 @@ public class UserService implements UserDetailsService {
         Optional<User> user = this.userRepository.findUserByEmail(dto.getEmail());
         if (user.isEmpty()) {
             //taskExecutor.execute(() -> EmailSender.getInstance().sendEmail(dto.getEmail(), "Setting your password", "https://docs.google.com/document/d/1kX7tSj7rEntLyHOQLQogigBC3cMYxS0GikjQxAd-3Tg/edit#"));
-            User u = userRepository.save(userMapper.userCreateDtoToUser(dto));
+            User u = userMapper.userCreateDtoToUser(dto);
+            u.setPassword(passwordEncoder.encode("raf"));
+            u = userRepository.save(u);
             return userMapper.userToUserDto(u);
         } else {
             throw new Exception("User already exists.");
