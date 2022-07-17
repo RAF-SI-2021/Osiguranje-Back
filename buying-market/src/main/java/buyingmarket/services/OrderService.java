@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.Executors;
@@ -49,11 +50,18 @@ public class OrderService {
         this.rest = new RestTemplate();
     }
 
-    public void validateOrder(Long orderId, OrderState orderState, String jws) {
+    public void validateOrder(Long orderId, OrderState orderState, String jws) throws Exception {
         Optional<Order> o = orderRepository.findById(orderId);
         if (o.isPresent()) {
             Order order = o.get();
             order.setOrderState(orderState);
+            try {
+                SecurityDto security = getSecurityFromOrder(order);
+                actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
+            }catch (Exception e){
+                throw new UpdateNotAllowedException("Agent limit exceeded");
+            }
+
             order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
             orderRepository.save(order);
             if (orderState.equals(OrderState.APPROVED)) {
@@ -73,8 +81,13 @@ public class OrderService {
         SecurityDto security = getSecurityFromOrder(order);
         if (actuary instanceof Agent) {
             Agent agent = (Agent) actuary;
-            if (agent.getApprovalRequired() || agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(FormulaCalculator.getEstimatedValue(order, security))) <= 0) {
+            BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
+            if (agent.getApprovalRequired()) {
                 order.setOrderState(OrderState.WAITING);
+            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
+                actuaryService.changeLimit(agent.getId(), estimation);
+            } else {
+                throw new Exception("Agent limit exceeded");
             }
         }
         order.setModificationDate(new Date());
