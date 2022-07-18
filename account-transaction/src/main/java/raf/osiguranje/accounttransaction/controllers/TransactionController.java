@@ -48,7 +48,6 @@ public class TransactionController {
         }
     }
 
-
     @GetMapping(path="/all")
     public ResponseEntity<List<TransactionDTO>> findAllTransactions(@RequestHeader("Authorization") String authorization){
         List<Transaction> transactions = transactionService.getAllTransactions();
@@ -76,6 +75,12 @@ public class TransactionController {
     @GetMapping(path="/order")
     public ResponseEntity<List<TransactionDTO>> findAllTransactionsByOrder(@RequestParam("order") Long input,@RequestHeader("Authorization") String authorization){
         List<Transaction> transactions = transactionService.getTransactionsByOrderId(input);
+        return ResponseEntity.ok(transactions.stream().map(Transaction::getDto).collect(Collectors.toList()));
+    }
+
+    @GetMapping(path="/order/list")
+    public ResponseEntity<List<TransactionDTO>> findAllTransactionsByOrder(@RequestParam("orders") List<Long> input,@RequestHeader("Authorization") String authorization){
+        List<Transaction> transactions = transactionService.getTransactionsByOrderList(input);
         return ResponseEntity.ok(transactions.stream().map(Transaction::getDto).collect(Collectors.toList()));
     }
 
