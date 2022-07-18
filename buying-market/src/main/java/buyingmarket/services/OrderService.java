@@ -55,17 +55,37 @@ public class OrderService {
         if (o.isPresent()) {
             Order order = o.get();
             order.setOrderState(orderState);
-            try {
-                SecurityDto security = getSecurityFromOrder(order);
-                actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
-            }catch (Exception e){
-                throw new UpdateNotAllowedException("Agent limit exceeded");
+
+            SecurityDto security = getSecurityFromOrder(order);
+
+            if(order.getActionType().equals(ActionType.BUY)) {
+                try {
+                    actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
+                } catch (Exception e) {
+                    throw new UpdateNotAllowedException("Agent limit exceeded");
+                }
             }
+
+
 
             order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
             orderRepository.save(order);
             if (orderState.equals(OrderState.APPROVED)) {
                 execute(order,jws);
+            } else {
+                TransactionDto cancelTransactionDto;
+                try {
+                    if(order.getActionType().equals(ActionType.BUY)) {
+                        cancelTransactionDto = createTransaction(jws, order, "Canceling init transaction for order(buy)", 0, 0, -FormulaCalculator.getEstimatedValue(order, security).intValue(), 0);
+                    }else {
+                        cancelTransactionDto = createTransaction(jws, order, "Canceling init transaction for order(sell)", 0, 0, -order.getAmount(), 0);
+                    }
+                    order.getTransactions().add(cancelTransactionDto.getId());
+                    order = orderRepository.save(order);
+                }catch (Exception e){
+//                    orderRepository.delete(order);
+                    throw e;
+                }
             }
         } else {
             throw new UpdateNotAllowedException("Order not found.");
@@ -84,10 +104,12 @@ public class OrderService {
             BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
             if (agent.getApprovalRequired()) {
                 order.setOrderState(OrderState.WAITING);
-            } else if(agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
-                actuaryService.changeLimit(agent.getId(), estimation);
-            } else {
-                throw new Exception("Agent limit exceeded");
+            } else if(order.getActionType().equals(ActionType.BUY)){
+                if (agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
+                    actuaryService.changeLimit(agent.getId(), estimation);
+                } else {
+                    throw new Exception("Agent limit exceeded");
+                }
             }
         }
         order.setModificationDate(new Date());
@@ -179,6 +201,11 @@ public class OrderService {
         return security;
     }
 
+    public List<OrderDto> getOrdersBySecurity(long securityId,SecurityType securityType){
+        List<Order> orders = orderRepository.findAllBySecurityIdAndSecurityType(securityId,securityType);
+        return orderMapper.ordersToOrderDtos(orders);
+    }
+
     protected TransactionDto createTransaction(String jwt,Order order,String text, int payment,int payout,int reserve, int usedReserve) throws Exception {
         String urlString = transactionApiUrl + "/api/transaction";
 
@@ -230,8 +257,6 @@ public class OrderService {
         orderRepository.save(order);
         taskScheduler.schedule(new ExecuteOrderTask(order, order.getStopPrice() == null,jws), new Date(FormulaCalculator.waitTime(security.getVolume(), order.getAmount())));
     }
-
-
 
 
     public class ExecuteOrderTask implements Runnable {
