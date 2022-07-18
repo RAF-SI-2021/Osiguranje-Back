@@ -1,6 +1,7 @@
 package buyingmarket.controllers;
 
 import buyingmarket.model.OrderState;
+import buyingmarket.model.SecurityType;
 import buyingmarket.model.dto.OrderCreateDto;
 import buyingmarket.model.dto.OrderDto;
 import buyingmarket.services.OrderService;
@@ -67,6 +68,16 @@ public class OrderRestController {
         }
     }
 
+
+    @GetMapping("/security")
+    public ResponseEntity<?> findAllBySecurity(@RequestParam("id") long securityId,@RequestParam("type") String securityType, @RequestHeader("Authorization") String authorization) {
+        try {
+            List<OrderDto> orders = orderService.getOrdersBySecurity(securityId, SecurityType.valueOf(securityType));
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        }catch (Exception e){
+            return  ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
 
     @GetMapping
     public ResponseEntity<OrderDto> findOrder(@NotNull @RequestParam Long id, @RequestHeader("Authorization") String authorization) {
