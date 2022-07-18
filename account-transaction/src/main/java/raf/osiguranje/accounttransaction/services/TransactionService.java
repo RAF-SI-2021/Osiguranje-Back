@@ -12,6 +12,7 @@ import raf.osiguranje.accounttransaction.model.Transaction;
 import raf.osiguranje.accounttransaction.model.dto.*;
 import raf.osiguranje.accounttransaction.repositories.TransactionRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -203,6 +204,15 @@ public class TransactionService {
 
     public List<Transaction> getTransactionsByOrderId(Long input){
         return transactionRepository.findAllByOrderId(input);
+    }
+
+    public List<Transaction> getTransactionsByOrderList(List<Long> inputList){
+        List<Transaction> toReturn = new ArrayList<>();
+        for(long input:inputList){
+            toReturn.addAll(transactionRepository.findAllByOrderId(input));
+        }
+
+        return toReturn;
     }
 
     public List<Transaction> getTransactionsByUser(Long input){
