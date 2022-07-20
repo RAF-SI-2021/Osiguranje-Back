@@ -1,5 +1,9 @@
 package buyingmarket.model;
 
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -7,6 +11,9 @@ import java.util.HashSet;
 
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @Entity
+@ToString
+@Getter
+@Setter
 public class Actuary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,79 +50,5 @@ public class Actuary {
         this.active = true;
         this.actuaryType = actuaryType;
         this.orders = new HashSet<>();
-    }
-
-
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public Boolean getActive() {
-        return active;
-    }
-
-    public void setActive(Boolean active) {
-        this.active = active;
-    }
-
-    public Collection<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(Collection<Order> orders) {
-        this.orders = orders;
-    }
-
-    public BigDecimal getSpendingLimit() {
-        return spendingLimit;
-    }
-
-    public void setSpendingLimit(BigDecimal spendingLimit) {
-        this.spendingLimit = spendingLimit;
-    }
-
-    public BigDecimal getUsedLimit() {
-        return usedLimit;
-    }
-
-    public void setUsedLimit(BigDecimal usedLimit) {
-        this.usedLimit = usedLimit;
-    }
-
-    public Boolean getApprovalRequired() {
-        return approvalRequired;
-    }
-
-    public void setApprovalRequired(Boolean approvalRequired) {
-        this.approvalRequired = approvalRequired;
-    }
-
-    public ActuaryType getActuaryType() {
-        return actuaryType;
-    }
-
-    public void setActuaryType(ActuaryType actuaryType) {
-        this.actuaryType = actuaryType;
-    }
-
-    public Integer getVersion() {
-        return version;
-    }
-
-    public void setVersion(Integer version) {
-        this.version = version;
     }
 }
