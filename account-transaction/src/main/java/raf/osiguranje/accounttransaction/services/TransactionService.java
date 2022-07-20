@@ -62,7 +62,7 @@ public class TransactionService {
         Optional<Balance> balanceCurrencyOptional = balanceService.getBalancesByFullId(transactionOtcDto.getAccountId(),transactionOtcDto.getCurrencyId(),SecurityType.CURRENCY);
         Optional<Balance> balanceSecurityOptional = balanceService.getBalancesByFullId(transactionOtcDto.getAccountId(),transactionOtcDto.getSecurityId(),transactionOtcDto.getSecurityType());
         if(balanceCurrencyOptional.isEmpty())
-            throw new Exception("Couldn't find currency balaces" + transactionOtcDto.getCurrencyId());
+            throw new Exception("Couldn't find currency balaces");
 
         Balance balanceCurrency = balanceCurrencyOptional.get();
         Balance balanceSecurity = balanceSecurityOptional.orElse(balanceService.createBalance(transaction.getAccountId(),transactionOtcDto.getSecurityId(),transactionOtcDto.getSecurityType(),0,jwt));
