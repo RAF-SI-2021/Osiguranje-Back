@@ -58,14 +58,6 @@ public class OrderService {
 
             SecurityDto security = getSecurityFromOrder(order);
 
-            if(order.getActionType().equals(ActionType.BUY)) {
-                try {
-                    actuaryService.changeLimit(order.getActuary().getId(), FormulaCalculator.getEstimatedValue(order, security));
-                } catch (Exception e) {
-                    throw new UpdateNotAllowedException("Agent limit exceeded");
-                }
-            }
-
 
 
             order.setApprovingActuary((Supervisor) actuaryService.getActuary(jws));
@@ -74,16 +66,19 @@ public class OrderService {
                 execute(order,jws);
             } else {
                 TransactionDto cancelTransactionDto;
+                BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
+
                 try {
                     if(order.getActionType().equals(ActionType.BUY)) {
-                        cancelTransactionDto = createTransaction(jws, order, "Canceling init transaction for order(buy)", 0, 0, -FormulaCalculator.getEstimatedValue(order, security).intValue(), 0);
+                        cancelTransactionDto = createTransaction(jws, order, "Canceling init transaction for order(buy)", 0, 0, estimation.negate().intValue(), 0);
+                        actuaryService.changeLimit(order.getActuary().getId(), estimation.negate());
+
                     }else {
                         cancelTransactionDto = createTransaction(jws, order, "Canceling init transaction for order(sell)", 0, 0, -order.getAmount(), 0);
                     }
                     order.getTransactions().add(cancelTransactionDto.getId());
                     order = orderRepository.save(order);
                 }catch (Exception e){
-//                    orderRepository.delete(order);
                     throw e;
                 }
             }
@@ -98,18 +93,23 @@ public class OrderService {
             orderCreateDto.setActionType(ActionType.BUY);
         Order order = orderMapper.orderCreateDtoToOrder(orderCreateDto);
         order.setActuary(actuary);
+        System.out.println(actuary.toString());
         SecurityDto security = getSecurityFromOrder(order);
         if (actuary instanceof Agent) {
             Agent agent = (Agent) actuary;
             BigDecimal estimation = FormulaCalculator.getEstimatedValue(order, security);
-            if (agent.getApprovalRequired()) {
-                order.setOrderState(OrderState.WAITING);
-            } else if(order.getActionType().equals(ActionType.BUY)){
+
+            if(order.getActionType().equals(ActionType.BUY)){
                 if (agent.getSpendingLimit().compareTo(agent.getUsedLimit().add(estimation)) >= 0) {
                     actuaryService.changeLimit(agent.getId(), estimation);
                 } else {
                     throw new Exception("Agent limit exceeded");
                 }
+            }
+
+            if (agent.getApprovalRequired()) {
+                order.setOrderState(OrderState.WAITING);
+                System.out.println("WAINTING ORDER: " + agent);
             }
         }
         order.setModificationDate(new Date());
