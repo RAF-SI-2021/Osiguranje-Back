@@ -81,18 +81,20 @@ public class ContractController {
             int usedReserve;
             int payment;
             int payout;
+            int reserve=0;
             if(transactionItem.getTransactionType().equals(TransactionType.BUY)){
                 usedReserve = (int) (transactionItem.getAmount() * transactionItem.getPricePerShare());
-                payment = usedReserve;
+                reserve = usedReserve;
+                payment = 0;
                 payout = transactionItem.getAmount();
             }
             else {
                 usedReserve = transactionItem.getAmount();
-                payment = usedReserve;
+                payment = 0;
                 payout = (int) (transactionItem.getAmount() * transactionItem.getPricePerShare());
             }
 
-            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), payment, payout, 0, usedReserve);
+            TransactionOtcDto transactionOtcDto = new TransactionOtcDto(transactionItem.getTransactionType(), transactionItem.getAccountId(), transactionItem.getSecurityId(), transactionItem.getSecurityType(), 0L, transactionItem.getCurrencyId(), payment, payout, reserve, usedReserve);
 
             RestTemplate rest = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
