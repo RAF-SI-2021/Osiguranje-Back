@@ -44,6 +44,7 @@ public class TransactionController {
                     transaction.getUserId(),transaction.getCurrencyId(),transaction.getText(),transaction.getPayment(),transaction.getPayout(),transaction.getReserve(),transaction.getUsedReserve(),transaction.getTransactionType());
             return ResponseEntity.accepted().body(transactionOtcDto);
         }catch (Exception e){
+            System.err.println(e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
